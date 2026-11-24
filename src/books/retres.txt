@@ -1,0 +1,17 @@
+title: Re: your book
+kind: letter
+style: print
+pages: below
+id: retres
+====
+== t
+Dear J. Silas,
+== t
+This history of yours is invaluable, especially in light of the challenges we now collectively face.
+== t
+We look forward to seeing our own contributions to the final edition, and I would like to emphasise again how warmly we welcome this collaboration between our often at-odds administrations.
+== t
+While we unfortunately lack a press for our own facsimile, we trust that our guide will accompany you (and this sole existing copy) safely back to High Bassia, where it can be duplicated and preserved.
+== s
+L. Retres
+Torresian High Office

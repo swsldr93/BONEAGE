@@ -1,0 +1,36 @@
+# the plains: values the shared engine code takes for this level.
+# Each is written into the code where engine.html says @@S:name@@, exactly as given here
+# (so text in quotes keeps its quotes). A value wrapped in ⟦ ⟧ has spaces at its ends.
+
+# name in the page title
+titleName = Plains
+# name shown on the pause screen and the Enter button
+shownName = plains
+# how many times the ground texture repeats across the ground (x,z)
+groundTextureRepeat = 42.5,42.5
+# base colour of the rock texture (hex, no #)
+rockColour = aaa396
+# the far ground plane beyond the play area: its depth
+farGroundDepth = 3540
+# ... its number of rows of triangles
+farGroundRows = 152
+# ... how far out it is moved
+farGroundOffset = 1770
+# height of the distant scenery ring (VH = the cliffs work it out from the land)
+vistaHeight = 300
+# the level's internal name (do not change)
+key = plains
+# the predator that belongs here: lion (marsupial lion), thy (thylacine), mega (megalania)
+nativePredator = lion
+# prey hopping: hops per second at rest
+preyHopRate = 2.4
+# ... extra hop rate per unit of speed
+preyHopRatePerSpeed = 0.28
+# ... hop height when wounded
+preyHopHeightWounded = 0.12
+# ... highest hop
+preyHopHeightMax = 0.75
+# ... hop height at rest
+preyHopHeight = 0.18
+# ... extra hop height per unit of speed
+preyHopHeightPerSpeed = 0.045

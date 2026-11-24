@@ -1,0 +1,34 @@
+title: Maps
+kind: map
+style: hand
+pages: below
+id: maps
+====
+== mnote
+Les, beautiful bush up there, but remote. I think they used to call this area “Gulu-Mada”. The path you need to take up to the border is pretty well established — a whole network of ancient trails built from way back before the First Collapse. Hopefully you can see how they all connect up in these maps. Still not sure why you have to go, but Fascian has his reasons. Be careful out there, we’re counting on you.
+-- sg
+— 2/O Kel Rus
+== pb
+== mfront
+@file maps-1.jpg
+== pb
+== mp
+plains
+-- ttl
+Lower Plains Track
+-- t
+you know all about roo. get too close and they’ll bolt. sneak in the grass, and if they stick their heads up, you’re too close. get up on the rocks to see where the mobs are then track from there. not worth messing w the diprotodons.
+== pb
+== mp
+gully
+-- ttl
+Mountain Gully Track
+-- t
+lots of game in here but its dark and rains a lot — carry a fire especially if you have to go out at night. don’t lose your spear hunting in the middle of the night.
+== pb
+== mp
+escarpment
+-- ttl
+High Heathland Path
+-- t
+red-necked wallabies graze the clearings round the track. they’ll scatter if you get close but they come back. keep away from the gully edge — it’s a long way down. watch out for the big lizards here — stay near the slot holes in the walls so you can get out of trouble.

@@ -1,0 +1,19 @@
+title: Sacred Territory of North Bassia
+kind: scroll
+style: print
+pages: below
+id: bmap
+====
+== img
+@file bmap-1.jpg
+-- iw
+@json 576
+-- ih
+@json 834
+== pb
+== t
+I think I can come out west from this area, then go over the tablelands south of here to get back to High Bassia. But that means entering near enough to Eromanga…
+-- hand
+== s
+— J. Silas
+-- hand

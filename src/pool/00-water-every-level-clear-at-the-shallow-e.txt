@@ -1,0 +1,58 @@
+/* water, every level: clear at the shallow edges and tea-brown where it deepens, ripples carried by the current (two sizes, two speeds),
+   mirror-like at a low angle and see-through looking down, a moving net of light on the bed, sun glints, foam along the banks of running
+   water and in the plunge pools, calm slow ripples on still water, rain rings when it rains */
+(function(){
+  const U={uT:{value:0},uDay:{value:1},uRain:{value:0},uSky:{value:null}};
+  let on=false; const tick=()=>{ U.uT.value=performance.now()/1000%3600;
+    try{ U.uDay.value=Math.max(0,Math.min(1,window.__dayK??1)); }catch(e){}
+    try{ U.uRain.value=(typeof weather!=='undefined'&&weather&&weather.raining)?Math.min(1,weather.k||0):0; }catch(e){ U.uRain.value=0; }
+    try{ if(U.uSky.value&&typeof scene!=='undefined'&&scene&&scene.fog){ U.uSky.value.copy(scene.fog.color).lerp(window.__WSKY||new THREE.Color(0.72,0.8,0.86),0.35*U.uDay.value); } }catch(e){} };
+  const loop=()=>{ tick(); requestAnimationFrame(loop); };
+  const GL=`
+  float wH(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+  float wN(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(wH(i),wH(i+vec2(1.,0.)),f.x),mix(wH(i+vec2(0.,1.)),wH(i+vec2(1.,1.)),f.x),f.y); }
+  float wCa(vec2 p, float t){ vec2 i=p; float c=0.0; for(int n=0;n<3;n++){ float tt=t*(1.0-0.25*float(n)); i=p+vec2(cos(tt-i.x)+sin(tt+i.y),sin(tt-i.y)+cos(tt+i.x)); c+=1.0/length(vec2(p.x/(sin(i.x+tt)/0.006),p.y/(cos(i.y+tt)/0.006))); } c=1.17-pow(c/3.0,1.4); return pow(abs(c),7.0); }`;
+  window.__WATER=function(m,o){ o=o||{}; if(!U.uSky.value) U.uSky.value=new THREE.Color(0.6,0.68,0.75); if(!on){ on=true; requestAnimationFrame(loop); setInterval(tick,250); }
+    const sp=o.speed||0, still=o.still?1:0;
+    m.transparent=true; m.depthWrite=false; m.userData.water=1;
+    m.onBeforeCompile=sh=>{ Object.assign(sh.uniforms,{uT:U.uT,uDay:U.uDay,uRain:U.uRain,uSky:U.uSky,uSp:{value:Math.abs(sp)},uStill:{value:still},uRound:{value:o.round?1:0},uTea:{value:o.tea??1},uPlunge:{value:o.plunge?1:0},uOp:{value:m.opacity}});
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWWP; varying vec2 vWUv; uniform float uRound;\n#ifdef W_EDGE\nattribute float aEdge;\n#endif')
+        .replace('#include <project_vertex>',`#include <project_vertex>
+  vWWP=(modelMatrix*vec4(transformed,1.0)).xyz;
+  #if defined(W_EDGE)
+    vWUv=vec2(aEdge,-1.0);
+  #elif defined(USE_UV)
+    vWUv=uv;
+  #else
+    vWUv=vec2(1.0,-1.0);
+  #endif`);
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWWP; varying vec2 vWUv; uniform float uT,uDay,uRain,uSp,uStill,uRound,uTea,uPlunge,uOp; uniform vec3 uSky;'+GL)
+        .replace('#include <fog_fragment>',`{ vec3 V=normalize(cameraPosition-vWWP); vec2 p=vWWP.xz; float t=uT, dep=vWUv.y<-0.5?clamp(vWUv.x,0.0,1.0):(uRound>0.5?clamp((1.0-length(vWUv-0.5)*2.0)*2.2,0.0,1.0):clamp(4.0*vWUv.x*(1.0-vWUv.x),0.0,1.0)), lit=0.18+0.82*uDay;
+    vec2 q1, q2;
+    #ifdef USE_UV
+      if(uStill>0.5){ q1=p*1.6+vec2(t*0.05,t*0.03); q2=p*4.2-vec2(t*0.04,-t*0.07); } else { q1=vec2(vUv.x*8.0,vUv.y*3.5); q2=vec2(vUv.x*19.0,vUv.y*8.0-t*0.6*uSp); }
+    #else
+      q1=p*1.6+vec2(t*0.05,t*0.03); q2=p*4.2-vec2(t*0.04,-t*0.07);
+    #endif
+    float e=0.06, h0=wN(q1)+0.55*wN(q2), hx=wN(q1+vec2(e,0.0))+0.55*wN(q2+vec2(e,0.0)), hz=wN(q1+vec2(0.0,e))+0.55*wN(q2+vec2(0.0,e)), amp=(uStill>0.5?0.025:0.06);
+    vec3 N=normalize(vec3(-(hx-h0)/e*amp,1.0,-(hz-h0)/e*amp));
+    if(uRain>0.02){ vec2 g=p*1.4, c=floor(g), f=fract(g)-0.5; float ph=wH(c), tt=fract(t*0.8+ph); vec2 o2=vec2(wH(c+3.1),wH(c+7.7))-0.5; vec2 dv=f-o2*0.5; float d=length(dv), ring=smoothstep(0.06,0.0,abs(d-tt*0.42))*(1.0-tt); N=normalize(N+vec3(dv.x,0.0,dv.y)*ring*uRain*(uStill>0.5?5.0:2.0)); }
+    float F=0.02+0.55*pow(1.0-clamp(dot(V,N),0.0,1.0),5.0);
+    vec3 body=mix(vec3(0.42,0.5,0.44),vec3(0.2,0.13,0.06),smoothstep(0.25,1.0,dep)*uTea)*lit;
+    float ca=clamp(wCa(p*2.6+vec2(t*0.25*uSp,0.0),t*0.55),0.0,1.0); body+=vec3(1.0,0.95,0.82)*ca*0.32*uDay*(1.0-F)*(0.5+0.5*dep);
+    vec3 Ls=normalize(vec3(0.35,0.8,0.25)); float gl=pow(clamp(dot(reflect(-Ls,N),V),0.0,1.0),400.0)*uDay*1.1;
+    vec3 col=mix(body,uSky*0.85,F)+vec3(1.0,0.97,0.88)*gl;
+    float fo=0.0;
+    if(uStill<0.5){ float fn=wN(q2*1.6+vec2(0.0,-t*0.5*uSp)); fo=smoothstep(0.34,0.0,dep)*smoothstep(0.35,0.8,fn)*clamp(uSp,0.0,1.4)*0.9; fo+=smoothstep(0.72,0.95,fn)*clamp(uSp-0.95,0.0,1.0)*0.8; }
+    if(uPlunge>0.5){ float fn=wN(p*2.4+vec2(t*0.7,-t*0.5)); fo+=smoothstep(0.45,0.95,dep)*smoothstep(0.3,0.75,fn)*0.9; }
+    fo=clamp(fo,0.0,0.85); col=mix(col,vec3(0.93,0.95,0.94)*lit,fo);
+    float a=mix(mix(0.22,0.72,smoothstep(0.1,1.0,dep)*uTea),0.9,F); a=max(a,fo*0.95); a*=smoothstep(0.0,0.16,dep);
+    gl_FragColor=vec4(col,a*uOp); }
+  #include <fog_fragment>`); };
+    m.customProgramCacheKey=()=>'water'+(m.defines&&m.defines.W_EDGE?'e':'');
+    return m; };
+  /* a still-water mesh with a real depth for each corner: d(x,z,y) in metres, full colour at 'full' metres */
+  window.__WEDGE=function(mesh,d,full){ try{ const g=mesh.geometry, p=g.attributes.position, a=new Float32Array(p.count), M=mesh.matrixWorld, v=new THREE.Vector3(); mesh.updateMatrixWorld(true);
+      for(let i=0;i<p.count;i++){ v.set(p.getX(i),p.getY(i),p.getZ(i)).applyMatrix4(M); a[i]=Math.max(0,Math.min(1,d(v.x,v.z,v.y)/(full||1.5))); }
+      g.setAttribute('aEdge',new THREE.BufferAttribute(a,1)); mesh.material.defines=Object.assign(mesh.material.defines||{},{W_EDGE:1}); mesh.material.needsUpdate=true; }catch(e){ console.warn('wedge',e); } };
+})();

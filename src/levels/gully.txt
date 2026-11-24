@@ -1,0 +1,36 @@
+# the gully: values the shared engine code takes for this level.
+# Each is written into the code where engine.html says @@S:name@@, exactly as given here
+# (so text in quotes keeps its quotes). A value wrapped in ⟦ ⟧ has spaces at its ends.
+
+# name in the page title
+titleName = Gully
+# name shown on the pause screen and the Enter button
+shownName = gully
+# how many times the ground texture repeats across the ground (x,z)
+groundTextureRepeat = 48,48
+# base colour of the rock texture (hex, no #)
+rockColour = 8f8b82
+# the far ground plane beyond the play area: its depth
+farGroundDepth = 3540
+# ... its number of rows of triangles
+farGroundRows = 152
+# ... how far out it is moved
+farGroundOffset = 1770
+# height of the distant scenery ring (VH = the cliffs work it out from the land)
+vistaHeight = 300
+# the level's internal name (do not change)
+key = gully
+# the predator that belongs here: lion (marsupial lion), thy (thylacine), mega (megalania)
+nativePredator = thy
+# prey hopping: hops per second at rest
+preyHopRate = 4
+# ... extra hop rate per unit of speed
+preyHopRatePerSpeed = 1.1
+# ... hop height when wounded
+preyHopHeightWounded = 0.1
+# ... highest hop
+preyHopHeightMax = 0.45
+# ... hop height at rest
+preyHopHeight = 0.12
+# ... extra hop height per unit of speed
+preyHopHeightPerSpeed = 0.05

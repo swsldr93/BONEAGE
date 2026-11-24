@@ -1,0 +1,289 @@
+title: Mountain Fauna Field Guide
+kind: book
+style: print
+cover: @json 10456413
+coverTitle: Mountain Fauna Field Guide
+coverImg: @file fauna-1.webp
+pages: below
+id: fauna
+====
+== h
+Introduction
+== t
+The mountains of the east coast are home to a number of dangerous predators, as well as smaller animals that can be hunted.
+== t
+This field guide will equip you with the practical knowledge necessary to understand, avoid, and when necessary engage these predators so that you can be successful in your objectives while operating in this region.
+== t
+It will also show the best methods for hunting the various game you’ll encounter while in the field.
+== t
+Remember: the best defence is avoidance. Climb to a high point, into a hiding place where you can’t be surrounded, use fire to ward them off, or get inside a camp. Never turn your back on a predator.
+== t
+This guide is for the times these options are not available.
+== pb
+== pbl
+== fplate
+thy
+== pb
+== h3
+Thylacines
+== lat
+Thylacinus cynocephalus
+== t
+Behaviour & Distribution: Distributed across mainland forests and scrublands.
+== t
+They are carnivorous marsupials that hunt in small packs. They are common in dense scrub where they usually stick to a defined patrol route seeking out small prey.
+== t
+In an engagement you will likely be surrounded, each taking a turn to attack from a different direction. They can be held at bay with the spear and kicks, but this will usually only buy you time.
+== t
+Target one individual and focus on killing it as quickly as possible. Throwing the spear and following up with the knife is usually the best method.
+== t
+Individual thylacines are weak, and the pack will usually disperse after witnessing the death of one of their group. Then it’s up to you to hunt down the others or move on.
+== pb
+== pbl
+== fplate
+lion
+== pb
+== h3
+Thylacoleo
+== lat
+Thylacoleo carnifex
+== t
+Behaviour & Distribution: Widespread across open woodlands and grasslands.
+== t
+The marsupial lion possesses retractable claws, semi-opposable thumbs, and massive shearing premolars with a significant bite force.
+== t
+Thylacoleo is very fast and attacks by leaping at you from a distance. It will usually dodge any of your kicks or spear thrusts unless you can catch it off guard by dodging first. Dodge sideways as it lunges towards you. If you can follow up your dodge with a kick, this will allow you to stagger the animal long enough for clear strikes. This is especially effective with the knife.
+== pb
+== pbl
+== fplate
+liz
+== pb
+== h3
+Megalania
+== lat
+Varanus priscus
+== t
+Behaviour & Distribution: Distributed across open forests, woodlands, and plains.
+== t
+Reaching up to seven metres in length, Megalania are very strong and surprisingly fast in pursuit. Don’t attempt to run; back away instead and use your spear to keep distance until you can reach shelter.
+== t
+Killing a megalania is difficult and risky, but possible. Incapacitate it temporarily by throwing your spear. When it reveals its flank, rush in with your knife and deliver as many strikes as possible. Then you must attempt to dodge it as it lunges at you. Kick it in the head as you side step its attack, and it will become temporarily disoriented again. Finish it with your knife to its side.
+== pb
+== pbl
+== fplate
+dip
+== pb
+== h3
+Diprotodon
+== lat
+Diprotodon optatum
+== t
+Behaviour & Distribution: Widespread across the mainland, favouring semi-arid plains, savannas, and open woodlands near water.
+== t
+This muscular tank is a quadrupedal marsupial herbivore that browses on saltbush and shrubs. They are highly social animals that migrate across the plains in large herds.
+== t
+They are also very tough individually. They may seem like an easy food source while in the field, but the risk of retaliation from other herd members is significant. In hunting, it is best to throw your spear, and hope that an individual peels off so that it can be finished away from the herd. Otherwise, they will generally pose no threat if left alone at a distance.
+== pb
+== pbl
+== fplate
+roo
+== pb
+== h3
+Eastern Kangaroo
+== lat
+Procoptodon sp.
+== t
+Behaviour & Distribution: Found primarily in semi-arid inland and eastern regions.
+== t
+Standing over two metres tall, this short-faced kangaroo is a heavily built browser. These animals move in small mobs and can detect predators from a considerable distance. When attempting to hunt you must pay attention to them raising their head above the grass, which signals suspicion of an approaching threat and typically precipitates a retreat, sometimes over a considerable distance.
+== pb
+== pbl
+== fplate
+rock
+== pb
+== h3
+Red-necked Wallaby
+== lat
+Notamacropus rufogriseus
+== t
+Behaviour & Distribution: Common through the forests, woodland edges and heathy tablelands of the east, from the coast up onto the high country.
+== t
+A grey-brown wallaby with a rufous wash across the neck and shoulders, a pale stripe on the upper lip, and dark paws and feet. Mostly solitary, but they gather to graze in open clearings in the late afternoon and early morning, sheltering in scrub through the heat of the day.
+== t
+Red-necked wallabies scatter when disturbed but soon drift back to the clearing they were grazing in. Wait at the edge for them to settle rather than chasing them across open ground.
+== pb
+== pbl
+== fplate
+swamp
+== pb
+== h3
+Swamp Wallaby
+== lat
+Wallabia bicolor
+== t
+Behaviour & Distribution: Distributed across eastern coastal and inland regions, favouring the dense underbrush of forests, woodlands, and swampy areas.
+== t
+Solitary and primarily nocturnal or crepuscular, they are browsers rather than grazers, feeding heavily on shrubs, bushes, and ferns, including bracken. They move with a distinctive heavy-set hopping gait, keeping their heads low and dark tails extended straight back.
+== t
+Swamp wallabies are straightforward to hunt, but can often be difficult to see in the dark habitats they prefer.
+== pb
+== h
+Ground Birds
+== t
+All straightforward to hunt, but some difficult to find.
+== pb
+== pbl
+== fplate
+gb_lyre
+== pb
+== h3
+Lyrebird
+== lat
+Menura novaehollandiae
+== t
+Behaviour & Distribution: A large, ground-dwelling bird native to the wet forests of the southeast. It has brown and grey plumage, and males possess an elaborate, lyre-shaped tail used in courtship displays. It is a ground forager that scratches through leaf litter for insects and is renowned for its extraordinary ability to mimic natural and artificial sounds.
+== pb
+== pbl
+== fplate
+gb_turkey
+== pb
+== h3
+Brush Turkey
+== lat
+Alectura lathami
+== t
+Behaviour & Distribution: A large, ground-dwelling megapode found in eastern forests and scrublands. It has mostly black plumage, a bare red head, and a yellow neck wattle. It is notable for building massive mounds out of soil and decomposing leaf litter to incubate its eggs, relying on the heat generated by the rotting vegetation.
+== pb
+== pbl
+== fplate
+gb_emu
+== pb
+== h3
+Emu
+== lat
+Dromaius novaehollandiae
+== t
+Behaviour & Distribution: A massive, flightless bird endemic to the continent. It has long, powerful legs, a long neck, and shaggy, grey-brown plumage. It is highly nomadic, travelling long distances across varied habitats to feed on plants and insects, and is capable of sprinting at high speeds when threatened.
+== pb
+== h
+Fauna Checklist
+== chk
+Thylacine
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Thylacine
+== chk
+Thylacoleo
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Thylacoleo
+== chk
+Megalania
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Megalania
+== chk
+Diprotodon
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Diprotodon
+== chk
+Eastern Kangaroo
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Eastern Kangaroo
+== chk
+Red-necked Wallaby
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Red-necked Wallaby
+== chk
+Swamp Wallaby
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Swamp Wallaby
+== chk
+Lyrebird
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Lyrebird
+== chk
+Brush Turkey
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Brush Turkey
+== chk
+Emu
+-- a
+Seen
+-- b
+Killed
+-- ma
+@json 0
+-- mb
+@json 0
+-- sp
+Emu

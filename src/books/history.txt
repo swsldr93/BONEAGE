@@ -1,0 +1,110 @@
+title: The Two Collapses
+kind: book
+style: print
+cover: @json 4675414
+coverTitle: The Two Collapses
+coverSub: J. N. Silas
+coverImg: @file history-1.webp
+pages: below
+id: history
+====
+== t
+My guide is dead.
+-- hand
+== t
+I fear I will not make it home on my own direction.
+-- hand
+== t
+As much as it pains me I must leave this here.
+-- hand
+== t
+I’ll proceed down to the plains, where hopefully I can rejoin the Great Divide further south, past the tablelands, and into more familiar country, and return at last to my long-mourned High Bassia
+-- hand
+== s
+— J. Silas
+-- hand
+== pb
+== h
+The Ancient Times
+== t
+In the far ancient times, there were the first people.
+== t
+They lived in deep connection with the land for tens of thousands of years, with hundreds of languages and nations.
+== t
+Around the year 1800, this traditional way of life changed. A large number of outsiders arrived, and they set in motion an age that would last some three hundred years.
+== t
+Now mostly lost to us, these outsiders had access to an advanced technology which they used to execute projects of wide scope and imagination, transforming the continent to this day.
+== pb
+== h
+Creation of the Inland Sea
+== t
+It is difficult for us to imagine the interior of Sahul as arid, but for millions of years, and until very recently, this was the case.
+== t
+With a population of many millions, the outsider people required more arable agricultural land, so they devised a scheme to flood the interior.
+== t
+We have found the massive dams in the northern Torresian tropical mountains; and we believe this is how they built it. The monsoonal rains were diverted, and a great flood was sent down to what were dry salt plains in the interior.
+== t
+For the first time in millions of years, the endless brown plains began to green into life.
+== pb
+== h
+Bringing Forth of the Animals
+== t
+The Eromanga Sea combined with the central ranges of the interior created a rain shadow that nourished a vast grassland steppe.
+== t
+Many have seen the endless kangaroo mobs gathered beneath the orange noon, or herds of diprotodon stretching far into flat horizons.
+== t
+The problem now was that many native species were no longer. They were either in deep ancient times, or through the damages from the vast population and extraction from the land.
+== t
+So these people used their technology to bring back the creatures that had once been banished to extinction.
+== t
+They placed these animals in their fashioned landscape, and the animals held it together, working like slaves upon a vast estate: diprotodon to richen the soil, giant kangaroos that moved softly over great distances.
+== t
+With the fecundity of the new land and animals, predators were then needed. So the people again reached backward into ancient time, and pulled forward to them beasts now held in fear and reverence: the megalania, the thylacines, and thylacoleo.
+== t
+Truthfully, we do not have any idea how they did these things, and scant explanations from scarcer texts only confound us.
+== t
+But it was precisely this sophistication that would be their downfall.
+== pb
+== h
+The First Collapse
+== t
+2100 was the year the world outside Sahul went quiet.
+== t
+Their intricate technological culture required a litany of obscure inputs to keep it running.
+== t
+When the materials needed to be fed into their machine were cut off, the machine went hungry.
+== t
+Unable to sustain the requirements for their society on their own, the machine died, and the great cities began to crumble.
+== t
+Bleary-eyed and confused, millions stumbled from the cities into the harsh light of the open country.
+== t
+From here, a period of unrest lasted from 2100: widespread warfare, starvation, exposure, violence, and massive internal migrations.
+== t
+This pattern eventually settled around 2700 into the broad outlines of the three nations of Sahul:
+== t
+The Torresian Confederacy in the north-east, the Bassian Hierocrate in the south-east, and the Eromanga of the inland sea and endless plains to the west.
+== pb
+== h
+The Second Collapse
+== t
+The century of peace from 2900–3000 was thought to be something that might last forever, where the paradise of Sahul could finally join together and enter a new age of calm.
+== t
+But in the last decades of that century, the Eromanga Sea began to recede.
+== t
+It was noted slowly at first. Shepherds spoke of a wide salt plain forming in the far western shallows. Reports were heard in Torresia of Eromangan vessels run aground where previously the water had been deep.
+== t
+By the 3020s this recession was well understood, and panic began. Thousands of Eromangans migrated west to the desert, their numbers never to recover. The Torresians experienced their first droughts in centuries, and one hundred thousand were lost to famine. The Bassians remained in their high mountain hides, turning ever inward and scornful of the outside world.
+== t
+By 3050 this recession appeared to have slowed, but now the wide dry plains ringed hundreds of kilometres around the western and northern shores.
+== t
+Today the Torresian Confederacy lies tattered, five of their seven states dissolved in all but name, their begging farmers desperate in rags, numbers thinning each year.
+== t
+The Bassians cling to the old ways, but they too have lost contact with their Hierocrate in its Tasmanian seat, with few men strong enough to man the messenger boats, and fewer to carry on the torch of the Custodes.
+== t
+The Eromangan Navy still exists, but its ports are stacked with the dying, and the strength of their vassals have thinned, or fled, or both.
+== t
+In the end, the great inland sea was only more hubris from the ancients.
+== t
+In the end the century of peace did bring about a new age.
+== t
+A new age has dawned…

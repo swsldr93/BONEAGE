@@ -1,0 +1,13 @@
+{
+  "name": "bone-age",
+  "version": "1.0.0",
+  "description": "Bone Age",
+  "main": "app/main.js",
+  "author": "Matthew Treacey",
+  "license": "ISC",
+  "dependencies": {
+    "steamworks.js": "^0.4.0"
+  },
+  "productName": "Bone Age",
+  "private": true
+}

@@ -1,0 +1,17 @@
+title: Map
+kind: map
+style: hand
+id: smG
+pages: below
+====
+== smap
+@file smG-1.jpg
+-- t
+Three years since we've heard from the North Custodes. Tasmania silent for twice as long.
+It's up to you now.
+There are twelve camps along the old path up the Northern Range.
+Light their fires.
+Show the Torresian watch they cannot claim them.
+Restore Bassian presence where has been ordained.
+-- sg
+—CRE H.L

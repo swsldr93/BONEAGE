@@ -1,0 +1,301 @@
+title: Birds of the North Bassian Range
+kind: book
+style: print
+cover: @json 6789841
+coverTitle: Birds of the North Bassian Range
+coverSub: C. Eloura
+coverImg: @file birds-1.webp
+pages: below
+id: birds
+====
+== t
+wish I packed better. the hell was I thinking with these books. tell you nothing about surviving out here.
+-- hand
+== t
+anyway probably a better chance out here than home these days.
+-- hand
+== t
+cant believe ill never see the nrth coast again, run out alone in myall bush.
+-- hand
+== t
+twelve days wasnt enough time…
+-- hand
+== s
+— Benjamin, 3/12/3111
+-- hand
+== pb
+== h
+Introduction
+== t
+Few regions of Sahul offer the same diversity of bird life as the North Bassian Range. Long protected from outsiders by the Bassian Hierocrate, and forming a natural fortress wall to the south of the Torresian border, this is as important politically as it is uniquely beautiful. The birdlife of this region can be divided into three main habitat types:
+== h3
+Heath & Tablelands
+== t
+Dominated by Banksia and other Proteales, in the high altitude heathlands one can regularly see King Parrots, Rainbow Lorikeets and see Yellow-tailed Black Cockatoo flying overhead.
+== h3
+Wet Sclerophyll & Closed Forest
+== t
+The damp gully environments are characterised by a dense tree fern mid-canopy, typically Cyathea or Dicksonia sp., and are a refuge for the striking Crimson Rosella. Currawong can often be seen diving songlessly through the leaves, and the Eastern Whipbird’s loud cracking call here is common and unmistakable.
+== h3
+Dry Sclerophyll & Open Woodland
+== t
+Ancient soils poor in nutrients combined with constant sunshine results in many of our open woodland tree species producing a surfeit of nectar and carbohydrate. The result is a co-evolved avian ecology of loud and aggressive competition for these high energy food sources in an otherwise difficult environment. You will certainly hear and see large flocks of the charismatic Sulphur-crested Cockatoo, small chattering bands of Pink Galah, and the dense screeching mobs of Rainbow Lorikeet.
+== pbl
+== bplate
+@file birds-2.jpg
+== pb
+== h
+An Overview of Bird Species
+== h3
+King Parrot
+== lat
+Alisterus scapularis
+== t
+Found in humid, heavily forested areas along the east coast and mountain ranges. Relatively quiet and slow-moving compared to other native parrots, they feed on fruits, seeds, and blossoms and are unmistakable for their red and green plumage.
+== pbl
+== bplate
+@file birds-3.jpg
+== pb
+== h3
+Yellow-tailed Black Cockatoo
+== lat
+Zanda funerea
+== t
+Found in forest regions across the south-east and eastern seaboard. These large, social birds travel in small flocks and are known for their loud, wailing calls. They use their powerful, heavy beaks to tear open hard woody seed cones, such as Banksia and Hakea, and to strip bark in search of wood-boring grubs.
+== pbl
+== bplate
+@file birds-4.jpg
+== pb
+== h3
+Eastern Whipbird
+== lat
+Psophodes olivaceus
+== t
+Found in wet sclerophyll forests and rainforests along the east coast. They are secretive, ground-dwelling insectivores that rarely leave the dense underbrush, spending their time scratching through wet leaf litter. They are noted for their loud, explosive "whip-crack" call, which is typically a synchronised duet between a male and female.
+== pbl
+== bplate
+@file birds-5.jpg
+== pb
+== h3
+Currawong
+== lat
+Strepera graculina
+== t
+Distributed across eastern forests, woodlands, and urban areas. Recognisable by their distinct, ringing calls, they are highly vocal, opportunistic omnivores. As active predators, they are known to hunt small lizards and insects, and will aggressively raid the nests of smaller birds for eggs and chicks.
+== pbl
+== bplate
+@file birds-6.jpg
+== pb
+== h3
+Crimson Rosella
+== lat
+Platycercus elegans
+== t
+Found across eastern and southeastern regions, favouring taller, wetter forests, woodlands, and alpine environments. They forage both in the trees and on the ground for seeds, fruits, nectar, and insects. They generally travel in pairs or small family groups and have a distinct, bell-like call.
+== pbl
+== bplate
+@file birds-7.jpg
+== pb
+== h3
+Sulphur-crested Cockatoo
+== lat
+Cacatua galerita
+== t
+Widespread across northern and eastern regions, common in open woodland habitats. Highly intelligent and social, they forage primarily on the ground for seeds, roots, and insects. Flocks designate sentinel birds that remain high in the canopy to loudly screech and warn the others of approaching danger.
+== pbl
+== bplate
+@file birds-8.jpg
+== pb
+== h3
+Galah
+== lat
+Eolophus roseicapilla
+== t
+Highly adaptable and found across almost the entirety of the mainland. Gregarious and energetic, they occasionally congregate into massive flocks that perform synchronised aerial manoeuvres. They are predominantly ground-feeders, foraging in open grassy areas for seeds and crops.
+== pbl
+== bplate
+@file birds-9.jpg
+== pb
+== h3
+Rainbow Lorikeet
+== lat
+Trichoglossus moluccanus
+== t
+Found in dense populations along the eastern seaboard and northern coastal areas. These aggressive, highly active nectarivores use a specialised brush-tipped tongue to harvest pollen and nectar from flowering eucalypts. They travel in fast-moving, noisy flocks and congregate in massive communal roosts at dusk.
+== pbl
+== bplate
+@file birds-10.jpg
+== pb
+== h3
+Kookaburra
+== lat
+Dacelo novaeguineae
+== t
+The King of the Bush, found throughout eastern forests, woodlands, and coastal regions. They hunt by perching silently on high branches before pouncing on large insects, reptiles, small mammals, and snakes. They are highly territorial, marking their boundaries at dawn and dusk with a loud, echoing, human-like laughing call that travels vast distances through the trees.
+== pbl
+== bplate
+@file birds-11.jpg
+== pb
+== h3
+Wedge-tailed Eagle
+== lat
+Aquila audax
+== t
+Widespread across the entire continent, soaring over everything from dense forests to arid inland plains. As the largest bird of prey on the mainland, they are distinguished by their massive wingspan and characteristic wedge-shaped tail. They use thermal currents to soar at extreme altitudes for hours while scanning for prey.
+== pb
+== h3
+Lyrebird
+== lat
+Menura novaehollandiae
+== t
+Behaviour & Distribution: A large, ground-dwelling bird native to the wet forests of the southeast. It has brown and grey plumage, and males possess an elaborate, lyre-shaped tail used in courtship displays. It is a ground forager that scratches through leaf litter for insects and is renowned for its extraordinary ability to mimic natural and artificial sounds.
+== pbl
+== bplate
+@file birds-12.jpg
+== pb
+== h3
+Brush Turkey
+== lat
+Alectura lathami
+== t
+Behaviour & Distribution: A large, ground-dwelling megapode found in eastern forests and scrublands. It has mostly black plumage, a bare red head, and a yellow neck wattle. It is notable for building massive mounds out of soil and decomposing leaf litter to incubate its eggs, relying on the heat generated by the rotting vegetation.
+== pbl
+== bplate
+@file birds-13.jpg
+== pb
+== h3
+Emu
+== lat
+Dromaius novaehollandiae
+== t
+Behaviour & Distribution: A massive, flightless bird endemic to the continent. It has long, powerful legs, a long neck, and shaggy, grey-brown plumage. It is highly nomadic, travelling long distances across varied habitats to feed on plants and insects, and is capable of sprinting at high speeds when threatened.
+== pbl
+== bplate
+@file birds-14.jpg
+== pb
+== h
+Checklist
+== chk
+King Parrot
+-- a
+Seen
+-- b
+Heard
+-- ma
+-- mb
+@json 0
+== chk
+Yellow-tailed Black Cockatoo
+-- a
+Seen
+-- b
+Heard
+-- ma
+@json 0
+-- mb
+== chk
+Eastern Whipbird
+-- a
+Seen
+-- b
+Heard
+-- ma
+@json 0
+-- mb
+@json 0
+== chk
+Currawong
+-- a
+Seen
+-- b
+Heard
+-- ma
+@json 0
+-- mb
+@json 0
+== chk
+Crimson Rosella
+-- a
+Seen
+-- b
+Heard
+-- ma
+@json 0
+-- mb
+@json 0
+== chk
+Sulphur-crested Cockatoo
+-- a
+Seen
+-- b
+Heard
+-- ma
+-- mb
+@json 0
+== chk
+Pink Galah
+-- a
+Seen
+-- b
+Heard
+-- ma
+@json 0
+-- mb
+@json 0
+== chk
+Rainbow Lorikeet
+-- a
+Seen
+-- b
+Heard
+-- ma
+-- mb
+@json 0
+== chk
+Kookaburra
+-- a
+Seen
+-- b
+Heard
+-- ma
+-- mb
+@json 0
+== chk
+Wedge-tailed Eagle
+-- a
+Seen
+-- b
+Heard
+-- ma
+-- mb
+@json 0
+== chk
+Lyrebird
+-- a
+Seen
+-- b
+Heard
+-- ma
+@json 0
+-- mb
+@json 0
+== chk
+Brush Turkey
+-- a
+Seen
+-- b
+Heard
+-- ma
+@json 0
+-- mb
+@json 0
+== chk
+Emu
+-- a
+Seen
+-- b
+Heard
+-- ma
+@json 0
+-- mb
+@json 0

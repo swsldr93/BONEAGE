@@ -1,0 +1,115 @@
+# Tutorial pages: each appears the first time its moment comes up, until the player has seen it or turns the tutorial off.
+# [attack] etc = the key or button for that action. {PREY()} = kangaroos/wallabies, {PREY1()} = kangaroo/wallaby,
+# {PRED[predK]} = the line for the predator met (pred.* below). Anything else in {...} is game code: leave it as it is.
+# A blank line = new paragraph.
+
+== light
+This fire is burning. Face it and thrust your spear into the flames with [attack] to light the spear.
+
+A burning spear lights your way, holds predators off, and can carry fire to a cold camp. It burns out after a while, so relight it whenever you pass a fire.
+
+== near
+You are near a small gathering of {PREY()}.
+
+Press [crouch] to sneak, and move slowly towards them.{((pl.spearLit>0&&pl.armed==='spear')?'<br><br>Your burning spear will alert them from much further away. Put it out first with '+b('douse')+'.':'')}
+
+== aim
+You are within striking range.
+
+Hold [aim] to raise your spear and aim. The {PREY1()} should follow the point of your spear tip.
+
+When you are ready to throw, keep holding [aim] and press [throw].
+
+== lost
+Your spear is stuck in the animal, and it is getting away.
+
+The spear will work loose and drop after a few seconds. Follow it and walk over the spear to pick it up.
+
+Until then you have your knife. [swap] switches between spear and knife.
+
+== eat
+Small kills: press [eat] over the kill to take it up. Big kills (kangaroo, diprotodon, marsupial lion, megalania): hold [eat] to cut meat from it, and carry that instead.
+
+Carry the meat to a burning fire to cook it.
+
+Walk over your spear to pick it up again.
+
+== lay
+Press [eat] to lay the meat down by the fire.
+
+Then thrust your spear into it with [attack] to take a piece on the point.
+
+== cook
+Face the fire and thrust your spear into it with [attack]. You hold the meat in the flames while it cooks.
+
+When it is done, hold [eat] to eat. Eating fills the hunger bar along the bottom of the screen and mends wounds.
+
+Take the next piece from the meat by the fire the same way.
+
+== scav
+A predator is eating the kill you left behind.
+
+Drive it off and you can take back what is left. Or leave it to them.
+
+== camp
+A cold fire. Thrust your burning spear into it with [attack] to light it.
+
+Every fire you light in an area makes it safer: by a burning fire you grow hungry more slowly, and predators hang back for a while, but in the end they will come in after you: light your spear to hold them off. With two lit, your wounds heal beside them.
+
+== smoke
+That thin plume of smoke rises from a cold fire.
+
+Follow the smoke to find the other camps, and carry a flame to light them.
+
+== pred
+{PRED[predK]}
+
+If you can, get away: climb up onto rocks or squeeze into a narrow slot in the cliffs. Predators will not follow you there.
+
+A burning fire only holds them back for a while. Light your spear in it and hold the flame out at them: keep them off long enough and they give up and leave.
+
+== stand
+You are holding them off with fire. While your spear burns they will not close on you.
+
+Step towards them and they give ground. Stand still and they slowly edge back in on you.
+
+Do not press them too hard: rush at them and they may take it as a challenge and turn on you. Keep them at bay long enough and they give up and leave.
+
+== wound
+You are wounded. The red at the edges of your sight shows how badly.
+
+Eating a kill heals a wound. Once two fires burn in an area, resting beside one slowly heals you too.
+
+== hunger
+You are getting hungry. The bar along the bottom of the screen shrinks as you do, from green to red. When it is gone, you starve.
+
+Hunt and eat to fill it. Hunger comes on more slowly while you rest by a burning fire.
+
+== night
+Night is coming. Predators grow bolder in the dark, and prey is harder to see.
+
+Stay close to a burning fire, or carry a flame on your spear.
+
+== tired
+You are out of breath. Running with [run] tires you quickly.
+
+Walk for a while and your strength returns.
+
+== book
+Something has been left here. Press [eat] to pick it up and read it.
+
+[fwd] turns the page forward and [back] turns it back. Press [eat] again to put it down, or carry it with you.
+
+== exit
+This path leads out of the area, to the next part of the country.
+
+Keep walking to cross over. Fires you have lit stay lit, and you can come back.
+
+== pred.thy
+Thylacines have found you. They hunt in packs, circling you and taking turns to attack.
+
+== pred.lion
+A thylacoleo has found you. It hunts alone, and attacks by leaping at you from a distance.
+
+== pred.mega
+A megalania has found you. It is huge and terribly strong, and you cannot outrun it.

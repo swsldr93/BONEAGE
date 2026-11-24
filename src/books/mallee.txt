@@ -1,0 +1,57 @@
+title: Treaty Scroll
+kind: scroll
+style: print
+pages: below
+id: mallee
+====
+== t
+The lizard has me pinned. Don’t think I’ll be making it out of this one. If someone finds this, let Eleanor know what happened. I’m sorry — I’ve failed.
+-- hand
+== s
+— C/M Les Pulter, June 3111.
+-- hand
+== stamp
+CONFIDENTIAL
+== flag
+haet
+== t
+Elmes,
+== t
+I entreat you to grant safe passage for food up through the Downs to the Eromanga coast.
+== t
+Nearly seven centuries ago my ancestors led the charge through your borders in the Northern Tablelands and down to the coast.
+== t
+Today we don’t even have a tenth of those numbers, and those we have are buckling at the knees from starvation.
+== t
+I know you’re not any better. I’ve seen the abjection of your peons, and the tattered banners on your border.
+== t
+Neither of us can afford to lose more men.
+== t
+Our terms:
+== h3
+Article I: Cargo
+== t
+Four caravans of grain require transit.
+== h3
+Article II: Route
+== t
+The convoy will take a direct path through the Downs to the Eromanga coast, terminating in Inner Sahul.
+== h3
+Article III: Escort
+== t
+A minimal force will accompany the grain to deter raids.
+== h3
+Article IV: Guarantee
+== t
+Grant this passage, and we’ll withdraw all other forces from near the borders.
+== t
+For the first time in generations, our people will know peace.
+== t
+As a gesture of good faith, I’ve sent one of my captains from the Eromangan fleet to personally deliver this message.
+== t
+I trust he will be treated as well as you are able, and ask that you kindly spare an escort for his return through the North Bassian Range.
+== t
+In faith,
+== s
+Cpt. Fascian
+Eromanga

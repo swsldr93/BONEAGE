@@ -1,0 +1,72 @@
+title: John Silas’ Journal
+kind: book
+style: hand
+cover: @json 1
+coverTitle: John Silas’ Journal
+coverSub: John Silas
+small: @json true
+coverImg: @file silas-1.webp
+pages: below
+id: silas
+====
+== d
+October 28, 3112
+== t
+When I arrived to meet my guide, a fire of ironbark had been kindled.
+== t
+Clear gold light flickered against the walls of the small room where we ate.
+== t
+This morning we departed, and I began my return to High Bassia.
+== t
+Deep valleys before us, showered in the clear dawn light, and the Sacred Range drawn out ahead. Days, weeks ahead.
+== t
+We’ve set up camp on the cliff’s edge.
+== s
+— J. Silas
+== pb
+== d
+November 11, 3112
+== t
+Mossy stairs took us down to a lush gully early this morning.
+== t
+Through it cut a barely visible bush track, following a shallow watercourse that carved between the boulders and trees.
+== t
+My guide was singing, in his own language, as we descended the stairs. Some shining song, of sunlight and of waterfalls.
+== t
+The words were scant, the few with which he was familiar, but they would recur, stressing their shape, and emphasised their mystical errand in this grand gully of ferns and eucalypt.
+== t
+Currawongs plunged through the canopy in heavy flight, with rosellas dancing past in eyeblinks of azure and crimson.
+== t
+Days have rarely been more beautiful than these. Nor have they withdrawn more quickly, in long robes of gold, and blue, and purple.
+== s
+— J. Silas
+== pb
+== d
+November 15, 3112
+== t
+My guide has been taken.
+== t
+I do not know what I will do now. I do not know this country well.
+== t
+I am carrying too much, I must leave some things behind if I am to continue on my own…
+== pb
+== d
+November, 3112
+== t
+This morning, pushing through bracken down into the lower valley, my foot struck a human skull.
+== t
+It was likely some poor Torresian, exiled from the coast, as is their way, in pain of loss of his lurid country.
+== t
+When I looked at the skull, I could almost feel that downy bracken pushing up through my own eye sockets.
+== t
+And I thought again of my guide, laying still in the high gully.
+== t
+When I finally made it to the plains, I was greeted by a brown heat that lowered onto me like a lid.
+== t
+The grass is tall here, and almost completely dry. When the wind blows there rises a sharp sigh, and the blades bend into endless low tawny waves, where floating on their crests I see the last mountain flowers, sucked under by the swell.
+== t
+All day I swim through this grassy sea.
+== t
+All night the beasts glut themselves on dew and grass. And in my dreams the waves of grass and the waves of sleep become one.
+== s
+— J. Silas

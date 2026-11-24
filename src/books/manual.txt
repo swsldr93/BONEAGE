@@ -1,0 +1,70 @@
+title: Mountain Combat Manual
+kind: book
+style: print
+cover: @json 987144
+coverTitle: Mountain Combat Manual
+coverSub: Sacra Custodes
+coverImg: @file manual-1.webp
+pages: below
+id: manual
+====
+== t
+Les—things get tight up in the ranges, and the type of spear work you’re used to in the open country won’t do you any good up there. Those Bassians are dogs, but you can’t deny they can blue in the hills. Hope to Gods you don’t need this, you’ll be back on the water before you know it, pink cockatoos on the bow, big setting suns on the horizon. Stay positive
+-- hand
+== s
+— 2/O Kel Rus
+-- hand
+== pb
+== h
+I. Spear Tactics — Lunging
+== t
+Plunge your spear towards the enemy from your hip.
+== t
+This usually isn’t enough to kill an enemy, but is useful for maintaining distance between yourself and hostile fauna, including large predators.
+== t
+Some fauna may move too quickly to hit this way and will dodge most attempts. Either kick to stagger them, or wait until they lunge at you to make contact.
+== pb
+== h
+II. Spear Tactics B — Throwing
+== t
+Spear throwing is most effective for hunting, and from a crouched position in the cover of grass most game can be killed with this method.
+== t
+Larger animals won’t fall to a spear throw. The spear lodges deep and is carried off until it works loose, which leaves you with only your knife until you find it again.
+== t
+For large game, this will require chasing it on foot to deliver a killing blow. For predators, think before you do this, because while it does a lot of damage it will only leave you with your knife for defence.
+== pb
+== h
+III. The Knife
+== t
+Luckily, the knife is pretty strong and very fast. It is usually not the first choice for hunting, except for dispatching already incapacitated game.
+== t
+But for larger hostile predators, the knife is actually ideal, if you’re willing to take the risk to get up close.
+== t
+Make sure you stagger or dodge your enemy before closing in with the knife, and the fast succession of strikes can take down even very strong predators.
+== pb
+== h
+IV. Movement
+== h3
+Kicks
+== t
+Your limbs are an oft-forgotten third intermediary. A kick in the jaw or chest will break the lunge of even large predators, which then allows a quick followup with either the knife or spear.
+== h3
+Dodging
+== t
+It is even better to avoid contact altogether. Timing a dodge to the side of a predators attacks as they lunge toward you won’t just save your life, it also opens them up for either attack or staggering.
+== t
+Dodge an attack, kick to stagger them, then follow up with a frenzy of stabs from your knife — this is a great recipe for taking down big predators.
+== pb
+== h
+V. Shelter & Fire
+== t
+Seek shelter such as caves, rock stacks and canyons whenever possible if confronted by predators.
+== t
+Seek and light fires when you can, as lighting the tip of your spear will be an effective deterrence for all predators, as well as light in the dark. Game will see and smell the flame from much further off, though, so put it out before you stalk.
+== t
+But be careful — throwing your spear while lit will extinguish its flame, leaving you most vulnerable at a time when it is most important.
+== pb
+== h
+VI. Advice
+== t
+Mountain combat comes down to hiding and retreating when necessary, and using a combination of all the tools at your disposal in the times when the former is no longer possible. Practice timing your dodge and following up with a kick to open up larger predators if you need to put one to rest.

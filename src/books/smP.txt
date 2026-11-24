@@ -1,0 +1,12 @@
+title: Map
+kind: map
+style: hand
+id: smP
+pages: below
+====
+== smap
+@file smP-1.jpg
+-- t
+Les, beautiful bush up there, but remote. Be careful out there boss. I think they used to call this area “Gulu-Mada”.
+-- sg
+—2/0 Kel Rus

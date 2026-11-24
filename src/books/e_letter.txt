@@ -1,0 +1,14 @@
+title: a letter
+kind: letter
+style: hand
+pages: below
+id: e_letter
+====
+== t
+Les,
+== t
+Not sure why they chose you for this. You even hate the idea of mountains, let alone any actual experience up there. I hope this isn’t because of your mess up last season…
+== t
+I’ve never been more sick with worry, please get back to me soon.
+== s
+With love, your darling E.

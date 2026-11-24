@@ -1,0 +1,15 @@
+title: Map
+kind: map
+style: hand
+id: smC
+pages: below
+====
+== smap
+@file smC-1.jpg
+-- t
+Still no supplies from up North. I doubt we'll be getting any.
+But if we don't maintain ops, there's no Torresia worth fighting for.
+Walk the Southern patrol. Light the fires.
+Show those Bassian dogs we're still alive up here.
+-- sg
+Cmd. S.R. | Department of Southern Defence

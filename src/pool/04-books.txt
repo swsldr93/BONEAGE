@@ -1,0 +1,1 @@
+/* every book in the game, so a book carried out of one level can be read in the next */ window.__BOOKLIB=@@BOOKLIB@@;

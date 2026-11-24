@@ -1,0 +1,121 @@
+title: Regions of Sahul
+kind: book
+style: print
+cover: @json 7628875
+coverTitle: Regions of Sahul
+coverSub: R. Esteem
+coverImg: @file guide-1.webp
+pages: below
+id: guide
+====
+== t
+another useless old book.
+-- hand
+== t
+my last paper apart from that damn decree always reminding me of my exile. half the punishment is having to hold onto the taunting thing in fear of not being able to prove who I am.
+-- hand
+== t
+anyway its impossible to get any thing dwn here, big stupid wombats and the roo are too quick.
+-- hand
+== t
+heading back up to my cave in the gully. miserable there but at least I stand a chance at a wallaby
+-- hand
+== s
+— Benjamin 15/1/3112
+-- hand
+== pb
+== h
+Introduction
+== t
+This book provides a general overview of the three states of Sahul: the Confederated States of Torresia of the north-east, the Bassian Hierocrate in the south-eastern ranges, and the vast lands and sea of Eromanga to the west.
+== pb
+== h
+The Torresian Confederacy
+== img
+@file guide-2.jpg
+-- iw
+@json 1000
+-- ih
+@json 478
+== t
+The seven States of the Confederacy came together around 2150, forming a loose pact of defence after the First Collapse.
+== t
+In the early years, around 2200 to 2300 (before organisation of the Eromangan state), these states put forward local militias to fight against small and intermittent nomadic raiding parties from the west.
+== t
+Around 2430, these raids became a serious threat, with a large army of previously disparate groups united by the warchief Hom Uhed Pruhud.
+== t
+In response, the Torresian militias professionalised, unifying under a central command operating from the natural fortification of the Wollumbin Caldera.
+== t
+This centralised authority gained further support around 2660. The Holy Wars that had gripped Bassia for nearly five hundred years finally united under the zealot king Irinda Morande, who prosecuted his War of Reclamation into the southern Torresian border.
+== t
+After successfully defeating the Bassian forces at the Battle of the Monaro in 2670, the Torresian command was solidified as government with the ratification of the Torresian Confederacy in that same year.
+== t
+Strengthening from hundreds of years of conflict over multiple fronts, the state matured: hewing closely to the liberal ideals from the time before the First Collapse, but also its administrative, judicial, technocratic elements.
+== t
+Today, the Torresian Confederacy still has access to some technology from before the First Collapse, applied primarily for agricultural purposes.
+== t
+This in turn supports the largest population on the continent, holding a lush and productive coastal territory, and protected by formidable ranges through most of its south-western extent.
+== pb
+== h
+The Bassian Hierocrate
+== img
+@file guide-3.jpg
+-- iw
+@json 1000
+-- ih
+@json 494
+== t
+Like the Torresian Confederacy, the fragmented groups making up the south-east formed loose defensive affiliations in the Post-Collapse years of 2100–2200.
+== t
+However, unlike the strong early unification of the Confederacy, Bassia saw protracted internal violence in the centuries from around 2200 to 2650.
+== t
+Beginning as a theocratic state, this early period known as the Holy Wars was the result of five schisms from the previously singular faith, each violently contesting territorial boundaries across the ranges.
+== t
+It was around 2655 that the fanatical Irinda Morande first emerged from the gullies of High Bassia, who at the age of 25 carried out a series of brutal reprisals against the competing sects.
+== t
+After finally gaining control in 2660, he then constructed a fleet to sail across the Bass Strait and claim Tasmania as seat of a New Bassian Empire in 2663.
+== t
+Irinda ruled over an unsteady unification from about 2663 to 2670, expanding his scope to a War of Reclamation that sought to exterminate the “Torresian heretics” from the ranges in the north.
+== t
+This culminated in the Battle of the Monaro in 2670, where the Torresian commander Sahe Treharne led a force of ten thousand conscripts to victory against a smaller Bassian force of three thousand.
+== t
+This smaller Bassian contingent, the Sacra Custodes, were an elite martial priesthood of Irinda’s favoured sect, famed for their ironbark armour, and combining the asceticism of a Holy order with rigorous military training.
+== t
+While the Custodes had never been defeated in their mountainous home territory, Treharne finally overcame them with the combination of the open country of the Monaro plains and the larger numbers of his opposing force.
+== t
+The surviving Custodes then rebelled against Irinda, overseeing a ritual execution by throwing him from a cliff in 2673. A council of five high priests was soon after formed from these survivors, one for each of the major sects.
+== t
+This united Hierocrate now governs its territory from Tasmania, still their historic seat of power, and holds an uneasy peace over the mainland sects.
+== pb
+== h
+The Eromanga
+== img
+@file guide-4.jpg
+-- iw
+@json 1000
+-- ih
+@json 507
+== t
+During the period of unrest that lasted from 2100 to 2200, many migrated westward, past and around the Eromanga Sea.
+== t
+Out of necessity for survival in the open landscape, these migrants eventually formed loose nomadic bands, moving across the vast steppe and desert.
+== t
+They also took to the Sea itself, developing a sailing culture that benefited from this same inclination to nomadism.
+== t
+These bands remained mostly fragmented up to around 2400, until the arrival of the legendary warchief Hom Uhed Pruhud.
+== t
+It is said that on the night of his birth, at camp on the West Eromangan shore, Hom’s mother witnessed a giant wedge-tailed eagle dive down from the sky to crush the spine of a desert goat.
+== t
+This omen foretold the fall of the Torresian people, whose ancestors were the outsiders who had sinned against the land, and who must be dispersed to prevent it from happening again.
+== t
+From the strength of the prophecy, Hom easily gained support across the many divided tribes. Around 2430, with an army of tens of thousands from all across the Eromanga, the assault on Torresia began.
+== t
+Hom concentrated his forces on the northern Torresian border, where their western ranges flattened into tablelands. At several times they broke through, killing and looting indiscriminately before again retreating Westward.
+== t
+It is said that Hom Uhed Pruhud was finally killed, not in battle, but while hunting a thylacoleo on the eastern steppe, sometime around 2440. He was found collapsed over its carcass with his spear lodged into the animal’s chest.
+== t
+Eromangan forces eventually redispersed, reverting to fragmented nomadism for nearly three hundred years.
+== t
+This was until the Bassian Hierocrate attempted to claim the south-eastern shores of the Eromanga Sea in 2720. The fragmented groups united once again, this time under the command of a then nascent Eromangan Navy. They permanently crushed the Bassian Fleet at the Battle of Menindee Bay in that same year, burning every last boat at sea with the Bassians still inside.
+== t
+With undisputed claim over the inland Sea, it was from here that a unified identity began to take hold. While clear border delineations still don’t exist, the Eromangan Navy has since administered its surrounding region, providing military protection to the coalition tribes, and developing into a leadership that could one day be the great power of Sahul.

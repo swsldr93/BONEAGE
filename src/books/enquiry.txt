@@ -1,0 +1,274 @@
+title: Gateway to the Ancient Realms
+kind: book
+style: print
+cover: @json 1976391
+coverTitle: Gateway to the Ancient Realms
+pages: below
+coverImg: @file enquiry-1.webp
+id: enquiry
+====
+== t
+My guide gave me this most interesting book re: the resurrection of ancient animals.
+-- hand
+== t
+Some of these claims would be seen as heretical among certain groups at home.
+-- hand
+== t
+I’m better off not bringing this back with me.
+-- hand
+== s
+— J. Silas
+-- hand
+== pb
+== h
+Resurrection Methods
+== t
+Translated fragments outline a five-stage process used by the ancients to pull these creatures forward from the void. We admittedly do not know what the terms refer to, but have been able to gather a brief overview of the process:
+== t
+Extracting DNA: The process began by extracting and sequencing preserved “DNA” from the bone and tissue of the extinct subjects. Because time had degraded the remains of the subjects, the full DNA numbers of their closest living relatives were also recorded to serve as a blueprint. These close relatives are the source of variations we see in the populations of Sahul today.
+== t
+Computation: The ancient technicians had machines that calculated numbers based on what was found within the ancient remains. They could use this “bioinformatics” to infer the similarities between the extinct remains of the target animal and one of its living cousins. Together, they could get a complete “DNA” with filled in gaps.
+== t
+Special Cells: The technicians created "induced Pluripotent Stem Cells" from the living analogue species. These seem to be special cells without any coherent form, which the technicians could then put the full DNA into.
+== t
+Rewriting and Injection: The blank cells were then subjected to rewriting, what they called “CRISPR”, to make sure the traits of the ancestor came through. Then a process called “SCNT” was used to inject this new DNA into the beginnings of an egg of the relative animal inside its mother.
+== t
+Surrogacy: This engineered embryo was then chemically triggered to multiply, and put into a living surrogate host to be carried to term, birthing the ancient creature into the present age.
+== t
+Because this process relied on the DNA of living animals to patch the missing gaps of the dead, the resurrected creatures did not return in a singular, pure form.
+== t
+The resulting fauna express wild “phenotypic” variances based on the specific DNA analogue used to complete their sequence. The following are the variances that have been recorded so far.
+== pb
+== pbl
+== cpl
+@json ["thy:2", "lion:2"]
+== pb
+== h
+I. Thylacine & Thylacoleo
+== h3
+Numbat
+== lat
+Myrmecobius fasciatus
+== t
+A small, diurnal marsupial native to southwestern eucalypt woodlands. It is an insectivore that uses a long, sticky tongue to feed on termites.
+== pb
+== pbl
+== cpl
+@json ["thy:3", "lion:3"]
+== pb
+== h3
+Tasmanian Devil
+== lat
+Sarcophilus harrisii
+== t
+The largest surviving carnivorous marsupial, native to Tasmania. It is a stocky scavenger with coarse black fur, often marked by a white chest patch. It has a strong bite force that allows it to consume entire carcasses, including the bones and fur of its prey.
+== pb
+== pbl
+== cpl
+@json ["thy:5", "lion:5"]
+== pb
+== h3
+Eastern Quoll
+== lat
+Dasyurus viverrinus
+== t
+A medium-sized predator of grasslands and forest edges. Its coat is either fawn or black, dappled with white spots, though its tail is unspotted. It is a nocturnal hunter that feeds on insects, small mammals, and carrion.
+== pb
+== pbl
+== cpl
+@json ["thy:6", "lion:6"]
+== pb
+== h3
+Tiger Quoll
+== lat
+Dasyurus maculatus
+== t
+Also known as the spotted-tail quoll, this marsupial predator inhabits wet sclerophyll forests and rainforests. It has a brown coat covered in white spots that extend down its tail. It is a semi-arboreal hunter capable of taking down larger prey.
+== pb
+== pbl
+== cpl
+@json ["thy:4", "lion:4"]
+== pb
+== h3
+Black-flanked Rock-wallaby
+== lat
+Petrogale lateralis
+== t
+A rock-wallaby adapted to steep, rocky escarpments and boulder fields.
+== pb
+== pbl
+== cpl
+@json ["thy:7", "lion:7"]
+== pb
+== h3
+Whiptail Wallaby
+== lat
+Notamacropus parryi
+== t
+Also known as the pretty-faced wallaby, this is a social grazing macropod that favours open eucalyptus woodlands with a grassy understory.
+== pb
+== pbl
+== cpl
+@json ["thy:8", "lion:8"]
+== pb
+== h3
+Brushtail Possum
+== lat
+Trichosurus vulpecula
+== t
+An adaptable, nocturnal, arboreal marsupial that forages for eucalyptus leaves, blossoms, and small insects.
+== pb
+== pbl
+== cpl
+@json ["thy:10", "lion:10"]
+== pb
+== h3
+Ringtail Possum
+== lat
+Pseudocheirus peregrinus
+== t
+A smaller arboreal possum. It has a reddish-brown to dark grey coat and a white-tipped, prehensile tail. It rarely descends to the ground, feeding entirely on eucalyptus leaves, flowers, and fruits within the canopy.
+== pb
+== pbl
+== cpl
+@json ["thy:9", "lion:9"]
+== pb
+== h3
+Leadbeater’s Possum
+== lat
+Gymnobelideus leadbeateri
+== t
+A fast-moving inhabitant of the mountain ash forests in the southeastern highlands. Distinguished by a dark dorsal stripe running down its back and a club-shaped tail. It relies on tree hollows for shelter.
+== pb
+== pbl
+== cpl
+@json ["thy:1", "lion:1"]
+== pb
+== h3
+Grasslands Emergent Phenotype
+== t
+A synthesised phenotype adapted for plains-dwelling. This form has a uniform, tawny coat optimised for thermal regulation and camouflage within open expanses of spinifex and kangaroo grass.
+== pb
+== pbl
+== cpl
+@json ["liz:0", "liz:1"]
+== pb
+== h
+II. Megalania
+== h3
+Lace Monitor
+== lat
+Varanus varius
+== t
+A large, semi-arboreal lizard native to eastern forests. It is a versatile predator and scavenger, foraging on the ground or climbing eucalyptus trees.
+== pb
+== pbl
+== cpl
+@json ["liz:2"]
+== pb
+== h3
+Perentie
+== lat
+Varanus giganteus
+== t
+The largest monitor lizard on the continent, found in the arid interior. It is a fast-moving predator that hunts insects and small mammals. Its hide is pale cream and sandy brown, with dark rosettes for camouflage against desert rocks and sand.
+== pb
+== pbl
+== cpl
+@json ["liz:3"]
+== pb
+== h3
+Komodo Dragon
+== lat
+Varanus komodoensis
+== t
+An Indonesian monitor and for centuries the largest lizard in existence. A heavy ambush predator covered in mud-brown, osteoderm-plated armour. It relies on a venomous bite that induces shock and rapid blood loss to bring down large prey.
+== pb
+== pbl
+== cpl
+@json ["liz:4"]
+== pb
+== h3
+Bearded Dragon
+== lat
+Pogona vitticeps
+== t
+A moderately sized, diurnal lizard of arid and semi-arid woodlands. It has a spiked throat pouch that turns black when threatened or displaying for a mate. Its hide varies in colour from red to orange or grey.
+== pb
+== pbl
+== cpl
+@json ["liz:5"]
+== pb
+== h3
+Gilbert’s Dragon
+== lat
+Lophognathus gilberti
+== t
+A slender, agile insectivore that frequently perches on low branches and tree trunks to scan for prey. Found in northern and inland woodlands, often near watercourses. Characterised by its long limbs and an exceptionally long, whip-like tail used for balance when running or climbing.
+== pb
+== pbl
+== cpl
+@json ["liz:6"]
+== pb
+== h3
+Water Dragon
+== lat
+Intellagama lesueurii
+== t
+A semi-aquatic lizard with a laterally flattened tail for swimming. It can remain submerged for extended periods to evade predators. Mature males develop striking red scales across their chest.
+== pb
+== pbl
+== cpl
+@json ["liz:7"]
+== pb
+== h3
+Ctenotus Skink
+== lat
+Ctenotus robustus
+== t
+A fast-moving, ground-dwelling lizard found in open woodlands and sandy heaths. It is marked with distinct longitudinal black and white stripes.
+== pb
+== pbl
+== cpl
+@json ["liz:8"]
+== pb
+== h3
+Robust Velvet Gecko
+== lat
+Nebulifera robusta
+== t
+A nocturnal gecko of the eastern forests. It uses specialised toe pads to scale rock faces and tree trunks to hunt spiders and insects.
+== pb
+== pbl
+== cpl
+@json ["liz:9"]
+== pb
+== h3
+Golden-tailed Gecko
+== lat
+Strophurus taenicauda
+== t
+An arboreal gecko found in brigalow scrublands. It has a golden-yellow tail, which it can use to squirt a defensive fluid when threatened. The rest of its body is pale grey with dark reticulated patterns.
+== pb
+== pbl
+== cpl
+@json ["liz:10"]
+== pb
+== h3
+Land Mullet
+== lat
+Bellatorias major
+== t
+One of the largest skink species, found in rainforests and wet sclerophyll gullies. It is a heavy-bodied reptile with entirely black, glossy scales. It is shy and prefers to forage in dark, damp undergrowth.
+== pb
+== pbl
+== cpl
+@json ["liz:11", "liz:12"]
+== pb
+== h3
+King of the Bush I
+== lat
+Varanus priscus chimera
+== t
+A synthesised variant resulting from genetic modification. This animal expresses mixed traits from various varanid and avian DNA and does not correspond to a naturally occurring species.
+== pb

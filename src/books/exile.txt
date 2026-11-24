@@ -1,0 +1,24 @@
+title: Decree of Exile
+kind: scroll
+style: hand
+pages: below
+id: exile
+====
+== flag
+torres
+== d
+12/10/3111
+== t
+This document pronounces Benjamin Thomas Carlton persona non grata of the Confederated States of Torresia.
+== t
+Per citizen rights the subject is exempt from capital punishment and incarceration, but due to their crimes is from this point forward deemed exiled from the Torresian Confederacy.
+== t
+Hence the subject is sentenced to live out their remaining days in an external territory of their choosing, in whatever way pursuant to the individual’s will and desire.
+== t
+Upon receiving this sentence the recipient of this notice has twelve days to finalise their affairs and proceed to a border exit of their choosing. In failure to do so, a state officer will then be designated, with whom the subject be escorted to an exile point at dawn of the thirteenth day.
+== t
+This is an official document and it is advised that you keep this on your person at all times. Torresian border patrols will recognise its legitimacy and will temporarily pardon reprisals of trespass as you proceed through forward operating zones.
+== s
+Signed,
+His excellency
+N. Elmes

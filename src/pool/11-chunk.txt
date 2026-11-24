@@ -1,0 +1,31 @@
+(function(){ /* the layout drawn as a surveyor's sketch: contours, hachured cliffs, the creek as a double line, fires as triangles, falls as rings */
+  function draw(){ const F=window.__PGF, P=window.__PG, el=document.getElementById('pgTag'); if(!F||!F.mapSpec){ setTimeout(draw,300); return; } let url=null;
+    try{ const o=F.mapSpec(), N=180, S=o.half*2/N, W=720, k=W/N, NN=N+1, H=new Float32Array(NN*NN); let mn=1e9, mx=-1e9; window.__pgInkSpec={cx:o.cx,cz:o.cz,half:o.half};
+      for(let j=0;j<=N;j++) for(let i=0;i<=N;i++){ let h=F.heightAt(o.cx+(i-N/2)*S,o.cz+(j-N/2)*S); if(!(h>-1e6)) h=-40; h=Math.max(h,o.floor); H[j*NN+i]=h; if(h<mn) mn=h; if(h>mx) mx=h; }
+      const c=document.createElement('canvas'); c.width=c.height=W; const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,W,W); g.lineCap='round';
+      const at=(i,j)=>H[j*NN+i], steep=(i,j)=>{ const a=at(i,j),b=at(i+1,j),cc=at(i+1,j+1),d=at(i,j+1); return Math.max(a,b,cc,d)-Math.min(a,b,cc,d); };
+      // contours, left out on the cliffs
+      g.strokeStyle='rgba(0,0,0,.32)'; g.lineWidth=0.8; g.beginPath();
+      for(let L=Math.ceil(mn/2)*2;L<=mx;L+=2){ if(L<=o.floor+0.5) continue; for(let j=0;j<N;j++) for(let i=0;i<N;i++){ if(steep(i,j)>o.steep) continue; const a=at(i,j)-L,b=at(i+1,j)-L,cc=at(i+1,j+1)-L,d=at(i,j+1)-L; const pts=[];
+          const e=(p,q,x0,y0,x1,y1)=>{ if((p<0)!==(q<0)){ const t=p/(p-q); pts.push([(x0+(x1-x0)*t)*k,(y0+(y1-y0)*t)*k]); } };
+          e(a,b,i,j,i+1,j); e(b,cc,i+1,j,i+1,j+1); e(cc,d,i+1,j+1,i,j+1); e(d,a,i,j+1,i,j); for(let q=0;q+1<pts.length;q+=2){ g.moveTo(pts[q][0],pts[q][1]); g.lineTo(pts[q+1][0],pts[q+1][1]); } } }
+      g.stroke();
+      // cliffs: short hachure strokes running down the fall line
+      g.strokeStyle='#111'; g.lineWidth=1.6; g.beginPath(); let sd=1;
+      for(let j=1;j<N-1;j++) for(let i=1;i<N-1;i++){ const st=steep(i,j); if(st<=o.steep) continue; sd=(sd*16807)%2147483647; if((sd%100)<35) continue; const gx=(at(i+1,j)-at(i-1,j))/2, gz=(at(i,j+1)-at(i,j-1))/2, gl=Math.hypot(gx,gz)||1, L=k*Math.min(1.1,0.45+st/12), x=(i+0.5)*k, y=(j+0.5)*k; g.moveTo(x-gx/gl*L,y-gz/gl*L); g.lineTo(x+gx/gl*L*0.4,y+gz/gl*L*0.4); }
+      g.stroke();
+      // water: double lines
+      const toP=(x,z)=>[((x-o.cx)/S+N/2)*k,((z-o.cz)/S+N/2)*k];
+      (o.creeks||[]).forEach(cr=>{ if(cr.pts.length<2) return; const path=()=>{ g.beginPath(); cr.pts.forEach((p,i)=>{ const q=toP(p[0],p[1]); if(i) g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]); }); if(cr.closed) g.closePath(); };
+        const w=Math.max(2.5,Math.min(7,cr.hw/S*k*0.9)); g.lineJoin='round'; path(); g.strokeStyle='#111'; g.lineWidth=w+2.4; g.stroke(); path(); g.strokeStyle='#fff'; g.lineWidth=w; g.stroke(); });
+      // falls: rings; fires: triangles
+      (o.falls||[]).forEach(f=>{ const [x,y]=toP(f.x,f.z); g.fillStyle='#fff'; g.strokeStyle='#111'; g.lineWidth=2; g.beginPath(); g.arc(x,y,7,0,6.3); g.fill(); g.stroke(); g.beginPath(); g.arc(x,y,2.4,0,6.3); g.fillStyle='#111'; g.fill(); });
+      (o.fires||[]).forEach(f=>{ const [x,y]=toP(f.x,f.z); g.fillStyle='#111'; g.beginPath(); g.moveTo(x,y-9); g.lineTo(x+8,y+6); g.lineTo(x-8,y+6); g.closePath(); g.fill(); });
+      // north
+      g.strokeStyle='#111'; g.fillStyle='#111'; g.lineWidth=1.6; g.beginPath(); g.moveTo(W-34,74); g.lineTo(W-34,30); g.stroke(); g.beginPath(); g.moveTo(W-34,22); g.lineTo(W-39,34); g.lineTo(W-29,34); g.closePath(); g.fill(); g.font='italic 20px Georgia,serif'; g.textAlign='center'; g.fillText('N',W-34,100);
+      url=c.toDataURL('image/png'); try{ window.__pgInk=window.BA_INKC?BA_INKC(c):null; }catch(e2){} }catch(e){ window.__pgMapErr=String(e&&e.stack||e); return; }
+    window.__BA_MAPS=window.__BA_MAPS||{}; window.__BA_MAPS[F.mapKey]=window.__pgInk||url; try{ const N=window.__BA_NODE; if(N&&N.id&&!window.__BA_MAPONLY){ window.__BA_MAPS[N.id]=window.__BA_MAPS[F.mapKey]; const n=JSON.parse(BAS.get('ba_net')||'null'); if(n&&n.nodes&&n.nodes[N.id]&&(!n.nodes[N.id].m||!n.nodes[N.id].ms)){ if(!n.nodes[N.id].m) n.nodes[N.id].m=window.__BA_MAPS[N.id]; n.nodes[N.id].ms=window.__pgInkSpec; BAS.set('ba_net',JSON.stringify(n)); } } }catch(e){} window.__pgBW=url;
+    const pz=document.getElementById('pzMap'); if(pz){ pz.src=url; pz.style.display='block'; }
+    if(el){ el.querySelectorAll('canvas').forEach(n=>n.remove()); [...el.children].forEach(n=>{ if(n.tagName==='DIV'&&/fire/.test(n.textContent)) n.remove(); }); const im=document.createElement('img'); im.src=url; im.title='click to enlarge'; im.style.cssText='display:block;margin-top:8px;width:240px;height:240px;cursor:zoom-in;background:#fff;border:1px solid rgba(220,212,193,.35)'; let big=false; im.addEventListener('click',e=>{ e.stopPropagation(); big=!big; im.style.width=im.style.height=big?'min(80vh,80vw)':'240px'; im.style.cursor=big?'zoom-out':'zoom-in'; }); el.appendChild(im);
+      const key=document.createElement('div'); key.style.cssText='font-size:11px;opacity:.85;margin-top:3px'; key.textContent='▲ fire   ◎ falls   = creek   (also on the pause screen)'; el.appendChild(key); } }
+  setTimeout(draw,60); })();

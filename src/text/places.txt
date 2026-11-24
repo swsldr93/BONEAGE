@@ -1,0 +1,21 @@
+# Place names as the game says them in sentences (map, objectives, "a new place" cards).
+# C = cliffs, G = gully, P = plains.
+
+== C2
+the high forest
+
+== C1
+the east cliffs
+
+== G1
+the upper gully
+
+== G2
+the lower gully
+
+== P1
+the high plains
+
+== P2
+the far plains
+
