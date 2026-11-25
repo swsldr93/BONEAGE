@@ -5373,7 +5373,7 @@ if(k.cpl!==undefined) return '<div class="cpl" style="text-align:center">'+k.cpl
   function pickUp(it){ held=it; ACH.read(it.b&&it.b.id); ACH.holding(it.b&&it.b.id); if(it.b&&it.b.blocks&&it.b.blocks.some(k=>k.sp||k.netmap||k.localmap)) it.b._pk=null; it.mesh.visible=false; busy=false; render(); view.classList.add('on'); hint.style.opacity='1'; if(typeof aiming!=='undefined') aiming=false; if((it.b.kind||'book')==='book') snd.turn(0.3); }
   /* a bookmark for every book and sheet: put it down and it reopens where you left off (kept in the save) */
   const MK=(()=>{ try{ return JSON.parse(BA_PLAT.get('ba_bookmarks')||'{}')||{}; }catch(e){ return {}; } })();
-  const mkKey=it=>(it.b.title||'')+'|'+(it.home?Math.round(it.home.x)+','+Math.round(it.home.z):'');
+  const mkKey=it=>isMaps(it)?'maps':(it.b.title||'')+'|'+(it.home?Math.round(it.home.x)+','+Math.round(it.home.z):'');   /* the map is one sheet wherever it was found or opened */
   function markSave(it){ if(!it.b.pages) return; const n=(it.b.kind||'book')==='book'?spreads(it.b):it.b.pages.length, k=mkKey(it); if(idx<=0||idx>=n) delete MK[k]; else MK[k]={i:idx,n,pk:it.b._pk}; try{ BA_PLAT.set('ba_bookmarks',JSON.stringify(MK)); }catch(e){} }
   function putDown(){ if(!held) return; markSave(held); const f=fwdXZ(), hm=held.home; if(hm&&Math.hypot(hm.x-P.x,hm.z-P.z)<3.2) place(held,hm.x,hm.z,hm.rot,hm.y); else place(held,P.x+f.x*0.9,P.z+f.z*0.9,yaw+Math.PI/2); if((held.b.kind||'book')!=='book') snd.crinkle(0.4,6); held=null; view.classList.remove('on'); hint.style.opacity='0'; }
   const isMaps=it=>!!(it&&it.b&&window.__BOOKLIB&&it.b===window.__BOOKLIB.maps);
@@ -5390,7 +5390,7 @@ if(k.cpl!==undefined) return '<div class="cpl" style="text-align:center">'+k.cpl
   function devSpawn(kind='book'){ const f=fwdXZ(); add(TEST[kind],P.x+f.x*1.6,P.z+f.z*1.6); showCard('test: '+kind,2); }
   function arrive(id,taken){ const T=new Set(taken||[]); if(id) T.add(id); for(const it of items.slice()){ if(it.b&&T.has(it.b.id)){ scene.remove(it.mesh); items.splice(items.indexOf(it),1); } }
     if(id&&window.__BOOKLIB&&window.__BOOKLIB[id]){ const it=add(window.__BOOKLIB[id],P.x,P.z,yaw); it.home=null; pickUp(it); } }
-  return {pocket,clearMarks(){ for(const k in MK) delete MK[k]; try{ BA_PLAT.del('ba_bookmarks'); }catch(e){} },add,tick,key,keyUp,turn,devSpawn,arrive,get held(){ return held; },get eLock(){ return eLock; },items};
+  return {pocket,clearMarks(){ for(const k in MK) if(k!=='maps') delete MK[k]; try{ BA_PLAT.set('ba_bookmarks',JSON.stringify(MK)); }catch(e){} }   /* the map stays open at the page you last had it on, always */,add,tick,key,keyUp,turn,devSpawn,arrive,get held(){ return held; },get eLock(){ return eLock; },items};
 })();/*@Y*/
 
 
@@ -5787,15 +5787,20 @@ window.birdFade=function(){ const d=window.__dayK??1, x=Math.max(0,Math.min(1,(d
    faint, a full moon bright with a soft halo; by day it is a pale ghost, in rain and heavy cloud it is gone ---------- */
 (function(){ if(window.__BA_MAPONLY) return;
   const CYC=30, OFF=0.37;   /* days in a round; where in the round a new run begins (a little past first quarter, so the early nights have a moon) */
-  const cv=document.createElement('canvas'); cv.width=cv.height=128; const cx=cv.getContext('2d'); const tex=new THREE.CanvasTexture(cv);
-  const nz=(x,y)=>{ const s=Math.sin(x*12.9898+y*78.233)*43758.5453; return s-Math.floor(s); };
-  const MARIA=[[-0.28,-0.22,0.3],[0.12,-0.35,0.22],[0.3,0.05,0.24],[-0.05,0.25,0.2],[0.42,-0.3,0.14],[-0.42,0.12,0.16]];
+  const N=256, cv=document.createElement('canvas'); cv.width=cv.height=N; const cx=cv.getContext('2d'); const tex=new THREE.CanvasTexture(cv);
+  /* the near side's seas as seen from the south (the northern view turned over): x, y (down), radius; their edges broken up by noise; Tycho a bright fleck */
+  const MARIA=[[-0.5,-0.02,0.3],[-0.42,0.2,0.22],[-0.22,-0.36,0.26],[0.13,-0.3,0.15],[0.27,-0.06,0.19],[0.6,-0.24,0.1],[0.45,0.16,0.13],[-0.14,0.34,0.15],[-0.45,0.36,0.08],[0.28,0.3,0.08],[0.02,-0.06,0.1]].map(([x,y,r])=>[-x,-y,r]);
+  const hs=(x,y)=>{ const s=Math.sin(x*127.1+y*311.7)*43758.5453; return s-Math.floor(s); };
+  const vn=(x,y)=>{ const xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi, u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf), a=hs(xi,yi), b=hs(xi+1,yi), c=hs(xi,yi+1), d=hs(xi+1,yi+1); return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v; };
+  const fbm=(x,y)=>vn(x,y)*0.5+vn(x*2.03,y*2.03)*0.27+vn(x*4.1,y*4.1)*0.15+vn(x*8.3,y*8.3)*0.08;
+  const sm=(a,b,x)=>{ const t=Math.max(0,Math.min(1,(x-a)/(b-a))); return t*t*(3-2*t); };
+  const ALB=new Float32Array(N*N); for(let j=0;j<N;j++) for(let i=0;i<N;i++){ const x=(i+0.5)/(N/2)-1, y=(j+0.5)/(N/2)-1; let s=0; for(const [mx,my,mr] of MARIA){ const q=((x-mx)*(x-mx)+(y-my)*(y-my))/(mr*mr*1.6); if(q<1) s+=Math.pow(1-q,1.5); }
+    const mar=sm(0.25,0.85,s*(0.45+1.1*fbm(x*3+11,y*3+5))), ty=Math.max(0,1-((x-0.08)*(x-0.08)+(y+0.62)*(y+0.62))/0.0025); ALB[j*N+i]=(1-0.27*mar+0.12*ty)*(0.9+0.1*fbm(x*14,y*14))*(0.96+0.04*hs(i,j)); }
   let lastP=-1;
-  function draw(p){ const im=cx.createImageData(128,128), d=im.data, th=p*Math.PI*2, Lx=-Math.sin(th), Lz=-Math.cos(th);   /* light comes from the left as it waxes (seen from the south) */
-    for(let j=0;j<128;j++) for(let i=0;i<128;i++){ const x=(i+0.5)/64-1, y=(j+0.5)/64-1, r2=x*x+y*y, k=(j*128+i)*4; if(r2>1){ d[k+3]=0; continue; }
-      const z=Math.sqrt(1-r2), lit=Math.max(0,Math.min(1,(x*Lx+z*Lz+0.04)/0.1)); let m=1; for(const [mx,my,mr] of MARIA){ const q=((x-mx)*(x-mx)+(y-my)*(y-my))/(mr*mr); if(q<1) m-=0.16*(1-q); }
-      m*=0.94+0.06*nz(i,j); const lb=0.82+0.18*z, v=lit*m*lb, edge=Math.max(0,Math.min(1,(1-Math.sqrt(r2))*40));
-      d[k]=Math.round(255*Math.min(1,v*0.98+0.06)); d[k+1]=Math.round(255*Math.min(1,v*0.96+0.065)); d[k+2]=Math.round(255*Math.min(1,v*0.9+0.08)); d[k+3]=Math.round(255*edge*Math.min(1,lit+0.07)); }   /* the dark part barely there: earthshine */
+  function draw(p){ const im=cx.createImageData(N,N), d=im.data, th=p*Math.PI*2, Lx=-Math.sin(th), Lz=-Math.cos(th);   /* light comes from the left as it waxes (seen from the south) */
+    for(let j=0;j<N;j++) for(let i=0;i<N;i++){ const x=(i+0.5)/(N/2)-1, y=(j+0.5)/(N/2)-1, r2=x*x+y*y, k=(j*N+i)*4; if(r2>1){ d[k+3]=0; continue; }
+      const z=Math.sqrt(1-r2), c=x*Lx+z*Lz, lit=sm(-0.05,0.12,c), a=ALB[j*N+i], v=lit*a*(0.78+0.22*z)*(0.85+0.15*sm(0,0.5,c)), es=0.16*a*(1-lit), edge=Math.max(0,Math.min(1,(1-Math.sqrt(r2))*N*0.35));
+      d[k]=Math.round(255*Math.min(1,v*0.98+es*0.85)); d[k+1]=Math.round(255*Math.min(1,v*0.96+es*0.9)); d[k+2]=Math.round(255*Math.min(1,v*0.9+es*1.1)); d[k+3]=Math.round(255*edge*(lit+(1-lit)*0.3)); }   /* the dark part faintly there (earthshine), so it reads as a whole moon */
     cx.putImageData(im,0,0); tex.needsUpdate=true; }
   const mat=new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,fog:false}); const moon=new THREE.Sprite(mat); moon.renderOrder=-2.55; moon.frustumCulled=false; scene.add(moon);
   const gc=document.createElement('canvas'); gc.width=gc.height=64; { const g=gc.getContext('2d'), gr=g.createRadialGradient(32,32,0,32,32,32); gr.addColorStop(0,'rgba(220,226,236,0.55)'); gr.addColorStop(0.35,'rgba(200,210,226,0.18)'); gr.addColorStop(1,'rgba(200,210,226,0)'); g.fillStyle=gr; g.fillRect(0,0,64,64); }
@@ -6317,7 +6322,7 @@ function baChant(A,ctx,dest,o0){ const O=Object.assign({lo:82.41,hi:164.81,n:20,
   return {G};
 }/*@Y*/
 const A={ctx:null,
-  init(){ if(this.ctx){ if(this.ctx.state==='suspended') this.ctx.resume(); return; }
+  init(){ if(this.ctx){ if(this.ctx.state==='suspended') this.ctx.resume(); try{ this.loadSnd(); }catch(e){} return; }
     const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; const sh=window.__BA_AUDIO; const ctx=this.ctx=sh?sh.ctx:new AC({latencyHint:'playback'}); if(ctx.state==='suspended') ctx.resume();
     const m=this.root=sh?sh.master:ctx.createGain(); if(!sh){ m.gain.value=0.9; const comp=ctx.createDynamicsCompressor(); m.connect(comp); comp.connect(ctx.destination); }
     /* this place's own sound runs through its own level (music does not), so it can fade in the slot canyons and stay silent while it waits to be handed over */
@@ -6485,8 +6490,11 @@ A.smpRev=function(){ if(this._rv!==undefined) return this._rv; const c=this.ctx;
   for(let ch=0;ch<2;ch++){ const d=b.getChannelData(ch); for(let i=0;i<L;i++){ const u=i/L; d[i]=(Math.random()*2-1)*Math.pow(1-u,3.2)*Math.min(1,i/(sr*0.01)); } }
   cv.buffer=b; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=3000; cv.connect(lp); lp.connect(this.master); this._rv=cv; return cv; };/*@Y*/
 A.loadSnd=function(){ if(!this.ctx||!window.SND||this._sndLoading) return; this._sndLoading=true; const c=this.ctx;
-  for(const k in SND){ SND[k].forEach((b64,i)=>{ const id=k+i; if(this._sb[id]) return; const bin=atob(b64), u=new Uint8Array(bin.length); for(let j=0;j<bin.length;j++) u[j]=bin.charCodeAt(j);
-    try{ c.decodeAudioData(u.buffer,bb=>{ this._sb[id]=bb; },()=>{}); }catch(e){} }); } };/*@Y*/
+  /* decoded once per zone and kept by the outer page: a new place of the same zone has its sounds at once, instead of
+     losing every sound asked for while it decodes them all again (a predator's calls went missing on arriving in the far plains) */
+  let C={}; try{ const T=window.__BA_TOPWIN||window; C=T.__BA_SBC||(T.__BA_SBC={}); }catch(e){} const zk=(typeof BA_LVK!=='undefined'?BA_LVK:'')+':';
+  for(const k in SND){ SND[k].forEach((b64,i)=>{ const id=k+i; if(this._sb[id]) return; if(C[zk+id]){ this._sb[id]=C[zk+id]; return; } const bin=atob(b64), u=new Uint8Array(bin.length); for(let j=0;j<bin.length;j++) u[j]=bin.charCodeAt(j);
+    try{ c.decodeAudioData(u.buffer,bb=>{ this._sb[id]=bb; C[zk+id]=bb; },()=>{}); }catch(e){} }); } };/*@Y*/
 A.smp=function(key,v,pan=0,o={}){ const c=this.ctx; if(!c||!window.SND||!SND[key]) return; if(!this._sndLoading) this.loadSnd(); const n=SND[key].length, i=o.i!==undefined?o.i%n:(Math.random()*n|0), buf=this._sb[key+i]; if(!buf||v<0.004) return;
   const t=c.currentTime, far=Math.min(1,Math.max(0,o.far!==undefined?o.far:1-Math.sqrt(Math.min(1,v)))), s=c.createBufferSource(); s.buffer=buf; s.playbackRate.value=(o.rate||1)*(1+(Math.random()-0.5)*0.07);
   const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=700+16000*Math.pow(1-far,2.2); lp.Q.value=0.4;
@@ -6559,21 +6567,21 @@ function buildSpawns(){ const L=[];
   if(!L.length&&!spawnPts.length) pits.forEach((p,pi)=>L.push({x:p.x+3,z:p.z,y:null,yaw:Math.atan2(3,0),pit:pi}));
   return L.length?L:spawnPts.slice(); }/*@Y*/
 function pickSpawn(){ if(!SPN) SPN=buildSpawns(); { const S2=SPN.filter(q=>q.pit==null||!(pits[q.pit]&&pits[q.pit].at)); if(S2.length&&S2.length<SPN.length) SPN=S2; }   /* never start at the lower gully's lookout fire: that one is kept for its two papers, and the map lies at the fire you start by */ let last=-1; try{ const v=BAS.get('ba_lastspawn_'+BA_LVK); if(v!=null) last=+v; }catch(e){} let i=Math.floor(Math.random()*SPN.length); if(SPN.length>1&&i===last) i=(i+1+Math.floor(Math.random()*(SPN.length-1)))%SPN.length; try{ BAS.set('ba_lastspawn_'+BA_LVK,String(i)); }catch(e){} return SPN[i]; }/*@Y*/
-function resetRun(){ window.__tutHold=false; pl.crouchOn=false; if(!baCarryPending&&BOOK.clearMarks) BOOK.clearMarks();
+function resetRun(){ window.__tutHold=false; pl.crouchOn=false; if(!baCarryPending&&!(!baUsedArrive&&BA_ARRIVE&&window.__BA_COMBINED)&&BOOK.clearMarks) BOOK.clearMarks();   /* a new life clears the bookmarks; walking into the next place does not */
   runs++; try{ BA_PLAT.set('boneage_runs_game',String(runs)); }catch(e){}
   tutFirstRun(); spawnNow=(()=>{ const s=window.__BA_SPAWN; window.__BA_SPAWN=null; if(!s&&window.__BA_PREFRAME&&window.__BA_PREARR&&!window.__BA_PREUSED){ window.__BA_PREUSED=1; try{ const a=ARRIVALS[window.__BA_PREARR]; if(a) return a(); }catch(e){} } return s; })()||baArrival()||pickSpawn(); P.set(spawnNow.x,spawnNow.y!=null?spawnNow.y:heightAt(spawnNow.x,spawnNow.z),spawnNow.z); pl.vel.set(0,0,0); pl.kb.set(0,0,0); for(const k in keys) keys[k]=false; pl.lmb=false; pl.__fr=null; if(pl.carry){ try{ pl.carry.a.carried=false; }catch(e){} pl.carry=null; } pl.spearMeat=null; pl.cooking=false; pl.eatingSpear=false; pl.cutSwap=false; pl.cutting=false;
   yaw=spawnNow.yaw; pitch=-0.05; roll=0; try{ if(window.__mapsToSpawn) window.__mapsToSpawn(); }catch(e){}
   (window.__spares||[]).forEach(sp=>{ sp.taken=false; if(sp.g) sp.g.visible=true; }); Object.assign(pl,{air:false,vy:0,elev:0,hp:4,hunger:0,stamina:1,exhausted:false,exertion:0.2,armed:'spear',charging:false,chargeHold:0,stowed:false,stowLit:0,spearLit:0,invuln:0,eatT:0,eating:null,runTime:0,eyeH:1.62,endSeen:false,stomachT:25});
   pl.kills={};
-  const _fc=baCarryPending&&baCarryPending.fires||null, _sp=baCarryPending&&baCarryPending.spear||0, _vs=baCarryPending&&baCarryPending.visited||null, _rs=baCarryPending&&baCarryPending.resp||0, _bk=baCarryPending&&baCarryPending.book||null, _tk=baCarryPending&&baCarryPending.taken||[], _bl=baCarryPending&&baCarryPending.bl||[];
+  const _fc=baCarryPending&&baCarryPending.fires||null, _sp=baCarryPending&&baCarryPending.spear||0, _vs=baCarryPending&&baCarryPending.visited||null, _rs=baCarryPending&&baCarryPending.resp||0, _bk=baCarryPending&&baCarryPending.book||null, _tk=baCarryPending&&baCarryPending.taken||[], _bl=baCarryPending&&baCarryPending.bl||[], _bd=baCarryPending&&baCarryPending.bodies||null, _cy=baCarryPending&&baCarryPending.carry||null;
   pl.__lc=null; if(baCarryPending){ const c=baCarryPending; baCarryPending=null; pl.__lc=c.life||null; pl.runTime=c.t||0; if(c.kills) pl.kills=c.kills; if(c.hunger!=null) pl.hunger=c.hunger; if(c.hp!=null) pl.hp=c.hp; if(c.run){ runs=c.run; try{ BA_PLAT.set('boneage_runs_game',String(runs)); }catch(e){} } }
   startFires(_fc); setTimeout(()=>{ if(window.__FT) window.__FT.arrive(); },3500); ACH.startRun(_vs,_rs,_bl); BOOK.arrive(_bk,_tk); if(_bk) ACH.holding(_bk); if(_sp>0) pl.spearLit=_sp;
   baLastDay=dayNum(); pl.life=pl.__lc||{nl:{},ent:{}}; pl.__lc=null; pl.life.ent[BA_LVK]=(pl.life.ent[BA_LVK]||0)+1; pl.__dn=dayNum();
   hurtFlash=0; shake=0; intensity=0; thrustT=-1; stabT=-1; kickT=-1; aiming=false; aimT=0; attackCd=0; kickCd=0;
   proj=null; worldSpear.visible=false; noises.length=0;
-  resetAllPacks(); if(randPredOn()) applyPreds(); else predNoRepeat(); wallabies.forEach(resetWallaby); dips.forEach(resetDip); weather.raining=false; weather.t=rand(TUNE.resetRun_1,TUNE.resetRun_2); weather.k=0; resetGore(); duskCycle=-1; starveWarned=false;
+  resetAllPacks(); if(randPredOn()) applyPreds(); else predNoRepeat(); wallabies.forEach(resetWallaby); dips.forEach(resetDip); baBodies=_bd||{}; try{ BODIES.restore(baBodies[__BAFK],_cy); }catch(e){} weather.raining=false; weather.t=rand(TUNE.resetRun_1,TUNE.resetRun_2); weather.k=0; resetGore(); duskCycle=-1; starveWarned=false;
   deathT=0; deathReady=false;
-  if(A.ctx){ A.set(A.dG.gain,0.21,1); }
+  if(A.ctx){ A.set(A.dG.gain,0.21,1); try{ A.loadSnd(); }catch(e){} }   /* this place's sounds ready before the first is needed */
 }/*@Y*/
 
 /* ---------- gore ---------- */
@@ -7177,17 +7185,18 @@ function updateDips(dt){
 
 /* ---------- player update ---------- */
 const keys={};/*@Y*/
-function carcassNear(){ let best=null,bd=2.3; for(const a of [...(window.__GB?window.__GB.list:[]),...lions,...wallabies,...dips,...(typeof COOK!=='undefined'?COOK.chunks:[])]){ if(a.alive||a.eaten||a.carried) continue; const d=dist2(a.pos,P); if(d<bd){bd=d;best=a;} } return best; }/*@Y*/
+const BODY_VIS=[];/*@Y*/   /* kills brought in from another place (they are not this place's own animals) */
+function carcassNear(){ let best=null,bd=2.3; for(const a of [...(window.__GB?window.__GB.list:[]),...lions,...wallabies,...dips,...BODY_VIS,...(typeof COOK!=='undefined'?COOK.chunks:[])]){ if(a.alive||a.eaten||a.carried) continue; const d=dist2(a.pos,P); if(d<bd){bd=d;best=a;} } return best; }/*@Y*/
 /* the kill and the cook: a kill is carried to a lit fire (E), laid down there as pieces of meat, and each piece is put on the spear's point (E),
-   held over the flames until done (hold E), and eaten off it (hold E). Pieces by animal: swamp wallaby 2, rock wallaby 2, red-necked wallaby 3,
-   kangaroo 4, emu 2, brush turkey 1, a diprotodon leg 4 (the beast itself is too big to move: hold E to cut a leg). A predator that reaches a kill
+   held over the flames until done (hold E), and eaten off it (hold E). Pieces by animal: 2, but a kangaroo, red-necked wallaby,
+   emu, marsupial lion or megalania 3, a diprotodon 4, a brush turkey 1 (the big ones are too heavy to move: hold E to cut meat, two pieces a cut). A predator that reaches a kill
    lying on the ground before you take it up, eats it. */
 const COOK=(()=>{ const COOK_T=10, EAT_T=2.2, CUT_T=2.6;
-  const kindOf=a=>{ if(a.chunk) return 'meat'; if(a.kind==='dip') return 'diprotodon'; if(a.kind==='gbird') return a.nm||'bird'; if(a.kind==='wall'){ try{ if(BA_LVK==='escarpment') return (a.roo||(window.__PG&&window.__PG.rnw))?'red-necked wallaby':'rock wallaby'; }catch(e){} if(a.roo) return 'kangaroo'; return 'swamp wallaby'; }   /* the cliffs' mobs are red-necked wallabies, not kangaroos */ return a.nm||'thylacine'; };
-  const PIECES={'kangaroo':2,'diprotodon':2,'marsupial lion':2,'megalania':2};   // a small kill is one piece of meat; a big kill's cut gives two
+  const kindOf=a=>{ if(a.vnm) return a.vnm; if(a.chunk) return 'meat'; if(a.kind==='dip') return 'diprotodon'; if(a.kind==='gbird') return a.nm||'bird'; if(a.kind==='wall'){ try{ if(BA_LVK==='escarpment') return (a.roo||(window.__PG&&window.__PG.rnw))?'red-necked wallaby':'rock wallaby'; }catch(e){} if(a.roo) return 'kangaroo'; return 'swamp wallaby'; }   /* the cliffs' mobs are red-necked wallabies, not kangaroos */ return a.nm||'thylacine'; };
+  const PIECES={'kangaroo':3,'red-necked wallaby':3,'emu':3,'marsupial lion':3,'megalania':3,'diprotodon':4,'brush turkey':1};   // pieces of meat in a kill: 2 unless listed (bigger animals 3, a diprotodon 4, a brush turkey 1)
   const HEAL={'brush turkey':2,'lyrebird':2};   // each piece eaten fills you; it makes you whole, but a small bird only half way
   const BIG={'kangaroo':1,'diprotodon':1,'marsupial lion':1,'megalania':1};   // too heavy to carry: you cut meat from these and leave the rest
-  const total=a=>a.chunk?a.n:(PIECES[kindOf(a)]||1);
+  const total=a=>a.chunk?a.n:(PIECES[kindOf(a)]||2);
   /* pieces still on a kill: less what you have taken, and less what a predator has eaten of it */
   const avail=a=>{ const T=total(a); return Math.max(0,Math.min(a.left??T,Math.ceil(T*(1-(a.gnaw||0))-1e-6))); };
   const take=a=>{ a.left=avail(a)-1; if(a.left<=0) finish(a); };
@@ -7206,7 +7215,7 @@ const COOK=(()=>{ const COOK_T=10, EAT_T=2.2, CUT_T=2.6;
   let tipMeat=null; const tip=()=>{ if(!tipMeat&&typeof vmSpear!=='undefined'&&vmSpear.anchor){ tipMeat=new THREE.Mesh(chunkGeo,new THREE.MeshBasicMaterial({map:texMeat,color:0xffffff})); tipMeat.material.depthTest=false; tipMeat.renderOrder=5; tipMeat.scale.set(0.085,0.12,0.07); tipMeat.position.set(0,0.15,0); vmSpear.anchor.add(tipMeat); } return tipMeat; };
   let ePrev=false, eHold=0, cookK=0;
   const litPitNear=r=>pits.find(p=>p.lit!==false&&dist2(p,P)<r);
-  const drop=()=>{ const c=pl.carry; pl.carry=null; if(!c) return; const a=c.a, f=fwdXZ(); a.carried=false; a.pos.set(P.x+f.x*0.9,heightAt(P.x+f.x*0.9,P.z+f.z*0.9),P.z+f.z*0.9); a.mesh.position.copy(a.pos); if(a.chunk){ a.mesh.position.y+=0.1; a.mesh.rotation.set(0,yaw,0); } else a.mesh.rotation.set(0,yaw+Math.PI/2,0);   /* laid down, it settles back onto its side */ a.awayT=0; };
+  const drop=()=>{ const c=pl.carry; pl.carry=null; if(!c) return; const a=c.a, f=fwdXZ(); a.carried=false; a.pos.set(P.x+f.x*0.9,heightAt(P.x+f.x*0.9,P.z+f.z*0.9),P.z+f.z*0.9); a.mesh.position.copy(a.pos); if(a.chunk){ a.mesh.position.y+=0.1; a.mesh.rotation.set(0,yaw,0); } else { a.mesh.rotation.set(0,yaw+Math.PI/2,0); if(a.visitor){ a.mesh.rotation.z=Math.PI/2; a.mesh.position.y+=0.2; } }   /* laid down, it settles back onto its side */ a.awayT=0; };
   /* a spear thrust: into a kill takes a piece onto the point; into a lit fire with a piece on it, holds it there to cook */
   function thrust(){ if(pl.armed!=='spear'||pl.carry) return false;
     if(pl.spearMeat){ if(pl.spearMeat.cook>=1) return false; const fp=pits.find(p=>p.lit!==false&&dist2(p,P)<3.6&&frontDot(p)>0.35); if(!fp) return false; pl.cooking=true; A.crackle(0.12); return true; }
@@ -7236,11 +7245,11 @@ const COOK=(()=>{ const COOK_T=10, EAT_T=2.2, CUT_T=2.6;
     if(car&&!car.carried){ const nm=kindOf(car), n=avail(car), spr=pl.armed==='spear'&&!pl.spearMeat?'  ·  thrust your spear in to take a piece':'';
       if(n<=0){ hint(''); return; }
       if(!car.chunk&&BIG[nm]){ hint(eHold>0?'cutting…':'hold E  ·  cut meat from the '+nm+spr); if(eDown){ pl.cutting=true; if(pl.armed==='spear'&&!pl.cutSwap){ swapWeapon(); pl.cutSwap=pl.armed==='knife'; } if(pl.armed==='knife'&&stabT<0&&eHold>0.3&&(eHold%0.8)<dt+1e-4){ stabT=0; stabRate=0.8; hitDone=true; } if(car.kind==='dip'&&(!noises.length||noises[noises.length-1].t<5)) addNoise(car.pos,45,6);
-          if(eHold>CUT_T){ const c=newChunk(Math.min(2,n)); c.name0='meat'; c.src=nm; finish(car); pl.carry={a:c}; eHold=0; } } return; }
+          if(eHold>CUT_T){ const k=Math.min(2,n), c=newChunk(k); c.name0='meat'; c.src=nm; car.left=n-k; if(car.left<=0) finish(car); pl.carry={a:c}; eHold=0; }   /* a cut takes up to two pieces; the rest stays on the kill for another cut */ } return; }
       car.name0=car.chunk?'meat':nm; hint('E  ·  take up the '+car.name0+spr); if(press){ car.carried=true; pl.carry={a:car}; } return; }
     hint(''); }
   /* every kill a predator could come for */
-  const scav=()=>[...(window.__GB?window.__GB.list:[]),...wallabies,...dips,...chunks].filter(a=>!a.alive&&!a.eaten&&!a.carried&&a.mesh&&a.mesh.visible);
+  const scav=()=>[...(window.__GB?window.__GB.list:[]),...wallabies,...dips,...BODY_VIS,...chunks].filter(a=>!a.alive&&!a.eaten&&!a.carried&&a.mesh&&a.mesh.visible);
   /* an abandoned kill near the pack: away from you for a while, and not under the light of a fire */
   function lure(cx,cz){ let best=null,bd=60; for(const a of scav()){ if((a.awayT||0)<20) continue; if(pits.some(p=>p.lit!==false&&dist2(p,a.pos)<7)||inShelter(a.pos.x,a.pos.z)||(typeof pocketAt==='function'&&pocketAt(a.pos.x,a.pos.z))) continue;   /* a fire's light, a shelter or a cave keeps it safe */ const d=Math.hypot(a.pos.x-cx,a.pos.z-cz); if(d<bd){ bd=d; best=a; } } return best; }
   /* after everything has moved, the carried kill is put in your arms: held close against the chest, a little to the left */
@@ -7250,7 +7259,47 @@ const COOK=(()=>{ const COOK_T=10, EAT_T=2.2, CUT_T=2.6;
   function vm(dt){ cookK=lerp(cookK,pl.cooking?1:0,1-Math.exp(-6*dt)); const t=tip(); if(t){ t.visible=!!pl.spearMeat&&!pl.eatingSpear&&pl.armed==='spear'; if(t.visible){ const k=pl.spearMeat.cook, ck=k>=0.55; if(t.material.map!==(ck?texCooked:texMeat)){ t.material.map=ck?texCooked:texMeat; t.material.needsUpdate=true; } const q=ck?(k-0.55)/0.45:k/0.55; t.material.color.setRGB(ck?1.15-0.25*q:1.25-0.2*q,ck?1.1-0.25*q:1.0-0.2*q,ck?1.05-0.3*q:0.95-0.25*q); } }
     if(cookK>0.01&&typeof spearVM!=='undefined'){ spearVM.position.x+=CKP[0]*cookK; spearVM.position.y+=CKP[1]*cookK; spearVM.position.z+=CKP[2]*cookK; vmSpear.g.rotation.x=lerp(vmSpear.g.rotation.x,CKP[3],cookK); } }
   const CKP=[-0.12,0.03,-0.2,-1.58];   // the cooking hold: the spear brought in and laid flatter, its point in the flames
-  return {update,place,vm,thrust,lure,avail,kindOf,chunks,finish}; })();/*@Y*/
+  return {update,place,vm,thrust,lure,avail,kindOf,chunks,finish,newChunk}; })();/*@Y*/
+/* ---------- kills keep: for the rest of a life, every carcass stays where it was left in every place, and one carried
+   out through a way between places comes with you (a swamp wallaby can be carried from the gully to the cliffs) ---------- */
+let baBodies={};/*@Y*/   /* place id -> what lies there */
+const BODIES=(()=>{
+  const furCol=m=>{ let c=null; m.traverse(o=>{ if(c==null&&o.material&&o.material.map===texWally) c=o.material.color.getHex(); }); return c; };
+  function rec(a,i){ const r={x:+a.pos.x.toFixed(2),z:+a.pos.z.toFixed(2),h:+((a.mesh?a.mesh.rotation.y:a.heading)||0).toFixed(3),dt:Math.round(a.deadT||0)};
+    if(a.left!=null) r.left=a.left; if(a.gnaw) r.gn=+a.gnaw.toFixed(3); if(a.eaten) r.e=1;
+    if(a.chunk){ r.k='chunk'; r.n=a.n; r.src=a.src||''; return r; }
+    if(a.kind==='gbird'){ r.k='bird'; r.sp=a.sp; return r; }
+    if(a.kind==='dip'){ r.k='dip'; r.i=i; return r; }
+    if(a.kind==='wall'){ r.k='wall'; if(i!=null) r.i=i; r.nm=COOK.kindOf(a); r.s=+a.mesh.scale.x.toFixed(4); r.c=furCol(a.mesh); if(a.roo) r.roo=1; return r; }
+    return null; }
+  /* leaving a place: write down what lies there */
+  function save(){ const L=[], cy=pl.carry&&pl.carry.a, D=(typeof dips!=='undefined')?dips:[];
+    wallabies.forEach((a,i)=>{ if(a.alive) return; if(a===cy){ L.push({k:'wall',i,gone:1}); return; } const r=rec(a,i); if(r) L.push(r); });
+    D.forEach((a,i)=>{ if(!a.alive){ const r=rec(a,i); if(r) L.push(r); } });
+    BODY_VIS.forEach(a=>{ if(a===cy||!a.mesh||!a.mesh.parent) return; const r=rec(a); if(r){ r.v=1; L.push(r); } });
+    COOK.chunks.forEach(a=>{ if(a===cy||a.eaten) return; L.push(rec(a)); });
+    (window.__GB?window.__GB.list:[]).forEach(a=>{ if(a.alive||a===cy||a.eaten) return; L.push(rec(a)); });
+    baBodies[__BAFK]=L; return baBodies; }
+  /* the kill in your arms as you go through */
+  function carried(){ const a=pl.carry&&pl.carry.a; if(!a) return null; const r=rec(a); if(r) delete r.i; return r; }
+  function lay(a,r,dy){ a.pos.set(r.x,heightAt(r.x,r.z),r.z); a.deadT=r.dt||0; if(r.left!=null) a.left=r.left; if(r.gn) a.gnaw=r.gn; a.awayT=0;
+    if(a.mesh){ a.mesh.visible=true; a.mesh.position.set(a.pos.x,a.pos.y+dy,a.pos.z); if(a.chunk) a.mesh.rotation.set(0,r.h,0); else if(a.kind==='gbird') a.mesh.rotation.y=r.h; else a.mesh.rotation.set(0,r.h,Math.PI/2); }
+    if(r.e){ a.eaten=true; if(!a.chunk) markEaten(a); } else if((r.gn||0)>0.35&&!a.chunk) markEaten(a);
+    return a; }
+  function make(r,inArms){
+    if(r.k==='wall'&&r.i!=null&&!r.v&&!inArms&&wallabies[r.i]){ const a=wallabies[r.i]; a.alive=false; a.state='dead'; a.vel.set(0,0,0); if(a.hidden!==undefined) a.hidden=false;
+      if(r.gone){ a.eaten=true; a.mesh.visible=false; return null; } return lay(a,r,0.2); }   /* this place's own animal: the same one, dead where it was left (or gone, carried away) */
+    if(r.k==='dip'){ const a=(typeof dips!=='undefined')?dips[r.i]:null; if(!a) return null; a.alive=false; a.state='dead'; a.vel.set(0,0,0); return lay(a,r,0.5); }
+    if(r.k==='wall'){ const m=makeWallaby(); m.scale.setScalar(r.s||1); if(r.c!=null&&r.c!==0xffffff) m.traverse(o=>{ if(o.material&&o.material.map===texWally){ o.material=o.material.clone(); o.material.color.setHex(r.c); } });
+      const a={kind:'wall',visitor:true,vnm:r.nm,roo:!!r.roo,mesh:m,pos:new V3(),vel:new V3(),kb:new V3(),heading:r.h,alive:false,eaten:false,state:'dead',deadT:0,hp:0}; BODY_VIS.push(a); return lay(a,r,0.2); }   /* brought from another place: made again as it was there */
+    if(r.k==='chunk'){ const a=COOK.newChunk(r.n); a.name0='meat'; a.src=r.src||undefined; if(!inArms) a.carried=false; return lay(a,r,0.1); }
+    if(r.k==='bird'&&window.__GB&&window.__GB.dead){ const a=window.__GB.dead(r.sp,r.x,r.z,r.h,r.dt); return a?lay(a,r,0):null; }
+    return null; }
+  /* arriving: lay out what was left here, and put the carried kill back in your arms */
+  function restore(L,cy){ BODY_VIS.splice(0).forEach(a=>{ if(a.mesh) scene.remove(a.mesh); });
+    for(const r of (L||[])){ try{ make(r,false); }catch(e){} }
+    if(cy){ try{ const a=make(cy,true); if(a){ a.carried=true; a.name0=COOK.kindOf(a); pl.carry={a}; } }catch(e){} } }
+  return {save,carried,restore}; })();/*@Y*/
 /* ---------- dodge: Shift with A, D or S throws you sideways or back. Bites miss you while you're moving ---------- */
 const baTap={};/*@Y*/ let dodgeCd=0;/*@Y*/
 function tryDodge(code){ if(typeof state==='undefined'||state!=='play'||dodgeCd>0||pl.exhausted||pl.eating||pl.air) return; pl.dodgeT=0.24; pl.dodgeK=code; pl.dodgeAt=tG; dodgeCd=0.85; pl.invuln=Math.max(pl.invuln,0.32); pl.stamina=Math.max(0,pl.stamina-0.15); A.whoosh(0.35); }/*@Y*/
@@ -7523,7 +7572,7 @@ const WIN=(()=>{ let w=null, last=0;
     window.__WINON=true; if(typeof spearVM!=='undefined') spearVM.visible=false; if(typeof knifeVM!=='undefined') knifeVM.visible=false;
     if(T>2.9&&!w.blk){ w.blk=true; endScreen(); }   /* into the flames, then to black */
     /* the end page over the paused game; the view is handed straight back, so going on you look round as normal, the fire dying back down */
-    if(T>4.6&&!w.done){ w.done=true; yaw=yy; pitch=Math.max(-1.2,Math.min(1.2,w.pitch+(tp-w.pitch))); p.boostOn=false; w=null; window.__WINON=false; try{ document.exitPointerLock&&document.exitPointerLock(); }catch(e){} try{ pause(); }catch(e){} try{ $('title').classList.remove('show'); }catch(e){} } }
+    if(T>4.6&&!w.done){ w.done=true; yaw=yy; pitch=Math.max(-1.2,Math.min(1.2,w.pitch+(tp-w.pitch))); p.boostOn=false; w=null; window.__WINON=false; try{ baExitLock(); }catch(e){}   /* the lock is held by the outer page when played as the full game */ try{ pause(); }catch(e){} try{ $('title').classList.remove('show'); }catch(e){} } }
   /* the end: black, the Bone Age mark, how the run went, and three ways on */
   let ES=null;
   function endScreen(){ if(!ES){ ES=document.createElement('div'); ES.id='baEnd';
@@ -8093,7 +8142,7 @@ const ARRIVALS={};/*@Y*/ pgSlots().forEach(s=>{ const Q=s.ps&&PSG.find(q=>q.feat
 const BA_ARRIVE=(()=>{ try{ const a=BAS.get('ba_arrive'); BAS.del('ba_arrive'); return a; }catch(e){ return null; } })();/*@Y*/
 let baUsedArrive=false, baExit=null, baExitT=0;/*@Y*/
 function baArrival(){ if(baUsedArrive||!BA_ARRIVE||!window.__BA_COMBINED) return null; baUsedArrive=true; baCarryPending=BA_CARRY; try{ EXITS.forEach(e=>{ if((e.feat0||e.feat)===BA_ARRIVE) e.__back=true; }); }catch(e){} const a=ARRIVALS[BA_ARRIVE]; return a?a():null; }/*@Y*/
-function baCarryObj(){ return {life:pl.life,t:pl.runTime,hunger:pl.hunger,hp:pl.hp,run:runs,kills:pl.kills,fires:baFires,spear:pl.armed==='spear'?pl.spearLit:0,visited:ACH.R.visited,resp:ACH.R.resp,book:BOOK.held&&BOOK.held.b&&!BOOK.held.pocket?BOOK.held.b.id:null,taken:[...new Set([...(ACH.R.taken||[]),...(BOOK.held&&BOOK.held.b&&BOOK.held.b.id?[BOOK.held.b.id]:[])])],bl:ACH.R.birdLv}; }/*@Y*/
+function baCarryObj(){ return {life:pl.life,t:pl.runTime,hunger:pl.hunger,hp:pl.hp,run:runs,kills:pl.kills,fires:baFires,spear:pl.armed==='spear'?pl.spearLit:0,visited:ACH.R.visited,resp:ACH.R.resp,book:BOOK.held&&BOOK.held.b&&!BOOK.held.pocket?BOOK.held.b.id:null,taken:[...new Set([...(ACH.R.taken||[]),...(BOOK.held&&BOOK.held.b&&BOOK.held.b.id?[BOOK.held.b.id]:[])])],bl:ACH.R.birdLv,bodies:BODIES.save(),carry:BODIES.carried()}; }/*@Y*/
 /* walking on without a load: the next place is built in the background while you play, then handed over as you go through */
 let baPreT=0, baPreAsked=false;/*@Y*/
 function baTop(){ return window.__BA_TOPWIN||window; }/*@Y*/
@@ -8704,10 +8753,12 @@ const GB=(()=>{ const D=window.__GBM; if(!D||typeof MODELS==='undefined') return
       b.pos.y=heightAt(b.pos.x,b.pos.z); b.mesh.position.copy(b.pos); b.mesh.rotation.y=b.heading; b.mesh.visible=dp<170; b.far=dp>90; } }
   window.__GBL=L;
 //@if plains escarpment
-  return {tick,list:L,spawn,inB,scare:(pos,r)=>{ for(const b of L){ if(!b.alive||b.state==='flee') continue; if(Math.hypot(b.pos.x-pos.x,b.pos.z-pos.z)<Math.max(r*2,22)){ b.state='flee'; b.t=0; b.ref=null; b.fs={x:pos.x,z:pos.z}; } } },_m:(dt,t)=>MODELS.tick(dt,t)}; })();/*@Y*/ window.__GB=GB;/*@Y*/
+  const dead=(sp,x,z,h,dt)=>{ const d=D[sp]; if(!d) return null; const g=new THREE.Group(); scene.add(g); const b={kind:'gbird',sp,nm:NM[sp],mesh:g,pos:new THREE.Vector3(x,heightAt(x,z),z),home:{x,z},home0:{x,z},vel:new THREE.Vector3(),kb:new THREE.Vector3(),heading:h||0,speed:0,alive:false,eaten:false,state:'dead',t:0,tgt:null,hy:HY[sp],deadT:dt||0,hp:0}; MODELS.attach(b,'gb_'+sp,d,d.tex,{type:'bird',basis:d.basis,scale:d.scale}); g.position.copy(b.pos); g.rotation.y=b.heading; L.push(b); return b; };   /* a kill remembered from earlier, or carried in */
+  return {tick,list:L,spawn,dead,inB,scare:(pos,r)=>{ for(const b of L){ if(!b.alive||b.state==='flee') continue; if(Math.hypot(b.pos.x-pos.x,b.pos.z-pos.z)<Math.max(r*2,22)){ b.state='flee'; b.t=0; b.ref=null; b.fs={x:pos.x,z:pos.z}; } } },_m:(dt,t)=>MODELS.tick(dt,t)}; })();/*@Y*/ window.__GB=GB;/*@Y*/
 //@end
 //@if gully
-  return {tick,list:L,spawn,inB,scare:(pos,r)=>{ for(const b of L){ if(!b.alive||b.state==='flee') continue; if(Math.hypot(b.pos.x-pos.x,b.pos.z-pos.z)<Math.max(r*2,22)){ b.state='flee'; b.t=0; b.ref=null; b.fs={x:pos.x,z:pos.z}; } } },_m:(dt,t)=>MODELS.tick(dt,t)}; })();/*@Y*/ window.__GB=GB;/*@Y*/ /* the stockade village (lower gully test): guards on the wall, and groups of three people with spears patrolling the place's beat. Each has what the player has:
+  const dead=(sp,x,z,h,dt)=>{ const d=D[sp]; if(!d) return null; const g=new THREE.Group(); scene.add(g); const b={kind:'gbird',sp,nm:NM[sp],mesh:g,pos:new THREE.Vector3(x,heightAt(x,z),z),home:{x,z},home0:{x,z},vel:new THREE.Vector3(),kb:new THREE.Vector3(),heading:h||0,speed:0,alive:false,eaten:false,state:'dead',t:0,tgt:null,hy:HY[sp],deadT:dt||0,hp:0}; MODELS.attach(b,'gb_'+sp,d,d.tex,{type:'bird',basis:d.basis,scale:d.scale}); g.position.copy(b.pos); g.rotation.y=b.heading; L.push(b); return b; };   /* a kill remembered from earlier, or carried in */
+  return {tick,list:L,spawn,dead,inB,scare:(pos,r)=>{ for(const b of L){ if(!b.alive||b.state==='flee') continue; if(Math.hypot(b.pos.x-pos.x,b.pos.z-pos.z)<Math.max(r*2,22)){ b.state='flee'; b.t=0; b.ref=null; b.fs={x:pos.x,z:pos.z}; } } },_m:(dt,t)=>MODELS.tick(dt,t)}; })();/*@Y*/ window.__GB=GB;/*@Y*/ /* the stockade village (lower gully test): guards on the wall, and groups of three people with spears patrolling the place's beat. Each has what the player has:
    a thrust (1), a thrown spear (lodges, can be picked up again by anyone), a knife stab when the spear is gone, a kick that shoves,
    four lives, a sidestep from a spear in flight, and a sprint that tires. Only on in the stockade village test (ba_npc=fort). */
 const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_MAPONLY&&!!(window.__BA_FORT||(typeof BAS!=='undefined'&&BAS.get&&BAS.get('ba_npc')==='fort'))&&(!N||!N.id||N.id==='G2'); }catch(e){}
