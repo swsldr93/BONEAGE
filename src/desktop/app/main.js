@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Steam sets SteamAppId when it launches the game. FALLBACK_APP_ID is only used when you run the exe directly while testing.
-const FALLBACK_APP_ID = 480; // put your Steam App ID here for testing outside Steam (0 = no Steam features). 480 = Valve's free test app (Spacewar), used while building multiplayer
+const FALLBACK_APP_ID = 5633130; // Bone Age on Steam (outside Steam the signed-in account must own it, or have a key)
 let steam = null;
 try {
   const id = Number(process.env.SteamAppId) || FALLBACK_APP_ID;
