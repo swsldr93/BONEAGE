@@ -9246,7 +9246,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   function tick(dt){ if(!fortDone&&FZ) buildFort(); if(FORTMODE&&!L.some(n=>!n.wall)&&respT<0){ for(let i=0;i<T.bands;i++) spawnBand(); }
     for(const g of GU) guardTick(g,dt);   /* built on the first frame of play, when the hands' skin is ready */
     spearTick(dt);
-    for(const b of B) if((state==='play'||state==='dying'||state==='spec')&&!b.remote) bandTick(b,dt);   /* (in warfare the fighting goes on while you watch; one played elsewhere is moved by the network) */
+    for(const b of B) if((state==='play'||state==='dying'||state==='spec'||(state==='paused'&&window.__MPPAUSE))&&!b.remote) bandTick(b,dt);   /* (in warfare the fighting goes on while you watch; one played elsewhere is moved by the network) */
     if(window.__NETPUP) for(const n of L) if(n.remote&&n.alive) window.__NETPUP(n,dt);
     for(const n of L){ if(!n.alive){ n.deadT+=dt; n.kb.multiplyScalar(Math.exp(-5*dt)); } pose(n,dt); }
     if(FORTMODE&&!B.some(b=>b.alive())){ if(respT<0) respT=T.respawn; respT-=dt; if(respT<=0){ respT=-1; B.forEach(b=>b.m.forEach(n=>{ scene.remove(n.mesh); n.gone=1; })); for(let i=L.length-1;i>=0;i--) if(L[i].gone) L.splice(i,1); B.length=0; for(let i=0;i<T.bands;i++) spawnBand(); } }
@@ -9365,6 +9365,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     try{ baDayTick(); }catch(e){} try{ baAudFade(); }catch(e){} try{ BIRDS.update(dt); }catch(e){} try{ MODELS.tick(dt,performance.now()/1000); }catch(e){} try{ if(window.__FT) window.__FT.tick(dt); if(window.__WD) window.__WD.tick(dt); if(window.__GB) window.__GB.tick(dt); }catch(e){} try{ if(LVA) AMB.tick(LVA); }catch(e){}
     try{ updateProj(dt); }catch(e){} try{ if(typeof updateAllPacks==='function') updateAllPacks(dt); else updatePack(dt); }catch(e){} try{ updateWallabies(dt); }catch(e){} try{ if(typeof updateDips==='function') updateDips(dt); if(typeof keepAnimalsIn==='function') keepAnimalsIn(); }catch(e){}
     NPCB.tick(dt); };
+  if(ON) window.__MPPAUSE=function(dt){ try{ baAudFade(); }catch(e){} try{ updateProj(dt); }catch(e){} try{ if(typeof updateAllPacks==='function') updateAllPacks(dt); else updatePack(dt); }catch(e){} try{ updateWallabies(dt); }catch(e){} NPCB.tick(dt); };
   const _uc=updateCamera; updateCamera=function(){ if(state!=='spec') return _uc(); camera.position.copy(SPEC); camera.rotation.set(pitch,yaw,0); };
   addEventListener('keydown',e=>{ if(state==='spec'&&e.code==='KeyR'&&devOK()&&firesOf(ME).length) playerDownAt=-1e9; });
   addEventListener('mousedown',()=>{ if(state==='spec'&&!locked&&!fallback) try{ requestLock(); }catch(e){} });
@@ -9404,7 +9405,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const r2=v=>Math.round(v*100)/100;
   function mkPuppet(s,x,z){ const n=NPCB.spawnAt(FAC[s],s,x,z); n.remote=true; n.band.remote=true; n.side=s; n.pos.y=heightAt(x,z); return n; }
   function netTick(dt){ if(!ON) return;
-    sendT+=dt; if(sendT>=1/15){ sendT=0; NETo.send('*',{t:'gp',x:r2(P.x),z:r2(P.z),h:r2(yaw+Math.PI),cr:pl.crouch?1:0,a:state==='play'?1:0,arm:pl.armed==='spear'?1:0}); }
+    sendT+=dt; if(sendT>=1/15){ sendT=0; NETo.send('*',{t:'gp',x:r2(P.x),z:r2(P.z),h:r2(yaw+Math.PI),cr:pl.crouch?1:0,a:(state==='play'||state==='paused')?1:0,arm:pl.armed==='spear'?1:0}); }   /* (in the pause menu you are still standing there) */
     if(!HOST) return;
     botT+=dt; if(botT>=0.1){ botT=0; NETo.send('*',{t:'gb',b:bots.filter(n=>n&&n.pos).map(n=>[n.side,n.slot,r2(n.pos.x),r2(n.pos.z),r2(n.heading),n.alive?1:0,((n.follow&&n.follow.sneak)||(n.hunt&&n.hunt.sneak))?1:0,n.armed?1:0])}); }
     warT+=dt; if(warT>=0.5){ warT=0; NETo.send('*',{t:'gw',f:F.map(f=>[f.owner,r2(f.cap),f.by])}); } }
@@ -9530,6 +9531,7 @@ function frame(now,once){ if(!once) requestAnimationFrame(frame);   /* once: a s
     if(deathBy){ deathMaul(dt,updatePack); } else { deadShow(deathT>0.05); elFade.style.opacity=c01((deathT-2.4)/0.8).toFixed(2); updatePack(dt); if(deathT>3.3) showDeath(); } }
 //@end
   else if(state==='spec'){ if(window.__SPEC) window.__SPEC(dt); }   /* warfare: down and waiting, looking round as a free eye */
+  else if(state==='paused'){ if(window.__MPPAUSE) window.__MPPAUSE(dt); }   /* online, the war does not stop for your pause menu */
   else if(state==='title'){ yaw=SPAWN_YAW+Math.sin(tG*0.05)*0.35; pitch=0.02; }
 //@if plains
   if(window.__pondShore){ for(const a of aliveAnimals()){ if(!a.pos) continue; const r=Math.hypot(a.pos.x,a.pos.z), th=Math.atan2(a.pos.z,a.pos.x), lim=window.__pondShore(th)+(a.lizard||a.kind==='dip'?2.2:(a.big?1.6:0.9)); if(r<lim){ const k=lim/(r||1e-3); a.pos.x*=k; a.pos.z*=k; a.pos.y=heightAt(a.pos.x,a.pos.z); if(a.mesh){ a.mesh.position.x=a.pos.x; a.mesh.position.z=a.pos.z; } if(a.vel){ const nx=a.pos.x/lim, nz=a.pos.z/lim, vn=a.vel.x*nx+a.vel.z*nz; if(vn<0){ a.vel.x-=vn*nx; a.vel.z-=vn*nz; } } } } }

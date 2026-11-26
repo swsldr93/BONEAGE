@@ -60,9 +60,9 @@ function lobbyInfo() { if (!lobby) return null; let members = []; try { members 
   return { myName, id: lobby.id.toString(), code: (lobby.id >> 32n) === LOBBY_HI ? codeOf(lobby.id) : lobby.id.toString(), me: meId(), owner, members, names: Object.fromEntries(members.map(m => [m, (() => { try { return steam.friends ? steam.friends.getFriendName ? steam.friends.getFriendName(BigInt(m)) : '' : ''; } catch (e) { return ''; } })()])), data: (() => { try { return lobby.getFullData(); } catch (e) { return {}; } })() }; }
 function startPump() { if (pump) return; pump = setInterval(() => { if (!steam || !win) return;
     try { for (let k = 0; k < 200; k++) { const n = steam.networking.isP2PPacketAvailable(); if (!n) break; const p = steam.networking.readP2PPacket(n); win.webContents.send('mp-msg', p.steamId.steamId64.toString(), p.data.toString('utf8')); } } catch (e) {} }, 8);
-  try { steam.callback.register(steam.callback.SteamCallback.P2PSessionRequest, v => { try { steam.networking.acceptP2PSession(v.remote); } catch (e) {} }); } catch (e) {}
-  try { steam.callback.register(steam.callback.SteamCallback.LobbyChatUpdate, () => { if (win) win.webContents.send('mp-lobby', lobbyInfo()); }); } catch (e) {}
-  try { steam.callback.register(steam.callback.SteamCallback.LobbyDataUpdate, () => { if (win) win.webContents.send('mp-lobby', lobbyInfo()); }); } catch (e) {} }
+  try { steam.callback.register(6 /* P2PSessionRequest */, v => { try { steam.networking.acceptP2PSession(v.remote); } catch (e) {} }); } catch (e) {}
+  try { steam.callback.register(5 /* LobbyChatUpdate */, () => { if (win) win.webContents.send('mp-lobby', lobbyInfo()); }); } catch (e) {}
+  try { steam.callback.register(4 /* LobbyDataUpdate */, () => { if (win) win.webContents.send('mp-lobby', lobbyInfo()); }); } catch (e) {} }
 ipcMain.on('mp-ok', e => { e.returnValue = !!steam; });
 ipcMain.handle('mp-host', async (e, max) => { if (!steam) throw new Error('Steam is not running'); startPump(); if (lobby) try { lobby.leave(); } catch (err) {} lobby = await steam.matchmaking.createLobby(2, max || 6); return lobbyInfo(); });
 ipcMain.handle('mp-join', async (e, code) => { if (!steam) throw new Error('Steam is not running'); startPump(); const id = /^\d{15,}$/.test(String(code)) ? BigInt(code) : idOf(code); if (id == null) throw new Error('That code is not right'); if (lobby) try { lobby.leave(); } catch (err) {} lobby = await steam.matchmaking.joinLobby(id); return lobbyInfo(); });

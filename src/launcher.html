@@ -509,10 +509,10 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
     function botSplit(lb){ const c={A:lb.players.filter(p=>p.side==='A').length,B:lb.players.filter(p=>p.side==='B').length}, out={A:0,B:0}; for(let i=0;i<(lb.bots|0);i++){ const s=(c.A+out.A)<=(c.B+out.B)?'A':'B'; const o=s==='A'?'B':'A'; if(c[s]+out[s]<3) out[s]++; else if(c[o]+out[o]<3) out[o]++; } return out; }
     return Object.assign(S,{
       canSteam:()=>steamOk,
-      async host(name,war){ S.name=name||'host'; if(steamOk){ const info=await N.host(6); S.mode='steam'; S.me=info.me; S.host=info.me; S.code=info.code; S.members=info.members||[S.me]; if(info.myName) S.name=info.myName; }
+      async host(name,war){ S.name=name||'host'; if(window.baNative&&!steamOk) throw new Error('Steam is not running: start Steam, then open the game again'); if(steamOk){ const info=await N.host(6); S.mode='steam'; S.me=info.me; S.host=info.me; S.code=info.code; S.members=info.members||[S.me]; if(info.myName) S.name=info.myName; }
         else { local(); S.mode='local'; S.me='L'+rid(8); S.host=S.me; S.code=rid(7); S.members=[S.me]; }
         S.lobby={code:S.code,host:S.me,A:war.A,B:war.B,line:war.line,place:war.place||'',bots:6,players:[{id:S.me,name:S.name,side:'A'}],started:false}; fitBots(); pushLobby(); return S.code; },
-      async join(code,name){ S.name=name||'player'; code=String(code||'').toUpperCase().replace(/[^0-9A-Z]/g,''); if(steamOk){ const info=await N.join(code); S.mode='steam'; S.me=info.me; S.host=info.owner; S.code=info.code; S.members=info.members||[]; if(info.myName) S.name=info.myName; }
+      async join(code,name){ S.name=name||'player'; if(window.baNative&&!steamOk) throw new Error('Steam is not running: start Steam, then open the game again'); code=String(code||'').toUpperCase().replace(/[^0-9A-Z]/g,''); if(steamOk){ const info=await N.join(code); S.mode='steam'; S.me=info.me; S.host=info.owner; S.code=info.code; S.members=info.members||[]; if(info.myName) S.name=info.myName; }
         else { local(); S.mode='local'; S.me='L'+rid(8); S.code=code; S.host=null; }
         S.lobby=null; S.hostGone=false; const hi=()=>send(S.host||'*',{t:'hello',name:S.name},true); hi(); let tries=0; const again=setInterval(()=>{ if(S.lobby||++tries>10){ clearInterval(again); if(!S.lobby&&S.onFull) S.onFull('no one is hosting that code'); return; } hi(); },1000);
       },
