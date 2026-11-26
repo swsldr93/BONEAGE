@@ -19,6 +19,16 @@ library are used. See `tools/mac.py`.
 - `survival`: Bone Age Survival, for test players, without warfare. Published to its own "Bone Age Survival" artifact.
   Fixes to the shared game are made on `main` and brought into `survival` with git cherry-pick, leaving warfare out.
 
+## Online warfare (branch `multiplayer`)
+
+Warfare between players, 3 against 3, bots optional. Built in three layers:
+
+- **Connection** (`src/desktop/app/main.js`, `preload.js`): a Steam lobby holds the players; messages go player to player through Steam's relays (old P2P API in steamworks.js). The room code is the lobby id's low 32 bits in 7 letters. Uses app id 480 (Valve's Spacewar test app) until the game has its own; set `FALLBACK_APP_ID`.
+- **Lobby** (`src/launcher.html`, `window.__BA_NET`): host / join by code, sides, bot count, start. In a browser (no Steam) the same code runs between two windows of one browser over a BroadcastChannel, for testing.
+- **War** (`src/engine.html`, the WAR module): the host runs the bots, the fires changing hands, the end of a place and the move to the next; others follow its messages. Each player is moved and hurt on their own machine and appears elsewhere as a figure moved by the network. Blows land where the victim lives (`gh`). Animals are each machine's own and are not synced yet.
+
+Messages: `gp` player state 15/s, `gb` bots 10/s, `gw` fire owners, `ga` blow begun, `gs` spear thrown, `gh` blow landed, `gc`/`gn`/`go` host cards, next place, end.
+
 ## Where things are
 
 | Path | What |

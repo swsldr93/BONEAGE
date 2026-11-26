@@ -482,6 +482,45 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
     { const q=document.getElementById('quitL'); if(q&&q.style.display!=='none') q.dataset.shown='1'; }
     showLv(false); if(sv) sv.addEventListener('click',()=>showLv(true)); if(bk) bk.addEventListener('click',()=>showLv(false));
     const d=document.getElementById('desc'); [sv].forEach(b=>{ if(!b) return; b.addEventListener('mouseenter',()=>{ if(d){ d.textContent=b.dataset.desc; d.classList.add('on'); } }); b.addEventListener('mouseleave',()=>{ if(d) d.classList.remove('on'); }); }); }
+  /* ---------- online: the connection between players. Over Steam in the desktop app (a lobby and messages player to player through Steam's relays);
+     between windows of this browser for testing (the same page open twice). Everything above this (the lobby, the war) is the same either way.
+     It lives on this page, under the places, so it holds while you go from place to place; each place hands it its own handler (__BA_NET.game) ---------- */
+  window.__BA_NET=window.__BA_NET||(()=>{ const N=window.baNative&&window.baNative.mp; let steamOk=false; try{ steamOk=!!(N&&N.ok()); }catch(e){}
+    const AB='23456789ABCDEFGHJKLMNPQRSTUVWXYZ', rid=n=>{ let s=''; for(let i=0;i<n;i++) s+=AB[Math.floor(Math.random()*32)]; return s; };
+    const S={mode:null,me:null,host:null,code:null,members:[],name:'',lobby:null,game:null,onLobby:null,onLeft:null,steam:steamOk};
+    let bc=null;
+    const deliver=(from,s)=>{ let o; try{ o=JSON.parse(s); }catch(e){ return; } o._from=from; if(o.t&&o.t[0]==='g'){ if(S.game) try{ S.game(o); }catch(e){ console.error(e); } return; } lobbyMsg(o); };
+    if(steamOk){ N.onMsg((from,s)=>deliver(from,s)); N.onLobby(info=>{ if(!info) return; const was=S.members; S.members=info.members||[]; S.host=info.owner||S.host; const gone=was.filter(m=>!S.members.includes(m)); if(gone.length) left(gone); }); }
+    function local(){ if(bc) return; try{ bc=new BroadcastChannel('ba-mp'); bc.onmessage=e=>{ const m=e.data||{}; if(!S.code||m.code!==S.code||m.from===S.me) return; if(m.to!=='*'&&m.to!==S.me) return; deliver(m.from,m.s); }; }catch(e){} addEventListener('pagehide',()=>{ try{ if(S.code) send('*',{t:'bye'},true); }catch(e){} }); }
+    function send(to,o,rel){ const s=JSON.stringify(o); if(S.mode==='steam') N.send(to,s,rel); else if(bc) bc.postMessage({code:S.code,from:S.me,to,s}); }
+    function left(ids){ if(S.host&&ids.includes(S.host)&&S.host!==S.me){ S.hostGone=true; } if(S.lobby&&S.me===S.host){ S.lobby.players=S.lobby.players.filter(p=>!ids.includes(p.id)); pushLobby(); } if(S.onLeft) try{ S.onLeft(ids); }catch(e){} if(S.gameLeft) try{ S.gameLeft(ids); }catch(e){} }
+    /* the lobby, kept by the host: who is in, on which side; the war it will be; how many bots */
+    function pushLobby(){ if(S.me!==S.host||!S.lobby) return; send('*',{t:'lobby',lobby:S.lobby},true); if(S.onLobby) S.onLobby(S.lobby); }
+    function sideFor(){ const L=S.lobby.players, a=L.filter(p=>p.side==='A').length, b=L.filter(p=>p.side==='B').length; return a<=b&&a<3?'A':(b<3?'B':null); }
+    function lobbyMsg(o){ const from=o._from;
+      if(o.t==='hello'&&S.me===S.host&&S.lobby){ if(!S.lobby.players.some(p=>p.id===from)){ if(S.lobby.started){ send(from,{t:'full',why:'that war has begun'},true); return; } const sd=sideFor(); if(!sd){ send(from,{t:'full',why:'six are in already'},true); return; } S.lobby.players.push({id:from,name:String(o.name||'player').slice(0,24),side:sd}); if(!S.members.includes(from)) S.members.push(from); } pushLobby(); return; }
+      if(o.t==='lobby'&&(from===S.host||!S.host)){ S.host=from; S.lobby=o.lobby; if(S.onLobby) S.onLobby(S.lobby); return; }
+      if(o.t==='side'&&S.me===S.host&&S.lobby){ const p=S.lobby.players.find(p=>p.id===from); if(p){ const to=p.side==='A'?'B':'A'; if(S.lobby.players.filter(q=>q.side===to).length<3) p.side=to; } fitBots(); pushLobby(); return; }
+      if(o.t==='bye'){ left([from]); return; }
+      if(o.t==='full'){ if(S.onFull) S.onFull(o.why); return; }
+      if(o.t==='start'&&from===S.host){ if(S.onStart) S.onStart(o); return; } }
+    function fitBots(){ if(!S.lobby) return; const h=S.lobby.players.length; S.lobby.bots=Math.max(0,Math.min(S.lobby.bots|0,6-h)); }
+    /* how the bots fill the sides: each to the side with fewer, none past three a side */
+    function botSplit(lb){ const c={A:lb.players.filter(p=>p.side==='A').length,B:lb.players.filter(p=>p.side==='B').length}, out={A:0,B:0}; for(let i=0;i<(lb.bots|0);i++){ const s=(c.A+out.A)<=(c.B+out.B)?'A':'B'; const o=s==='A'?'B':'A'; if(c[s]+out[s]<3) out[s]++; else if(c[o]+out[o]<3) out[o]++; } return out; }
+    return Object.assign(S,{
+      canSteam:()=>steamOk,
+      async host(name,war){ S.name=name||'host'; if(steamOk){ const info=await N.host(6); S.mode='steam'; S.me=info.me; S.host=info.me; S.code=info.code; S.members=info.members||[S.me]; if(info.myName) S.name=info.myName; }
+        else { local(); S.mode='local'; S.me='L'+rid(8); S.host=S.me; S.code=rid(7); S.members=[S.me]; }
+        S.lobby={code:S.code,host:S.me,A:war.A,B:war.B,line:war.line,place:war.place||'',bots:6,players:[{id:S.me,name:S.name,side:'A'}],started:false}; fitBots(); pushLobby(); return S.code; },
+      async join(code,name){ S.name=name||'player'; code=String(code||'').toUpperCase().replace(/[^0-9A-Z]/g,''); if(steamOk){ const info=await N.join(code); S.mode='steam'; S.me=info.me; S.host=info.owner; S.code=info.code; S.members=info.members||[]; if(info.myName) S.name=info.myName; }
+        else { local(); S.mode='local'; S.me='L'+rid(8); S.code=code; S.host=null; }
+        S.lobby=null; S.hostGone=false; const hi=()=>send(S.host||'*',{t:'hello',name:S.name},true); hi(); let tries=0; const again=setInterval(()=>{ if(S.lobby||++tries>10){ clearInterval(again); if(!S.lobby&&S.onFull) S.onFull('no one is hosting that code'); return; } hi(); },1000);
+      },
+      leave(){ try{ if(S.code) send('*',{t:'bye'},true); }catch(e){} if(S.mode==='steam') try{ N.leave(); }catch(e){} Object.assign(S,{mode:null,me:null,host:null,code:null,members:[],lobby:null,game:null}); },
+      switchSide(){ if(S.me===S.host){ const p=S.lobby.players.find(p=>p.id===S.me); const to=p.side==='A'?'B':'A'; if(S.lobby.players.filter(q=>q.side===to).length<3) p.side=to; fitBots(); pushLobby(); } else send(S.host,{t:'side'},true); },
+      setBots(n){ if(S.me!==S.host) return; S.lobby.bots=n; fitBots(); pushLobby(); },
+      botSplit, send, pushLobby, isHost:()=>!!S.me&&S.me===S.host });
+  })();
   /* warfare: a new war, two of the three peoples picked at random (yours first), starting on the high plains */
   { const wb=document.getElementById('warL'); if(wb){ const d=document.getElementById('desc'); wb.addEventListener('mouseenter',()=>{ if(d){ d.textContent=wb.dataset.desc; d.classList.add('on'); } }); wb.addEventListener('mouseleave',()=>{ if(d) d.classList.remove('on'); });
       /* choosing a side: the three peoples' flags over their figures, on black. Theirs is one of the other two, at random. The war always opens in the upper gully, the middle of the six */
@@ -490,7 +529,7 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
       const show=o=>{ o.style.display='flex'; o.style.opacity='0'; o.style.transform='translate(24px,-50%)'; requestAnimationFrame(()=>requestAnimationFrame(()=>{ o.style.opacity='1'; o.style.transform='translate(0,-50%)'; })); };
       const pick=()=>{ let o=document.getElementById('warPick'); if(o){ if(o.style.display==='none') show(o); else o.style.display='none'; return; } o=document.createElement('div'); o.id='warPick';   /* beside the menu, right of the logo: not a screen of its own */
         o.style.cssText='position:absolute;left:65%;top:50%;width:48%;z-index:5;display:flex;flex-direction:column;align-items:center;gap:2.2vh;font:clamp(12px,1.4vh,16px)/1.4 Alegreya,Georgia,serif;color:#e9e1cc;transition:opacity .35s ease,transform .35s ease';
-        o.innerHTML='<div style="font-style:italic;letter-spacing:.14em;font-size:1.25em;opacity:.85">choose your people</div><div id="warCols" style="display:flex;gap:3.5%;align-items:flex-start;justify-content:center;width:100%"></div><button type="button" class="baPlain" id="warBack" style="background:none;border:0;color:#e9e1cc;font:15px Alegreya,Georgia,serif;letter-spacing:.12em;cursor:pointer;opacity:.75">back</button>';
+        o.innerHTML='<div style="font-style:italic;letter-spacing:.14em;font-size:1.25em;opacity:.85">choose your people</div><div id="warNet" style="display:flex;gap:1.6em;letter-spacing:.1em;font-size:.95em"></div><div id="warCols" style="display:flex;gap:3.5%;align-items:flex-start;justify-content:center;width:100%"></div><button type="button" class="baPlain" id="warBack" style="background:none;border:0;color:#e9e1cc;font:15px Alegreya,Georgia,serif;letter-spacing:.12em;cursor:pointer;opacity:.75">back</button>';
         (document.getElementById('mstage')||document.body).appendChild(o); show(o); const cols=o.querySelector('#warCols'); { const s=document.getElementById('survL'); if(s) s.addEventListener('click',()=>{ o.style.display='none'; }); }
         PEO.forEach(([k,nm,flag,fig])=>{ const c=document.createElement('button'); c.type='button'; c.className='baPlain'; c.dataset.people=k; c.style.cssText='background:none;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1.2vh;color:#e9e1cc;font:inherit;width:31%;transition:transform .15s ease,opacity .15s ease;opacity:.8';
           /* no white card: each figure stands in a faint pool of firelight, with a thin pale edge round it, so the black Bassian reads on black as well as the other two */
@@ -498,10 +537,42 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
           c.addEventListener('mouseenter',()=>{ c.style.opacity='1'; c.style.transform='translateY(-4px)'; }); c.addEventListener('mouseleave',()=>{ c.style.opacity='.8'; c.style.transform='none'; });
           c.addEventListener('click',()=>{ const others=PEO.map(p=>p[0]).filter(x=>x!==k), B=others[Math.floor(Math.random()*others.length)]; modes(k,B); });
           cols.appendChild(c); });
-        o.querySelector('#warBack').addEventListener('click',()=>{ if(o.dataset.step==='side') o.style.display='none'; else sides(); });
+        o.querySelector('#warBack').addEventListener('click',()=>{ if(o.dataset.step==='lobby'){ NET.leave(); netMode='off'; netBtns(); sides(); return; } if(o.dataset.step==='side') o.style.display='none'; else sides(); });
         const head=o.firstElementChild; o.dataset.step='side';
-        const sides=()=>{ o.dataset.step='side'; head.textContent='choose your people'; cols.style.display='flex'; const L=o.querySelector('#warList'); if(L) L.remove(); };
-        const start=(k,B,line)=>{ o.style.display='none'; sides(); const M=document.getElementById('menu'); if(M) M.classList.add('leaving'); bset('ba_war',JSON.stringify({A:k,B,own:{},i:0,line})); bdel('ba_arrive'); bdel('ba_carry'); bdel('ba_npc'); bset('ba_skip_intro','1'); const n=netNew(); n.start=line[0]; netSet(n); playNode(line[0]); };
+        /* offline with bots, or online: host a room (you pick your people and the war, then wait for the others), or join one with its code */
+        const NET=window.__BA_NET; let netMode='off'; const nw=o.querySelector('#warNet');
+        const netBtns=()=>{ nw.innerHTML=''; [['off','offline'],['host','host online'],['join','join online']].forEach(([k,lab])=>{ const b=document.createElement('button'); b.type='button'; b.className='baPlain'; b.textContent=lab; b.style.cssText='background:none;border:0;border-bottom:1px solid '+(netMode===k?'#e9e1cc':'transparent')+';color:#e9e1cc;font:inherit;letter-spacing:inherit;cursor:pointer;padding:2px 0;opacity:'+(netMode===k?1:.6); b.addEventListener('click',()=>{ netMode=k; netBtns(); if(k==='join') joinView(); else sides(); }); nw.appendChild(b); }); };
+        const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        const mkList=()=>{ cols.style.display='none'; let L=o.querySelector('#warList'); if(L) L.remove(); L=document.createElement('div'); L.id='warList'; L.style.cssText='display:flex;flex-direction:column;align-items:center;gap:1.4vh;text-align:center'; head.after(L); return L; };
+        const btn=(lab,fn,big)=>{ const b=document.createElement('button'); b.type='button'; b.className='baPlain'; b.style.cssText='background:none;border:0;color:#e9e1cc;font:'+(big?'1.45em':'1.05em')+' Alegreya,Georgia,serif;letter-spacing:.1em;cursor:pointer;opacity:.86'; b.innerHTML=lab; b.addEventListener('mouseenter',()=>b.style.opacity='1'); b.addEventListener('mouseleave',()=>b.style.opacity='.86'); b.addEventListener('click',fn); return b; };
+        const joinView=()=>{ o.dataset.step='join'; head.textContent='join a war'; nw.style.display='flex'; const L=mkList();
+          L.innerHTML='<div style="opacity:.75;font-style:italic">the code the host was given</div><input id="warCode" maxlength="12" spellcheck="false" autocomplete="off" style="background:none;border:0;border-bottom:1px solid #e9e1cc88;color:#e9e1cc;font:2em Alegreya,Georgia,serif;letter-spacing:.3em;text-align:center;width:8em;text-transform:uppercase;outline:none"><div id="warJoinMsg" style="min-height:1.4em;font-style:italic;opacity:.8"></div>';
+          const inp=L.querySelector('#warCode'), msg=L.querySelector('#warJoinMsg'); setTimeout(()=>inp.focus(),50);
+          const go=async()=>{ const c=inp.value.trim(); if(c.length<4){ msg.textContent='the code is seven letters'; return; } msg.textContent='joining…'; NET.onFull=why=>{ msg.textContent=why; }; NET.onLobby=lb=>lobbyView(); NET.onStart=onStart; try{ await NET.join(c,'player'); }catch(e){ msg.textContent=String(e&&e.message||e).replace(/^Error.*?: /,''); } };
+          inp.addEventListener('keydown',e=>{ e.stopPropagation(); if(e.key==='Enter') go(); }); L.appendChild(btn('join',go,true)); };
+        /* the room, as everyone in it sees it: the code, who is on which side, the bots, and (for the host) start */
+        const lobbyView=()=>{ const lb=NET.lobby; if(!lb) return; o.dataset.step='lobby'; nw.style.display='none'; head.textContent=NET.isHost()?'your war: give them this code':'waiting for the host'; const L=mkList();
+          const split=NET.botSplit(lb), PE={}; PEO.forEach(([k,nm,flag])=>PE[k]={nm,flag});
+          let h='<div style="font-size:2.6em;letter-spacing:.32em;user-select:text">'+esc(lb.code)+'</div><div style="opacity:.7;font-style:italic">'+esc(lb.place||'')+'</div><div style="display:flex;gap:2.5em;align-items:flex-start;margin-top:1vh">';
+          ['A','B'].forEach(s=>{ const pe=PE[lb[s]]||{nm:'',flag:''}; h+='<div style="display:flex;flex-direction:column;align-items:center;gap:.6vh;min-width:9em"><img src="'+pe.flag+'" alt="" style="width:7.5em;aspect-ratio:1.75;object-fit:cover;box-shadow:0 0 0 1px rgba(233,225,204,.35)"><div style="letter-spacing:.12em">'+pe.nm+'</div>';
+            lb.players.filter(p=>p.side===s).forEach(p=>{ h+='<div style="font-style:italic'+(p.id===NET.me?';text-decoration:underline':'')+'">'+esc(p.name)+(p.id===lb.host?' (host)':'')+'</div>'; });
+            for(let i=0;i<split[s];i++) h+='<div style="opacity:.55;font-style:italic">bot</div>'; h+='</div>'; });
+          h+='</div>'; L.innerHTML=h;
+          L.appendChild(btn('change side',()=>NET.switchSide()));
+          if(NET.isHost()){ const room=6-lb.players.length, row=document.createElement('div'); row.style.cssText='display:flex;gap:1em;align-items:center'; row.appendChild(btn('−',()=>NET.setBots((lb.bots|0)-1))); const sp=document.createElement('span'); sp.textContent='bots: '+(lb.bots|0)+' of '+room; sp.style.letterSpacing='.1em'; row.appendChild(sp); row.appendChild(btn('+',()=>NET.setBots((lb.bots|0)+1))); L.appendChild(row);
+            L.appendChild(btn('start the war',()=>hostStart(),true)); }
+          L.appendChild(btn('leave',()=>{ NET.leave(); netMode='off'; netBtns(); sides(); })); };
+        NET.onLeft=()=>{ if(o.dataset.step==='lobby'){ if(NET.hostGone){ NET.leave(); netMode='off'; netBtns(); sides(); head.textContent='the host has gone'; } else lobbyView(); } };
+        const strip=n=>{ const c=JSON.parse(JSON.stringify(n)); Object.values(c.nodes||{}).forEach(nd=>{ if(nd) delete nd.m; }); return c; };
+        const hostStart=()=>{ const lb=NET.lobby; if(!lb) return; lb.started=true; NET.pushLobby(); const n=netNew(); n.start=lb.line[0]; netSet(n);
+          const war={A:lb.A,B:lb.B,own:{},i:0,line:lb.line,mp:{host:NET.me,players:lb.players.map(p=>({id:p.id,name:p.name,side:p.side})),bots:NET.botSplit(lb)}};
+          NET.send('*',{t:'start',war,net:strip(n)},true); go(war); };
+        const onStart=m=>{ try{ netSet(m.net); }catch(e){} go(m.war); };
+        const go=war=>{ o.style.display='none'; const M=document.getElementById('menu'); if(M) M.classList.add('leaving'); war=JSON.parse(JSON.stringify(war)); war.mp.me=NET.me; bset('ba_war',JSON.stringify(war)); bdel('ba_arrive'); bdel('ba_carry'); bdel('ba_npc'); bset('ba_skip_intro','1'); playNode(war.line[0]); };
+        netBtns();
+        const sides=()=>{ o.dataset.step='side'; head.textContent=netMode==='host'?'host: choose your people':'choose your people'; cols.style.display='flex'; nw.style.display='flex'; const L=o.querySelector('#warList'); if(L) L.remove(); };
+        const start=(k,B,line)=>{ if(netMode==='host'){ const NM2={G1:'the upper gully',G2:'the lower gully',P1:'the high plains',P2:'the far plains',C2:'the high forest',C1:'the east cliffs'}; NET.onLobby=()=>lobbyView(); NET.onFull=null; NET.host('host',{A:k,B,line,place:line.length===1?NM2[line[0]]:(line.length===3?'three places':'all six places')}).then(()=>lobbyView()).catch(e=>{ head.textContent=String(e&&e.message||e); }); return; }
+          o.style.display='none'; sides(); const M=document.getElementById('menu'); if(M) M.classList.add('leaving'); bset('ba_war',JSON.stringify({A:k,B,own:{},i:0,line})); bdel('ba_arrive'); bdel('ba_carry'); bdel('ba_npc'); bset('ba_skip_intro','1'); const n=netNew(); n.start=line[0]; netSet(n); playNode(line[0]); };
         const pickOf=a=>a[Math.floor(Math.random()*a.length)], ROUND=['G1','G2','P1','P2','C2','C1'];
         const list=(title,items)=>{ head.textContent=title; cols.style.display='none'; let L=o.querySelector('#warList'); if(L) L.remove(); L=document.createElement('div'); L.id='warList'; L.style.cssText='display:flex;flex-direction:column;align-items:center;gap:1.6vh';
           items.forEach(([lab,sub,fn])=>{ const b=document.createElement('button'); b.type='button'; b.className='baPlain'; b.style.cssText='background:none;border:0;color:#e9e1cc;font:1.45em Alegreya,Georgia,serif;letter-spacing:.1em;cursor:pointer;text-align:center;opacity:.86'; b.innerHTML=lab+(sub?'<div style="font-size:14px;font-style:italic;opacity:.7;letter-spacing:.04em;margin-top:2px">'+sub+'</div>':''); b.addEventListener('mouseenter',()=>b.style.opacity='1'); b.addEventListener('mouseleave',()=>b.style.opacity='.86'); b.addEventListener('click',fn); L.appendChild(b); });

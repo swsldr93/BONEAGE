@@ -9025,7 +9025,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   const PT=()=>window.__WARTEAM||'P';   /* your side */
   const NOTG={isP:false,n:null,p:{x:1e6,y:0,z:1e6},v:{x:0,z:0},e:1.6,cr:false,sp:false,ok:false};
   const tgP=()=>({isP:true,n:null,p:P,v:pl.vel,e:pl.eyeH,cr:pl.crouch,sp:pl.sprinting,ok:state==='play'&&!ghost()});
-  const tgN=o=>({isP:false,n:o,p:o.pos,v:o.vel,e:1.62,cr:!!(o.follow&&o.follow.sneak),sp:false,ok:o.alive});
+  const tgN=o=>({isP:false,n:o,p:o.pos,v:o.vel,e:1.62,cr:!!(o.rcr||(o.follow&&o.follow.sneak)),sp:false,ok:o.alive});
   let TG=NOTG;
   function pickTarget(b){ const ld=b.lead(); if(!ld) return NOTG; const team=ld.team||'H', cand=[];
     if(team!==PT()&&state==='play'&&!ghost()) cand.push(tgP());
@@ -9044,10 +9044,10 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   const hitTip=it=>_v.copy(it.vel).normalize().multiplyScalar(1.2).add(it.pos);
   function spearTick(dt){ for(const it of SP){
       if(it.state==='fly'){ const h=dt/3; for(let s=0;s<3&&it.state==='fly';s++){ it.vel.y-=T.grav*h; it.pos.addScaledVector(it.vel,h); const tp=hitTip(it), dir={x:it.vel.x,z:it.vel.z}, dl=Math.hypot(dir.x,dir.z)||1; dir.x/=dl; dir.z/=dl;
-          { let hn=null; if(it.thrower) for(const o of L){ if(o.alive&&o!==it.thrower&&Math.hypot(tp.x-o.pos.x,tp.z-o.pos.z)<0.45&&tp.y>o.pos.y+0.2&&tp.y<o.pos.y+1.85){ hn=o; break; } }
+          if(!it.vis){ let hn=null; if(it.thrower) for(const o of L){ if(o.alive&&o!==it.thrower&&Math.hypot(tp.x-o.pos.x,tp.z-o.pos.z)<0.45&&tp.y>o.pos.y+0.2&&tp.y<o.pos.y+1.85){ hn=o; break; } }
             if(hn){ hurtNpc(hn,3,dir,9,1.3,'throw',it.thrower); const [v,p]=sPos(hn.pos); A.stab(0.7*v+0.1,p); lay(it,hn.pos.x+dir.x*0.6,hn.pos.z+dir.z*0.6,Math.atan2(dir.x,dir.z)); break; } }
-          if(state==='play'&&Math.hypot(tp.x-P.x,tp.z-P.z)<0.42&&tp.y>P.y+0.1&&tp.y<P.y+pl.eyeH+0.15){ if(pl.invuln<=0) hurtPlayer({pos:it.pos.clone().addScaledVector(it.vel,-0.05),kind:'npc'},T.toP.thr,'Speared by a hunting party.'); A.stab(0.7); lay(it,P.x+dir.x*0.6,P.z+dir.z*0.6,Math.atan2(dir.x,dir.z)); break; }
-          let hit=null; for(const a of aliveAnimals()){ const cy=a.pos.y+(a.hy||(a.kind==='thyl'?TUNE.aimPred:TUNE.aimPrey)); if(!a.lizard&&Math.hypot(tp.x-a.pos.x,tp.y-cy,tp.z-a.pos.z)<(a.hr||1.0)){ hit=a; break; } }
+          if(!it.vis&&state==='play'&&Math.hypot(tp.x-P.x,tp.z-P.z)<0.42&&tp.y>P.y+0.1&&tp.y<P.y+pl.eyeH+0.15){ if(pl.invuln<=0) hurtPlayer({pos:it.pos.clone().addScaledVector(it.vel,-0.05),kind:'npc'},T.toP.thr,'Speared by a hunting party.'); A.stab(0.7); lay(it,P.x+dir.x*0.6,P.z+dir.z*0.6,Math.atan2(dir.x,dir.z)); break; }
+          let hit=null; if(!it.vis) for(const a of aliveAnimals()){ const cy=a.pos.y+(a.hy||(a.kind==='thyl'?TUNE.aimPred:TUNE.aimPrey)); if(!a.lizard&&Math.hypot(tp.x-a.pos.x,tp.y-cy,tp.z-a.pos.z)<(a.hr||1.0)){ hit=a; break; } }
           if(hit){ window.__hitBy=it.thrower||null; hitAnimal(hit,3,dir,9,1.3); const [v,p]=sPos(hit.pos); A.stab(0.7*v+0.1,p); lay(it,hit.pos.x+0.5,hit.pos.z); break; }
           const gh=heightAt(it.pos.x,it.pos.z); if(it.pos.y<gh+7&&trunkAt(tp.x,tp.z,tp.y)){ lay(it,tp.x-dir.x*0.7,tp.z-dir.z*0.7,Math.atan2(dir.x,dir.z)+rand(-0.6,0.6)); const [v,p]=sPos(it.pos); A.thud(0.45*v+0.05,p); break; }
           if(tp.y<heightAt(tp.x,tp.z)||(tp.y<gh+3&&hardRockAt(tp.x,tp.z,tp.y))){ it.state='ground'; it.g.position.copy(it.pos); it.g.lookAt(_w.copy(it.pos).add(it.vel)); it.g.position.addScaledVector(_v.copy(it.vel).normalize(),-0.15); it.pos.copy(it.g.position); it.pos.y=Math.max(it.pos.y,heightAt(it.pos.x,it.pos.z)); const [v,p]=sPos(it.pos); A.thud(0.3*v+0.05,p); break; } }
@@ -9066,7 +9066,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   function voice(n,k){ try{ if(!A.ctx) return; const [v,pan]=sPos(n.pos); if(v<0.005) return; if(k==='hurt'&&A._sb){ const i=Math.floor(Math.random()*8); if(A._sb['grunt'+i]){ A.smp('grunt',0.65*v+0.08,pan,{i,far:0.4*(1-v)}); return; } }   /* a hurt one cries out like you do */ const t=A.ctx.currentTime, hurt=k==='hurt', o=A.out(0.5*v+0.04,pan,0.15), b0=hurt?200:(140+n.i*18);
       const os=A.osc('sawtooth',b0,hurt?110:b0*1.4,t,hurt?0.28:0.42), f1=A.biq('bandpass',hurt?650:560,3.5), f2=A.biq('bandpass',hurt?1300:1050,6); os.connect(f1); os.connect(f2); f1.connect(o); f2.connect(o); A.env(o,t,0.03,hurt?0.25:0.4);
       if(k==='call'){ const t2=t+0.48, o2=A.out(0.45*v+0.04,pan,0.15), os2=A.osc('sawtooth',b0*1.3,b0*0.9,t2,0.35), f3=A.biq('bandpass',720,3.5); os2.connect(f3); f3.connect(o2); A.env(o2,t2,0.03,0.33); } }catch(e){} }
-  function hurtNpc(n,dmg,dir,kbF,stag,src,by){ if(!n.alive) return; const b=n.band; if(src!=='pred'&&src!=='starve'){ b.hitBy=by||'P'; b.hitAt=tG; TG=by?tgN(by):tgP(); } n.hp-=dmg; n.kb.set(dir.x*kbF*0.5,0,dir.z*kbF*0.5); if(src!=='pred'&&src!=='starve') engage(b,src);
+  function hurtNpc(n,dmg,dir,kbF,stag,src,by){ if(!n.alive) return; if(n.remote&&src!=='net'){ if(window.__NETHIT) window.__NETHIT(n,dmg,dir,kbF,stag,src,by); return; }   /* online: one played on another machine is hurt there, not here */ const b=n.band; if(src!=='pred'&&src!=='starve'){ b.hitBy=by||'P'; b.hitAt=tG; TG=by?tgN(by):tgP(); } n.hp-=dmg; n.kb.set(dir.x*kbF*0.5,0,dir.z*kbF*0.5); if(src!=='pred'&&src!=='starve') engage(b,src);
     if(n.hp<=0){ die(n,dir); return; } if(dmg>0){ gore(n,false,dir); voice(n,'hurt'); n.flinch=1; } n.act=null; n.stag=Math.max(n.stag,stag>0?stag*0.8:0.3); }
   function die(n,dir){ n.alive=false; n.act=null; n.deadT=0; if(n.m&&n.m.glb) ragStart(n,dir); n.vel.set(0,0,0); n.fallDir=(dir.x*Math.sin(n.heading)+dir.z*Math.cos(n.heading))>0?1:-1; gore(n,true,dir); voice(n,'hurt'); if(pl.kills) pl.kills.hunter=(pl.kills.hunter||0)+1;
     if(n.armed&&n.spear){ n.armed=false; n.m.sp.visible=false; lay(n.spear,n.pos.x+Math.cos(n.heading)*0.8,n.pos.z-Math.sin(n.heading)*0.8,n.heading+1.2); }
@@ -9098,12 +9098,12 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
     if(d>4&&(dx*Math.sin(n.heading)+dz*Math.cos(n.heading))/d<0.1) return false; return losClear(n.pos.x,n.pos.z,TG.p.x,TG.p.z); }
   function freeSpear(n,r){ let best=null, bd=r; for(const it of SP){ if(it.state!=='ground') continue; const d=Math.hypot(it.pos.x-n.pos.x,it.pos.z-n.pos.z); if(d<bd){ bd=d; best=it; } } if(typeof proj!=='undefined'&&proj&&proj.state==='ground'){ const d=Math.hypot(proj.pos.x-n.pos.x,proj.pos.z-n.pos.z); if(d<bd){ bd=d; best='P'; } } return best; }
   function take(n,it){ if(it==='P'){ proj=null; worldSpear.visible=false; it=spearItem(); } it.state='carried'; it.g.visible=false; it.owner=n; n.spear=it; n.armed=true; n.throws=Math.max(n.throws,n.i===1?0:1); }
-  function startAct(n,k,dur,at){ n.act={k,t:0,dur,at,done:false}; n.vel.multiplyScalar(k==='throw'?0.2:0.6); }
+  function startAct(n,k,dur,at){ n.act={k,t:0,dur,at,done:false}; n.vel.multiplyScalar(k==='throw'?0.2:0.6); if(!n.remote&&window.__NETACT) window.__NETACT(n,k,dur,at); }
   function throwAt(n){ if(!n.armed) return; n.aimAt={x:TG.p.x,z:TG.p.z}; const it=n.spear, h=n.heading, o=new V3(n.pos.x-Math.cos(h)*0.25+Math.sin(h)*0.2,n.pos.y+1.85,n.pos.z+Math.sin(h)*0.25+Math.cos(h)*0.2);
     const tf0=Math.hypot(TG.p.x-o.x,TG.p.z-o.z)/T.spS, lead=rand(0.3,1.0), tx=TG.p.x+TG.v.x*tf0*lead, tz=TG.p.z+TG.v.z*tf0*lead, ty=TG.p.y+TG.e*0.62, dx=Math.hypot(tx-o.x,tz-o.z), dy=ty-o.y, S=T.spS, g=T.grav;
     const disc=S**4-g*(g*dx*dx+2*dy*S*S), th=disc>0?Math.atan((S*S-Math.sqrt(disc))/(g*dx))+rand(-1,1)*0.012:Math.PI/4, yw=Math.atan2(tx-o.x,tz-o.z)+(Math.random()+Math.random()-1)*(0.015+0.0011*dx+(TG.sp?0.03:0));
-    it.state='fly'; it.thrower=n; it.pos.copy(o); it.vel.set(Math.sin(yw)*Math.cos(th)*S,Math.sin(th)*S,Math.cos(yw)*Math.cos(th)*S); it.g.visible=true; n.armed=false; n.throws--; n.band.throwCd=rand(1.4,2.4); A.whoosh(0.5*sPos(n.pos)[0]+0.05); }
-  function strike(n){ if(n.act.prey){ const a=n.act.prey; TG={isP:false,n:null,prey:a,p:a.pos,v:a.vel||{x:0,z:0},e:(a.hy||0.6)/0.62,cr:false,sp:false,ok:a.alive}; if(n.act.k==='throw'){ throwAt(n); return; } const dd=Math.hypot(a.pos.x-n.pos.x,a.pos.z-n.pos.z); if(a.alive&&dd<3.2){ const dx=(a.pos.x-n.pos.x)/(dd||1), dz=(a.pos.z-n.pos.z)/(dd||1); window.__hitBy=n; hitAnimal(a,n.act.k==='stab'?3.2:1,{x:dx,z:dz},6.5,0.9); const [v,p]=sPos(a.pos); A.stab(0.5*v+0.1,p); } return; }   /* at an animal they are hunting */
+    it.state='fly'; it.thrower=n; it.pos.copy(o); it.vel.set(Math.sin(yw)*Math.cos(th)*S,Math.sin(th)*S,Math.cos(yw)*Math.cos(th)*S); it.g.visible=true; if(window.__NETTHROW) window.__NETTHROW(n,it.pos,it.vel); n.armed=false; n.throws--; n.band.throwCd=rand(1.4,2.4); A.whoosh(0.5*sPos(n.pos)[0]+0.05); }
+  function strike(n){ if(n.remote) return; if(n.act.prey){ const a=n.act.prey; TG={isP:false,n:null,prey:a,p:a.pos,v:a.vel||{x:0,z:0},e:(a.hy||0.6)/0.62,cr:false,sp:false,ok:a.alive}; if(n.act.k==='throw'){ throwAt(n); return; } const dd=Math.hypot(a.pos.x-n.pos.x,a.pos.z-n.pos.z); if(a.alive&&dd<3.2){ const dx=(a.pos.x-n.pos.x)/(dd||1), dz=(a.pos.z-n.pos.z)/(dd||1); window.__hitBy=n; hitAnimal(a,n.act.k==='stab'?3.2:1,{x:dx,z:dz},6.5,0.9); const [v,p]=sPos(a.pos); A.stab(0.5*v+0.1,p); } return; }   /* at an animal they are hunting */
     const k=n.act.k, d=dT(n), f=((TG.p.x-n.pos.x)*Math.sin(n.heading)+(TG.p.z-n.pos.z)*Math.cos(n.heading))/(d||1), [v,p]=sPos(n.pos);
     if(k==='throw'){ throwAt(n); return; } if(!TG.ok) return;
     if(!TG.isP){ const o=TG.n, dx=(o.pos.x-n.pos.x)/(d||1), dz=(o.pos.z-n.pos.z)/(d||1); if(k==='thrust'&&d<3.1&&f>0.6){ hurtNpc(o,1,{x:dx,z:dz},6.5,0.9,'thrust',n); A.stab(0.6*v+0.2,p); } else if(k==='stab'&&d<2.1&&f>0.5){ hurtNpc(o,3.2,{x:dx,z:dz},0,0.4,'stab',n); A.stab(0.5*v+0.2,p); } else if(k==='kick'&&d<1.9&&f>0.4){ hurtNpc(o,0,{x:dx,z:dz},15,1.8,'kick',n); A.thud(0.7*v+0.1,p); } return; }
@@ -9246,11 +9246,13 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   function tick(dt){ if(!fortDone&&FZ) buildFort(); if(FORTMODE&&!L.some(n=>!n.wall)&&respT<0){ for(let i=0;i<T.bands;i++) spawnBand(); }
     for(const g of GU) guardTick(g,dt);   /* built on the first frame of play, when the hands' skin is ready */
     spearTick(dt);
-    for(const b of B) if(state==='play'||state==='dying') bandTick(b,dt);
+    for(const b of B) if((state==='play'||state==='dying'||state==='spec')&&!b.remote) bandTick(b,dt);   /* (in warfare the fighting goes on while you watch; one played elsewhere is moved by the network) */
+    if(window.__NETPUP) for(const n of L) if(n.remote&&n.alive) window.__NETPUP(n,dt);
     for(const n of L){ if(!n.alive){ n.deadT+=dt; n.kb.multiplyScalar(Math.exp(-5*dt)); } pose(n,dt); }
     if(FORTMODE&&!B.some(b=>b.alive())){ if(respT<0) respT=T.respawn; respT-=dt; if(respT<=0){ respT=-1; B.forEach(b=>b.m.forEach(n=>{ scene.remove(n.mesh); n.gone=1; })); for(let i=L.length-1;i>=0;i--) if(L[i].gone) L.splice(i,1); B.length=0; for(let i=0;i<T.bands;i++) spawnBand(); } }
     window.__NPCST=B.map(b=>b.state+':'+b.m.filter(n=>n.alive).length).join(' '); if(window.__WAR) window.__WAR.tick(dt); }
-  return {tick,list:L,bands:B,spears:SP,reset,hurt:hurtNpc,spawnBand,callUp,spawnAt,drop}; })();/*@Y*/ window.__NPCB=NPCB;/*@Y*/
+  function visSpear(o,v){ const it=spearItem(); it.vis=true; it.state='fly'; it.thrower=null; it.pos.copy(o); it.vel.copy(v); it.g.visible=true; return it; }   /* a spear thrown on another machine: seen, harmless here */
+  return {tick,list:L,bands:B,spears:SP,reset,hurt:hurtNpc,spawnBand,callUp,spawnAt,drop,T,visSpear,startAct}; })();/*@Y*/ window.__NPCB=NPCB;/*@Y*/
 /* ---------- WARFARE (offline, with bots): two peoples, three a side, you and two of yours against three of theirs, over the twelve fires of the six places.
    Each fire has a flagpole flying the flag of the side that holds it. Stand at the other side's fire with none of them there and its flag comes down;
    after ten seconds it is yours and your flag goes up. The fallen come back after fifteen seconds at a fire their side holds in this place; a side that
@@ -9260,7 +9262,13 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const LINE=(Array.isArray(W.line)&&W.line.length?W.line:['G1','G2','P1','P2','C2','C1']), NEED=LINE.length*2, NAMES={C2:'the high forest',C1:'the east cliffs',G1:'the upper gully',G2:'the lower gully',P1:'the high plains',P2:'the far plains'}, ID=NODE.id;
   const PEO={bassia:{nm:'Bassians',flag:'@@S:flagBassia@@'},torresian:{nm:'Torresians',flag:'@@S:flagTorresia@@'},eromangan:{nm:'Eromangans',flag:'@@S:flagEromanga@@'}};
   W.own=W.own||{}; LINE.forEach(id=>{ if(!W.own[id]) W.own[id]=['A','B']; }); const FAC={A:W.A,B:W.B}, other=s=>s==='A'?'B':'A';
-  window.__WARTEAM='A'; const save=()=>{ try{ BAS.set('ba_war',JSON.stringify(W)); }catch(e){} };
+  /* online (W.mp): who is who. The host runs the war (the bots, the fires changing hands, the end of a place); everyone else follows the host's word.
+     Each player is moved and hurt on their own machine and seen everywhere else as a figure (a puppet) moved by the network */
+  const MP=W.mp||null, NETo=MP?(window.__BA_NET||(window.__BA_TOPWIN&&window.__BA_TOPWIN.__BA_NET)||null):null, ON=!!(MP&&NETo&&NETo.code);
+  const ME=MP?((MP.players.find(p=>p.id===MP.me)||{}).side||'A'):'A', HOST=!ON||MP.host===MP.me;
+  const HUM=s=>MP?MP.players.filter(p=>p.side===s):(s==='A'?[{id:'me'}]:[]), NBOT=s=>MP?((MP.bots||{})[s]|0):(s==='A'?2:3);
+  const isMe=p=>!MP||p.id===MP.me;
+  window.__WARTEAM=ME; const save=()=>{ try{ BAS.set('ba_war',JSON.stringify(W)); }catch(e){} };
   const FI=[]; pits.forEach((p,i)=>{ if(FI.length<2&&p&&isFinite(p.x)&&Math.abs(p.x)<1000) FI.push(i); }); if(FI.length<2) return null;
   const F=FI.map((pi,k)=>({pi,owner:W.own[ID][k],cap:0,by:null,hf:1,swap:0}));
   /* ---- the flagpoles: a pole beside each fire, the holder's flag on a halyard, lowered as it is being taken and run up again in the new colours ---- */
@@ -9290,8 +9298,8 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   window.__mapFire=(id,i,Lp)=>{ if(!LINE.includes(id)) return null; let side=null;
     if(id===ID){ const f=F.find(f=>f.pi===i); side=f?f.owner:null; } else { const k=(Lp||[]).slice(0,i).filter(Boolean).length; side=k<2&&W.own[id]?W.own[id][k]:null; }
     return side?COL[FAC[side]]:null; };
-  window.__mapTodo=h=>{ const mine=F.filter(f=>f.owner==='A').length, a=total('A'); return [{h},{t:'take and hold both fires here',n:mine+'/2',ok:mine>=2},{t:'put down the last of them here',ok:false},{gap:1},{t:'hold every fire of the war',n:a+'/'+NEED,ok:a>=NEED}]; };
-  window.__mapWarKey=()=>['A','B'].map((s,j)=>'<circle cx="0" cy="'+(j*40)+'" r="13" fill="'+COL[FAC[s]].fill+'" stroke="'+COL[FAC[s]].stroke+'" stroke-width="3"/><text x="26" y="'+(j*40+8)+'">'+PEO[FAC[s]].nm.replace(/s$/,'')+' fire'+(s==='A'?' (yours)':'')+'</text>').join('');
+  window.__mapTodo=h=>{ const mine=F.filter(f=>f.owner===ME).length, a=total(ME); return [{h},{t:'take and hold both fires here',n:mine+'/2',ok:mine>=2},{t:'put down the last of them here',ok:false},{gap:1},{t:'hold every fire of the war',n:a+'/'+NEED,ok:a>=NEED}]; };
+  window.__mapWarKey=()=>['A','B'].map((s,j)=>'<circle cx="0" cy="'+(j*40)+'" r="13" fill="'+COL[FAC[s]].fill+'" stroke="'+COL[FAC[s]].stroke+'" stroke-width="3"/><text x="26" y="'+(j*40+8)+'">'+PEO[FAC[s]].nm.replace(/s$/,'')+' fire'+(s===ME?' (yours)':'')+'</text>').join('');
   /* ---- the sides ---- */
   const firesOf=s=>F.filter(f=>f.owner===s), total=s=>LINE.reduce((n,id)=>n+(id===ID?F.filter(f=>f.owner===s).length:W.own[id].filter(o=>o===s).length),0);
   const enemyFirePt=s=>{ const ef=F.filter(f=>f.owner!==s); if(!ef.length) return null; return ef; };
@@ -9301,17 +9309,22 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const ring=(c,r,n)=>{ const out=[]; for(let k=0;k<n;k++){ const a=k/n*6.283, q={x:c.x+Math.cos(a)*r,z:c.z+Math.sin(a)*r}; clampValley(q,2); out.push(new V3(q.x,0,q.z)); } return out; };
   const bots=[]; let started=false, endT=-1, over=false, playerDownAt=-1;
   function spawnBot(s,slot,at){ const q=at||homePt(s)||entry(s); const n=NPCB.spawnAt(FAC[s],s,q.x+rand(-1.5,1.5),q.z+rand(-1.5,1.5)); n.heading=Math.random()*6.283; n.slot=slot; n.side=s; bots[bots.findIndex(b=>b.side===s&&b.slot===slot)]=n; return n; }
-  function orders(){ for(const n of bots){ if(!n||!n.alive) continue; const s=n.side, mine=firesOf(s), theirs=F.filter(f=>f.owner!==s);
+  function orders(){ if(!HOST) return; for(const n of bots){ if(!n||!n.alive||n.remote) continue; const s=n.side, mine=firesOf(s), theirs=F.filter(f=>f.owner!==s);
       let c, r;
       if(mine.length&&n.slot===0&&theirs.length){ const p=pits[mine[0].pi]; c={x:p.x,z:p.z}; r=5; }   /* one stays to keep the home fire */
       else if(theirs.length){ const p=theirs.map(f=>pits[f.pi]).sort((a,b)=>Math.hypot(a.x-n.pos.x,a.z-n.pos.z)-Math.hypot(b.x-n.pos.x,b.z-n.pos.z))[0]; c={x:p.x,z:p.z}; r=2.2; }   /* the rest go to take theirs */
       else { const p=pits[mine[0].pi]; c={x:p.x,z:p.z}; r=6; }
       const key=Math.round(c.x)+','+Math.round(c.z)+','+r; if(n.band.rk!==key){ n.band.rk=key; n.band.ring=ring(c,r,6); n.band.wp=0; } } }
-  /* ---- yours keep with you while you are up: one back-left, one back-right, walking when you walk, running when you run, low when you go low ---- */
-  function follow(){ const up=state==='play', fx=-Math.sin(yaw), fz=-Math.cos(yaw), rx=Math.cos(yaw), rz=-Math.sin(yaw);
-    for(const n of bots){ if(!n||!n.alive||n.side!=='A'){ if(n) n.follow=null; continue; } if(!up){ n.follow=null; continue; }
-      const sd=n.slot%2?-1:1, back=pl.crouch?2.2:3, side=pl.crouch?1.8:2.4, q={x:P.x-fx*back+rx*side*sd,z:P.z-fz*back+rz*side*sd}; try{ clampValley(q,2); }catch(e){}
-      n.follow={x:q.x,z:q.z,sneak:!!pl.crouch,face:Math.atan2(fx,fz)}; } }
+  /* ---- yours keep with you while you are up: one back-left, one back-right, walking when you walk, running when you run, low when you go low.
+     Online, a side's bots keep with the nearest of that side's players; a side with none up fights by its orders ---- */
+  const peers={};   /* id: the figure of a player on another machine */
+  const leaders=s=>{ const out=[]; if(s===ME&&state==='play') out.push({x:P.x,z:P.z,fx:-Math.sin(yaw),fz:-Math.cos(yaw),cr:!!pl.crouch});
+    for(const id in peers){ const n=peers[id]; if(n&&n.alive&&n.side===s) out.push({x:n.pos.x,z:n.pos.z,fx:Math.sin(n.heading),fz:Math.cos(n.heading),cr:!!n.rcr}); } return out; };
+  function follow(){ if(!HOST) return; const LD={A:leaders('A'),B:leaders('B')};
+    for(const n of bots){ if(!n||!n.alive||n.remote){ continue; } const ls=LD[n.side]; if(!ls.length){ n.follow=null; continue; }
+      const l=ls.reduce((a,c)=>Math.hypot(c.x-n.pos.x,c.z-n.pos.z)<Math.hypot(a.x-n.pos.x,a.z-n.pos.z)?c:a), rx=-l.fz, rz=l.fx;   /* (right of the way they face) */
+      const sd=n.slot%2?-1:1, back=l.cr?2.2:3, side=l.cr?1.8:2.4, q={x:l.x-l.fx*back+rx*side*sd,z:l.z-l.fz*back+rz*side*sd}; try{ clampValley(q,2); }catch(e){}
+      n.follow={x:q.x,z:q.z,sneak:l.cr,face:Math.atan2(l.fx,l.fz)}; } }
   /* ---- the HUD: who is still standing. Bottom left the skull (you: dim while you are down) and a card for each of yours on their feet; bottom right a card for each of theirs.
      A thin bar at the top only while a fire is being taken ---- */
   const FIG=window.__BA_FIG||{}, hud=document.createElement('div'); hud.style.cssText='position:fixed;left:0;right:0;top:calc(7.5vh + 12px);z-index:40;text-align:center;font:italic 14px/1.4 Alegreya,Georgia,serif;color:#efe6cf;text-shadow:0 1px 3px #000;pointer-events:none;letter-spacing:.06em';
@@ -9321,17 +9334,17 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const fig=f=>'<img src="'+(FIG[f]||'')+'" alt="" style="height:var(--wc,12vh);width:auto;filter:drop-shadow(0 0 1px rgba(240,232,212,.95)) drop-shadow(0 2px 6px rgba(0,0,0,.75))">';
   const down=()=>FIG.skull?'<img src="'+FIG.skull+'" alt="" style="height:calc(var(--wc,12vh)*.62);width:auto;margin:0 calc(var(--wc,12vh)*.06);opacity:.85;filter:drop-shadow(0 2px 6px rgba(0,0,0,.75))">':'';
   let hudKey='';
-  function hudTick(){ const cf=F.find(f=>f.cap>0.02), me=!['spec','dying','dead'].includes(state), up=(s,k)=>{ const n=bots.find(b=>b&&b.side===s&&b.slot===k); return !!(n&&n.alive); };
-    const L=[me,up('A',1),up('A',2)], R=[up('B',0),up('B',1),up('B',2)], k=L.join()+'|'+R.join();
-    if(k!==hudKey){ hudKey=k; hL.innerHTML=L.map(u=>u?fig(FAC.A):down()).join(''); hR.innerHTML=R.map(u=>u?fig(FAC.B):down()).join(''); }
-    hud.innerHTML=cf?'<span style="display:inline-block;width:180px;height:5px;background:rgba(0,0,0,.4);vertical-align:middle"><span style="display:block;height:5px;width:'+Math.round(cf.cap*100)+'%;background:'+(cf.by==='A'?'#d9c27a':'#c0573a')+'"></span></span><br>'+(cf.by==='A'?'taking their fire':'they are taking your fire'):''; }
+  const sideUp=s=>[...HUM(s).map(p=>isMe(p)?!['spec','dying','dead'].includes(state):(peers[p.id]?peers[p.id].alive:true)),...bots.filter(b=>b&&b.side===s).sort((a,b)=>a.slot-b.slot).map(b=>b.alive!==false)];
+  function hudTick(){ const cf=F.find(f=>f.cap>0.02), YO=other(ME), L=sideUp(ME), R=sideUp(YO), k=L.join()+'|'+R.join();
+    if(k!==hudKey){ hudKey=k; hL.innerHTML=L.map(u=>u?fig(FAC[ME]):down()).join(''); hR.innerHTML=R.map(u=>u?fig(FAC[YO]):down()).join(''); }
+    hud.innerHTML=cf?'<span style="display:inline-block;width:180px;height:5px;background:rgba(0,0,0,.4);vertical-align:middle"><span style="display:block;height:5px;width:'+Math.round(cf.cap*100)+'%;background:'+(cf.by===ME?'#d9c27a':'#c0573a')+'"></span></span><br>'+(cf.by===ME?'taking their fire':'they are taking your fire'):''; }
   /* ---- start: you and yours at your fire (or the edge, if you hold none here), theirs at theirs ---- */
-  function start(){ started=true; allLit(); for(const s of ['A','B']) for(let k=(s==='A'?1:0);k<3;k++){ bots.push({side:s,slot:k}); spawnBot(s,k); }
-    const q=homePt('A')||entry('A'); P.set(q.x,heightAt(q.x,q.z),q.z); const e=F.find(f=>f.owner==='B')||F[1]; const ep=pits[e.pi]; yaw=Math.atan2(-(ep.x-P.x),-(ep.z-P.z)); pitch=-0.05;
-    showCard(PEO[FAC.A].nm+' against '+PEO[FAC.B].nm+'\n'+NAMES[ID]+(firesOf('A').length?'':'\nyou hold no fire here: take one'),4); orders(); }
+  function start(){ started=true; allLit(); bots.length=0; for(const s of ['A','B']){ const hc=HUM(s).length; for(let k=0;k<NBOT(s);k++){ bots.push({side:s,slot:hc+k}); if(HOST) spawnBot(s,hc+k); } }   /* the players first in each side, then its bots; online the bots are the host's, and seen here as the host moves them */
+    const q=homePt(ME)||entry(ME); P.set(q.x,heightAt(q.x,q.z),q.z); const e=F.find(f=>f.owner!==ME)||F[1]; const ep=pits[e.pi]; yaw=Math.atan2(-(ep.x-P.x),-(ep.z-P.z)); pitch=-0.05;
+    showCard(PEO[FAC[ME]].nm+' against '+PEO[FAC[other(ME)]].nm+'\n'+NAMES[ID]+(firesOf(ME).length?'':'\nyou hold no fire here: take one'),4); if(HOST) orders(); }
   /* ---- you go down: ninety seconds as a free eye over the place (spectator), then back at a fire your side holds here, fed. The dev can come back at once (R) ---- */
   const RESP=90, SPEC=new V3(); const devOK=()=>{ try{ return !!DEV.on; }catch(e){ return false; } };   /* with the dev panel open (the ` key) */
-  function playerBack(){ const q=homePt('A'); if(!q) return false; try{ deadShow(false); if(window.__bloodFill) window.__bloodFill.style.opacity='0'; elFade.style.opacity='0'; }catch(e){} deathBy=null;
+  function playerBack(){ const q=homePt(ME); if(!q) return false; try{ deadShow(false); if(window.__bloodFill) window.__bloodFill.style.opacity='0'; elFade.style.opacity='0'; }catch(e){} deathBy=null;
     P.set(q.x,heightAt(q.x,q.z),q.z); pl.vel.set(0,0,0); pl.kb.set(0,0,0); Object.assign(pl,{air:false,vy:0,elev:0,hp:4,hunger:0,stamina:1,exhausted:false,armed:'spear',stowed:false,spearLit:0,charging:false,chargeHold:0,invuln:2,eatT:0,eating:null,eyeH:1.62,carry:null,spearMeat:null,cooking:false,crouch:false,crouchOn:false});
     { const ww=document.getElementById('warWait'); if(ww) ww.style.display='none'; }
     try{ if(proj){ proj=null; worldSpear.visible=false; } }catch(e){} roll=0; pitch=-0.05;
@@ -9341,7 +9354,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     state='spec'; SPEC.copy(camera.position); SPEC.y+=2.5; roll=0; pl.hp=4; hurtFlash=0;   /* (the red of your wounds goes: you are only watching) */ deathBy=null; for(const k in keys) keys[k]=false; pl.lmb=false; try{ deadShow(false); if(window.__bloodFill) window.__bloodFill.style.opacity='0'; elFade.style.opacity='0'; }catch(e){} };
   const waitEl=()=>document.getElementById('warWait')||(()=>{ const d=document.createElement('div'); d.id='warWait'; d.style.cssText='position:fixed;left:0;right:0;top:74%;z-index:99;text-align:center;font:italic 22px Alegreya,Georgia,serif;color:#efe6cf;letter-spacing:.1em;text-shadow:0 1px 4px #000;pointer-events:none'; document.body.appendChild(d); return d; })();
   const LVA={plains:'day_plains',escarpment:'day_cliffs',gully:'day_gully'}[window.__BA_LVKEY]||null;
-  window.__SPEC=function(dt){ const can=firesOf('A').length>0, left=RESP-(tG-playerDownAt);
+  window.__SPEC=function(dt){ const can=firesOf(ME).length>0, left=RESP-(tG-playerDownAt);
     const el=waitEl(); el.style.display='block'; el.innerHTML=can?'back in '+Math.max(0,Math.ceil(left))+(devOK()?'<br><span style="font-size:14px;opacity:.7">R: back now</span>':''):'your side holds no fire here';
     if(can&&left<=0){ playerBack(); return; }
     /* the free eye: W A S D along where you look, space up, C down, shift faster; it stays above the ground */
@@ -9353,29 +9366,91 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     try{ updateProj(dt); }catch(e){} try{ if(typeof updateAllPacks==='function') updateAllPacks(dt); else updatePack(dt); }catch(e){} try{ updateWallabies(dt); }catch(e){} try{ if(typeof updateDips==='function') updateDips(dt); if(typeof keepAnimalsIn==='function') keepAnimalsIn(); }catch(e){}
     NPCB.tick(dt); };
   const _uc=updateCamera; updateCamera=function(){ if(state!=='spec') return _uc(); camera.position.copy(SPEC); camera.rotation.set(pitch,yaw,0); };
-  addEventListener('keydown',e=>{ if(state==='spec'&&e.code==='KeyR'&&devOK()&&firesOf('A').length) playerDownAt=-1e9; });
+  addEventListener('keydown',e=>{ if(state==='spec'&&e.code==='KeyR'&&devOK()&&firesOf(ME).length) playerDownAt=-1e9; });
   addEventListener('mousedown',()=>{ if(state==='spec'&&!locked&&!fallback) try{ requestLock(); }catch(e){} });
   /* a new run in this place (the place being started, or handed over to you) clears everyone; the war then begins again here on the next frame of play, so its fighters are never left out of the world */
-  { const _rr=resetRun; resetRun=function(){ const r=_rr.apply(this,arguments); if(started&&!over){ bots.length=0; started=false; playerDownAt=-1; } return r; }; }
+  { const _rr=resetRun; resetRun=function(){ const r=_rr.apply(this,arguments); if(started&&!over){ bots.length=0; started=false; playerDownAt=-1; for(const id in peers) delete peers[id]; } return r; }; }
   baCheckExits=function(){ baAudFade(); };   /* no leaving: the war moves on when this place is won. (The place's sound is still brought up each frame: that is done here, and without it a place handed over in a war stayed silent) */
   /* ---- each frame ---- */
+  const card=(k,s,txt)=>{ if(k==='take') showCard((s===ME?'your side has taken':'they have taken')+' a fire',3); else if(k==='won') showCard(PEO[FAC[s]].nm+' hold '+NAMES[ID]+'\non to the next place',5); else if(k==='over') showCard((s===ME?'the war is yours: ':'the war is lost: ')+PEO[FAC[s]].nm+' hold '+(NEED===12?'all twelve fires':'every fire'),8); else if(txt) showCard(txt,4); };
+  const tell=(k,s)=>{ card(k,s); if(ON&&HOST) NETo.send('*',{t:'gc',k,s},true); };
+  function nextPlace(own,i){ const ix=(LINE.indexOf(ID)+1)%LINE.length, nx=LINE[ix]; if(own) W.own=own; W.i=i!=null?i:(W.i||0)+1; save(); try{ BAS.del('ba_arrive'); BAS.del('ba_carry'); BAS.set('ba_skip_intro','1'); BAS.set('ba_next','node:'+nx); }catch(e){} baReload(); }
+  function warOver(s){ over=true; card('over',s); setTimeout(()=>{ try{ BAS.del('ba_war'); }catch(e){} try{ if(ON) NETo.leave(); }catch(e){} baReload(true); },9000); }
+  /* who stands in a side: its bots on their feet, you if you are up, and the other players of that side whose figures are up */
+  const standing=s=>[...bots.filter(n=>n&&n.alive&&n.side===s).map(n=>n.pos),...(s===ME&&state==='play'?[P]:[]),...Object.values(peers).filter(n=>n&&n.alive&&n.side===s).map(n=>n.pos)];
   function tick(dt){ if(!started){ if(state==='play') start(); else return; } flagTick(dt); hudTick(); { const ww=document.getElementById('warWait'); if(ww&&state==='play') ww.style.display='none'; }
     bots.forEach(n=>{ if(n&&n.inv>0) n.inv=Math.max(0,n.inv-dt); });
+    netTick(dt);
     follow();
-    if(over) return;
-    /* the fallen: back after fifteen seconds at a fire of theirs here, if they have one */
-    bots.forEach((n,i)=>{ if(!n||n.alive) return; n.downT=(n.downT||0)+dt; if(n.downT>=RESP&&firesOf(n.side).length){ const s=n.side, k=n.slot; try{ NPCB.drop(n); }catch(e){} spawnBot(s,k); }   /* (its body goes as it comes back: never more than three a side) */ });
+    if(over||!HOST) return;
+    /* the fallen: back after ninety seconds at a fire of theirs here, if they have one */
+    bots.forEach((n,i)=>{ if(!n||n.alive||!n.pos) return; n.downT=(n.downT||0)+dt; if(n.downT>=RESP&&firesOf(n.side).length){ const s=n.side, k=n.slot; try{ NPCB.drop(n); }catch(e){} spawnBot(s,k); }   /* (its body goes as it comes back: never more than three a side) */ });
     /* who stands at each fire */
-    const inA=s=>[...bots.filter(n=>n&&n.alive&&n.side===s).map(n=>n.pos),...(s==='A'&&state==='play'?[P]:[])];
-    for(const fr of F){ const p=pits[fr.pi], near=s=>inA(s).filter(q=>Math.hypot(q.x-p.x,q.z-p.z)<5).length, att=other(fr.owner), na=near(att), nd=near(fr.owner);
-      if(na>0&&nd===0){ fr.by=att; fr.cap=Math.min(1,fr.cap+dt/10); if(fr.cap>=1){ fr.owner=att; fr.cap=0; fr.swap=2.2; W.own[ID]=F.map(f=>f.owner); save(); showCard((att==='A'?'your side has taken':'they have taken')+' a fire',3); orders(); } }
+    for(const fr of F){ const p=pits[fr.pi], near=s=>standing(s).filter(q=>Math.hypot(q.x-p.x,q.z-p.z)<5).length, att=other(fr.owner), na=near(att), nd=near(fr.owner);
+      if(na>0&&nd===0){ fr.by=att; fr.cap=Math.min(1,fr.cap+dt/10); if(fr.cap>=1){ fr.owner=att; fr.cap=0; fr.swap=2.2; W.own[ID]=F.map(f=>f.owner); save(); tell('take',att); orders(); if(ON) NETo.send('*',{t:'gw',f:F.map(f=>[f.owner,0,null])},true); } }
       else { fr.cap=Math.max(0,fr.cap-dt/20); if(fr.cap===0) fr.by=null; } }
     W._o=(W._o||0)+dt; if(W._o>3){ W._o=0; orders(); }
     /* the place is won when a side holds no fire here and has no one standing */
-    if(endT<0) for(const s of ['A','B']){ const up=bots.some(n=>n&&n.alive&&n.side===s)||(s==='A'&&state==='play'); if(!firesOf(s).length&&!up){ const win=other(s); W.own[ID]=[win,win]; save(); endT=6;
-        const a=total('A'), b=total('B'); if(a>=NEED||b>=NEED){ over=true; const won=a>=NEED; showCard((won?'the war is yours: ':'the war is lost: ')+PEO[FAC[won?'A':'B']].nm+' hold '+(NEED===12?'all twelve fires':'every fire'),8); setTimeout(()=>{ try{ BAS.del('ba_war'); }catch(e){} baReload(true); },9000); return; }
-        showCard(PEO[FAC[win]].nm+' hold '+NAMES[ID]+'\non to the next place',5); } }
-    if(endT>0){ endT-=dt; if(endT<=0){ const i=(LINE.indexOf(ID)+1)%LINE.length, nx=LINE[i]; W.i=(W.i||0)+1; save(); try{ BAS.del('ba_arrive'); BAS.del('ba_carry'); BAS.set('ba_skip_intro','1'); BAS.set('ba_next','node:'+nx); }catch(e){} baReload(); } } }
+    if(endT<0) for(const s of ['A','B']){ if(!firesOf(s).length&&!standing(s).length){ const win=other(s); W.own[ID]=[win,win]; F.forEach(f=>f.owner=win); save(); endT=6;
+        const a=total('A'), b=total('B'); if(a>=NEED||b>=NEED){ const w=a>=NEED?'A':'B'; if(ON) NETo.send('*',{t:'go',s:w},true); warOver(w); return; }
+        tell('won',win); } }
+    if(endT>0){ endT-=dt; if(endT<=0){ if(ON) NETo.send('*',{t:'gn',own:W.own,i:(W.i||0)+1},true); nextPlace(null,null); } } }
+  /* ---------- online: what goes over the network ----------
+     gp  each player, 15 a second: where they are, which way they face, low or not, up or down, spear in hand
+     gb  the host, 10 a second: every bot the same way          gw  the host: who holds each fire, and how far one is being taken
+     ga  a thrust, stab, kick or throw begun (to play it on the figure)   gs  a spear thrown (seen flying, harmless)
+     gh  a blow landed on someone who lives on another machine (they take it there)   gc gn go  the host's cards, the next place, the end */
+  let sendT=0, botT=0, warT=0;
+  const r2=v=>Math.round(v*100)/100;
+  function mkPuppet(s,x,z){ const n=NPCB.spawnAt(FAC[s],s,x,z); n.remote=true; n.band.remote=true; n.side=s; n.pos.y=heightAt(x,z); return n; }
+  function netTick(dt){ if(!ON) return;
+    sendT+=dt; if(sendT>=1/15){ sendT=0; NETo.send('*',{t:'gp',x:r2(P.x),z:r2(P.z),h:r2(yaw+Math.PI),cr:pl.crouch?1:0,a:state==='play'?1:0,arm:pl.armed==='spear'?1:0}); }
+    if(!HOST) return;
+    botT+=dt; if(botT>=0.1){ botT=0; NETo.send('*',{t:'gb',b:bots.filter(n=>n&&n.pos).map(n=>[n.side,n.slot,r2(n.pos.x),r2(n.pos.z),r2(n.heading),n.alive?1:0,((n.follow&&n.follow.sneak)||(n.hunt&&n.hunt.sneak))?1:0,n.armed?1:0])}); }
+    warT+=dt; if(warT>=0.5){ warT=0; NETo.send('*',{t:'gw',f:F.map(f=>[f.owner,r2(f.cap),f.by])}); } }
+  /* a figure moved by the network: eased toward where it was last said to be, its pace (and so its walk or run) taken from how far it went */
+  window.__NETPUP=(n,dt)=>{ const g=n.tgt; if(!g) return; const ox=n.pos.x, oz=n.pos.z, d=Math.hypot(g.x-ox,g.z-oz);
+    if(d>12){ n.pos.x=g.x; n.pos.z=g.z; } else { const k=1-Math.exp(-9*dt); n.pos.x+=(g.x-ox)*k; n.pos.z+=(g.z-oz)*k; }
+    n.pos.y=heightAt(n.pos.x,n.pos.z); n.vel.set((n.pos.x-ox)/Math.max(dt,1e-3),0,(n.pos.z-oz)/Math.max(dt,1e-3)); if(d>12) n.vel.set(0,0,0);
+    n.heading=angLerp(n.heading,g.h,1-Math.exp(-12*dt)); if(n.m&&n.m.sp) n.m.sp.visible=n.m.root.visible&&n.armed; };
+  const tgtOf=o=>o.b?bots.find(b=>b&&b.side===o.b[0]&&b.slot===o.b[1]):peers[o._from];
+  const BLOW={thrust:'Speared by ',stab:'Knifed by ',throw:'Speared by ',kick:'Kicked down by '};
+  window.__NETHIT=(n,dmg,dir,kbF,stag,src,by)=>{ if(!ON||src==='pred'||src==='starve'||src==='net') return; const ax=by&&by.pos?by.pos.x:P.x, az=by&&by.pos?by.pos.z:P.z;
+    const m={t:'gh',dmg,dir:{x:r2(dir.x),z:r2(dir.z)},kb:kbF,st:stag,src,ax:r2(ax),az:r2(az),nm:by&&by.side?PEO[FAC[by.side]].nm.replace(/s$/,''):(MP.players.find(p=>p.id===MP.me)||{}).name||''};
+    if(by&&by.side&&bots.includes(by)) m.fb=[by.side,by.slot];   /* (a bot of the host's did it) */
+    if(n.owner){ m.p=n.owner; NETo.send(n.owner,m,true); } else if(n.side&&n.slot!=null){ m.b=[n.side,n.slot]; NETo.send(MP.host,m,true); }
+    try{ const [v,p]=sPos(n.pos); A.stab(0.5*v+0.1,p); n.flinch=1; }catch(e){} };
+  window.__NETACT=(n,k,dur,at)=>{ if(!ON||!HOST||!n.side||!bots.includes(n)) return; NETo.send('*',{t:'ga',b:[n.side,n.slot],k,d:dur,at}); };
+  window.__NETTHROW=(n,o,v)=>{ if(!ON||!HOST||!n.side||!bots.includes(n)) return; NETo.send('*',{t:'gs',b:[n.side,n.slot],o:[r2(o.x),r2(o.y),r2(o.z)],v:[r2(v.x),r2(v.y),r2(v.z)]},true); };
+  /* your own blows and throws, played on your figure elsewhere */
+  const myAct=(k,d,at)=>{ if(ON) NETo.send('*',{t:'ga',k,d,at}); };
+  if(typeof doThrustHit==='function'){ const _a=doThrustHit; doThrustHit=function(){ myAct('thrust',0.5,0.05); return _a.apply(this,arguments); }; }
+  if(typeof doStabHit==='function'){ const _a=doStabHit; doStabHit=function(){ myAct('stab',0.4,0.05); return _a.apply(this,arguments); }; }
+  if(typeof doKickHit==='function'){ const _a=doKickHit; doKickHit=function(){ myAct('kick',0.45,0.05); return _a.apply(this,arguments); }; }
+  if(typeof throwSpear==='function'){ const _a=throwSpear; throwSpear=function(){ const r=_a.apply(this,arguments); try{ if(ON&&proj&&proj.state==='fly'){ myAct('throw',0.5,0.05); NETo.send('*',{t:'gs',o:[r2(proj.pos.x),r2(proj.pos.y),r2(proj.pos.z)],v:[r2(proj.vel.x),r2(proj.vel.y),r2(proj.vel.z)]},true); } }catch(e){} return r; }; }
+  function onNet(o){ const f=o._from; if(over&&o.t!=='go') return;
+    if(o.t==='gp'){ if(!MP||f===MP.me) return; const who=MP.players.find(p=>p.id===f); if(!who) return; let n=peers[f];
+      if(!n||(!n.alive&&o.a)){ if(n) try{ NPCB.drop(n); }catch(e){} if(!o.a){ return; } n=peers[f]=mkPuppet(who.side,o.x,o.z); n.human=true; n.owner=f; n.heading=o.h; }
+      n.tgt={x:o.x,z:o.z,h:o.h}; n.rcr=!!o.cr; n.follow={sneak:!!o.cr}; n.armed=!!o.arm; if(!o.a&&n.alive) NPCB.hurt(n,99,{x:Math.sin(n.heading),z:Math.cos(n.heading)},0,0,'net'); return; }
+    if(o.t==='gb'){ if(HOST||f!==MP.host) return; for(const r of o.b){ const [s,k,x,z,h,al,cr,arm]=r; let i=bots.findIndex(b=>b&&b.side===s&&b.slot===k); if(i<0){ bots.push({side:s,slot:k}); i=bots.length-1; } let n=bots[i];
+        if(!n.pos||(!n.alive&&al)){ if(n.pos) try{ NPCB.drop(n); }catch(e){} if(!al){ bots[i]={side:s,slot:k,alive:false}; continue; } n=bots[i]=mkPuppet(s,x,z); n.slot=k; n.heading=h; }
+        n.tgt={x,z,h}; n.rcr=!!cr; n.follow={sneak:!!cr}; n.armed=!!arm; if(!al&&n.alive) NPCB.hurt(n,99,{x:Math.sin(n.heading),z:Math.cos(n.heading)},0,0,'net'); } return; }
+    if(o.t==='gw'){ if(HOST||f!==MP.host) return; o.f.forEach((r,i)=>{ const fr=F[i]; if(!fr) return; if(fr.owner!==r[0]){ fr.owner=r[0]; fr.swap=2.2; W.own[ID]=F.map(q=>q.owner); save(); } fr.cap=r[1]; fr.by=r[2]; }); return; }
+    if(o.t==='ga'){ const n=tgtOf(o); if(n&&n.alive&&n.remote&&!n.act) NPCB.startAct(n,o.k,o.d||0.6,o.at||0.3); return; }
+    if(o.t==='gs'){ try{ NPCB.visSpear(new V3(o.o[0],o.o[1],o.o[2]),new V3(o.v[0],o.v[1],o.v[2])); }catch(e){} const n=tgtOf(o); if(n&&n.remote) n.armed=false; return; }
+    if(o.t==='gh'){ const dir={x:o.dir.x||0,z:o.dir.z||1};
+      if(o.p&&o.p===MP.me){ if(state!=='play') return; const T=NPCB.T, ap=new V3(o.ax,P.y,o.az);
+        if(o.src==='kick'){ pl.kb.set(dir.x*9,0,dir.z*9); shake=Math.max(shake,0.3); try{ A.thud(0.7); }catch(e){} return; }
+        if(pl.invuln>0) return; hurtPlayer({pos:ap,kind:'npc',alive:true},o.src==='throw'?T.toP.thr:(o.src==='stab'?T.toP.stab:T.toP.thrust),(BLOW[o.src]||'Killed by ')+(o.nm||'them')+'.'); return; }
+      if(o.b&&HOST){ const n=bots.find(b=>b&&b.side===o.b[0]&&b.slot===o.b[1]); if(n&&n.alive&&!n.remote) NPCB.hurt(n,o.dmg,dir,o.kb||0,o.st||0,'net',peers[f]||null); } return; }
+    if(HOST||f!==MP.host) return;
+    if(o.t==='gc'){ card(o.k,o.s); return; }
+    if(o.t==='gn'){ nextPlace(o.own,o.i); return; }
+    if(o.t==='go'){ warOver(o.s); return; } }
+  /* leaving an online war for the menu leaves the room (the others are told) */
+  if(ON){ const _br=baReload; baReload=function(toMenu){ if(toMenu&&!over){ try{ NETo.leave(); BAS.del('ba_war'); }catch(e){} } return _br.apply(this,arguments); }; }
+  if(ON){ NETo.game=onNet; NETo.gameLeft=ids=>{ ids.forEach(id=>{ const n=peers[id]; if(n) try{ NPCB.drop(n); }catch(e){} delete peers[id]; }); MP.players=MP.players.filter(p=>!ids.includes(p.id));
+      if(ids.includes(MP.host)&&!HOST){ showCard('the host has gone\nthe war is over',6); over=true; setTimeout(()=>{ try{ BAS.del('ba_war'); NETo.leave(); }catch(e){} baReload(true); },6500); } }; }
   /* ---- the predators: each pack picks one of the fighters at random (you, or any bot of either side) and hunts that one alone until it is dead.
      The pack's own code is run as if its quarry were you: for that moment you stand where the bot stands, and a bite on you is a bite on the bot ---- */
   const VK=['vel','kb','elev','inShelter','spearLit','fireNear','dodgeOk','dodgeAt','speedNow','invuln','hp','crouch','sprinting','armed','inCover','burrow','eyeH','air','charging','stowed','carry'];
@@ -9389,10 +9464,10 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   function nearPack(){ const ms=(typeof thyls!=='undefined'?thyls:[]).concat(typeof lions!=='undefined'?lions:[]).filter(m=>m&&m.alive&&(typeof packOf!=='function'||packOf(m)===pack)); if(!ms.length) return null;
     const within=(p,r)=>ms.some(m=>Math.hypot(m.pos.x-p.x,m.pos.z-p.z)<r);
     if(state==='play'&&within(P,pl.crouch?(pl.inCover?5:8):(pl.sprinting?20:14))) return 'P';
-    for(const n of bots) if(n&&n.alive&&within(n.pos,n.follow&&n.follow.sneak?8:14)) return n; return null; }
+    if(HOST) for(const n of bots) if(n&&n.alive&&!n.remote&&within(n.pos,n.follow&&n.follow.sneak?8:14)) return n; return null; }
   /* a predator that bites one of a side brings that one's people near by down on it, until it is driven off or dead */
-  function rally(at,side,m){ for(const o of bots){ if(!o||!o.alive||o.side!==side) continue; if(Math.hypot(o.pos.x-at.x,o.pos.z-at.z)<30){ o.predFoe=m; o.predT=tG; } } }
-  { const _hp0=hurtPlayer; hurtPlayer=function(m){ try{ if(state==='play'&&m&&m.pos&&m.alive&&m.kind!=='npc') rally(P,'A',m); }catch(e){} return _hp0.apply(this,arguments); }; }
+  function rally(at,side,m){ for(const o of bots){ if(!o||!o.alive||o.remote||o.side!==side) continue; if(Math.hypot(o.pos.x-at.x,o.pos.z-at.z)<30){ o.predFoe=m; o.predT=tG; } } }
+  { const _hp0=hurtPlayer; hurtPlayer=function(m){ try{ if(state==='play'&&m&&m.pos&&m.alive&&m.kind!=='npc') rally(P,ME,m); }catch(e){} return _hp0.apply(this,arguments); }; }
   /* a resting pack that is attacked wakes, and goes for whoever struck it */
   if(typeof hitAnimal==='function'){ const _ha=hitAnimal; hitAnimal=function(a){ const by=window.__hitBy||'P'; window.__hitBy=null;
       try{ if(a&&a.kind==='thyl'&&a.alive&&typeof packOf==='function'){ const pk=packOf(a); if(pk&&pk.restT>0){ pk.restT=0; pk.victim=by; } } }catch(e){} return _ha.apply(this,arguments); }; }
@@ -9403,9 +9478,9 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
       if(!v&&pack.victim){ pack.victim=null; pack.restT=rand(60,120); if(pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } }
       if(pack.restT>0){ /* resting, but anyone who comes too close is taken on, as in survival */ const near=nearPack(); if(near){ pack.restT=0; pack.victim=near; return near==='P'?_up(dt):asVictim(near,()=>_up(dt)); }
         pack.restT-=dt; if(pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } return _up(dt); }
-      if(!v){ const c=[...(state==='play'?['P']:[]),...bots.filter(n=>n&&n.alive)]; if(!c.length){ pack.restT=5; return _up(dt); } v=c[Math.floor(Math.random()*c.length)]; }
+      if(!v){ const c=[...(state==='play'?['P']:[]),...(HOST?bots.filter(n=>n&&n.alive&&!n.remote):[])];   /* (online, the animals are each machine's own: they hunt only who lives here) */ if(!c.length){ pack.restT=5; return _up(dt); } v=c[Math.floor(Math.random()*c.length)]; }
       pack.victim=v; if(v==='P') return _up(dt); return asVictim(v,()=>_up(dt)); }; }
-  return {tick,F,bots,W}; })();/*@Y*/ window.__WAR=WAR;/*@Y*/
+  return {tick,F,bots,W,peers,winPlace:s=>{ if(!HOST||endT>=0) return; const win=s; W.own[ID]=[win,win]; F.forEach(f=>f.owner=win); save(); endT=6; tell('won',win); }}; })();/*@Y*/ window.__WAR=WAR;/*@Y*/
 const BA_CARRY=(()=>{ try{ const c=BAS.get('ba_carry'); BAS.del('ba_carry'); return c?JSON.parse(c):null; }catch(e){ return null; } })();/*@Y*/ let baCarryPending=null;/*@Y*/
 //@if escarpment
 const ANTS=(()=>{ const cv=document.createElement('canvas'); cv.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:6'; document.body.appendChild(cv); const g=cv.getContext('2d');
