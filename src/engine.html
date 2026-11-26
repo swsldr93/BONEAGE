@@ -9320,9 +9320,13 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     hurtPlayer=function(m,dmg){ if((n.inv||0)>0||!n.alive) return; n.inv=1.1; if(m&&m.pos&&m.alive){ n.predFoe=m; n.predT=tG; } const dx=m&&m.pos?n.pos.x-m.pos.x:0, dz=m&&m.pos?n.pos.z-m.pos.z:1, l=Math.hypot(dx,dz)||1; NPCB.hurt(n,dmg||1,{x:dx/l,z:dz/l},5,0.8,'pred'); try{ const [v,p]=sPos(n.pos); A.stab(0.6*v+0.1,p); }catch(e){} };
     die=function(){ if(n.alive) NPCB.hurt(n,99,{x:0,z:1},0,0,'pred'); };
     try{ fn(); } finally { P.copy(sp); VK.forEach(k=>pl[k]=sv[k]); state=ss; hurtPlayer=hp_; die=di_; shake=sh; hurtFlash=hf; } }
+  /* after each kill (or a quarry lost) a pack rests a minute or two, hunting no one, before it picks its next at random */
+  if(typeof startHunt==='function'){ const _sh=startHunt; startHunt=function(){ if(typeof pack!=='undefined'&&pack&&pack.restT>0) return; return _sh.apply(this,arguments); }; }
   if(typeof updatePack==='function'){ const _up=updatePack; updatePack=function(dt){ if(typeof pack==='undefined'||!pack) return _up(dt);
       let v=pack.victim; if(v&&v!=='P'&&!v.alive) v=null; if(v==='P'&&state!=='play'&&!(state==='dying'&&deathT<8)) v=null;   /* (they finish mauling you first) */
-      if(!v){ const c=[...(state==='play'?['P']:[]),...bots.filter(n=>n&&n.alive)]; v=c.length?c[Math.floor(Math.random()*c.length)]:'P'; if(pack.victim&&pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } }   /* its quarry is gone: another, picked at random */
+      if(!v&&pack.victim){ pack.victim=null; pack.restT=rand(60,120); if(pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } }
+      if(pack.restT>0){ pack.restT-=dt; if(pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } return _up(dt); }
+      if(!v){ const c=[...(state==='play'?['P']:[]),...bots.filter(n=>n&&n.alive)]; v=c.length?c[Math.floor(Math.random()*c.length)]:'P'; }
       pack.victim=v; if(v==='P') return _up(dt); return asVictim(v,()=>_up(dt)); }; }
   return {tick,F,bots,W}; })();/*@Y*/ window.__WAR=WAR;/*@Y*/
 const BA_CARRY=(()=>{ try{ const c=BAS.get('ba_carry'); BAS.del('ba_carry'); return c?JSON.parse(c):null; }catch(e){ return null; } })();/*@Y*/ let baCarryPending=null;/*@Y*/
