@@ -5049,7 +5049,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     const mLog=new THREE.MeshLambertMaterial({map:tLog});
     /* the stakes: one shape, many of them (each its own girth, height and lean); a few gone, a few leaning out */
     { const sg=new THREE.LatheGeometry([new THREE.Vector2(1,-0.06),new THREE.Vector2(0.97,0.87),new THREE.Vector2(0.06,1)],7), S=[];
-      for(let a=0;a<6.283;a+=0.28/RF){ if(gate(a)) continue; if(U(0,1)<0.05) continue; const r=U(0.13,0.19), h=U(3.3,3.9), lean=U(0,1)<0.08?U(0.06,0.2):U(0,0.03), [u,v]=at(a,RF); S.push([u,v,a,r,h,lean]); col(u,v,0.24); }
+      for(let a=0;a<6.283;a+=0.28/RF){ if(gate(a)) continue; if(U(0,1)<0.05) continue; const r=U(0.13,0.19), h=U(3.22,3.36),   /* stood on the walkway (eye 3.5 m) you see over the points; crouched there (eye 2.8 m) the full-girth wood is above your head */ lean=U(0,1)<0.08?U(0.06,0.2):U(0,0.03), [u,v]=at(a,RF); S.push([u,v,a,r,h,lean]); col(u,v,0.24); }
       const im=new THREE.InstancedMesh(sg,mLog,S.length), M=new THREE.Matrix4(), Q=new THREE.Quaternion(), E=new THREE.Euler(), V=new THREE.Vector3(), Sc=new THREE.Vector3();
       S.forEach(([u,v,a,r,h,lean],i)=>{ E.set(Math.cos(a)*lean,0,-Math.sin(a)*lean); Q.setFromEuler(E); M.compose(V.set(u,0,v),Q,Sc.set(r,h,r)); im.setMatrixAt(i,M); }); im.frustumCulled=false; G.add(im);
       for(let k=0;k<6;k++){ const a=U(0.6,5.7), [u,v]=at(a,U(RF+0.6,RF+2.2)); const l=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.17,U(2.6,3.6),7),mLog); l.rotation.set(Math.PI/2,0,U(0,6.283)); l.position.set(u,0.15,v); G.add(l); } }   /* stakes that came down, lying outside */
@@ -5057,12 +5057,14 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     { const [u0,v0]=at(-GA-0.02,RF), [u1,v1]=at(GA+0.02,RF); pole(0.24,0.22,[u0,-0.1,v0],[u0,4.3,v0],mLog); pole(0.24,0.22,[u1,-0.1,v1],[u1,4.3,v1],mLog); pole(0.13,0.13,[u0-0.2,3.95,v0],[u1+0.2,3.95,v1],mLog); col(u0,v0,0.34); col(u1,v1,0.34);
       const leaf=(w,h)=>{ const lg=new THREE.Group(); for(let i=0;i<5;i++){ const ms=new THREE.Mesh(new THREE.BoxGeometry(w/5-0.02,h,0.08),mB); ms.position.set(-w/2+w/10+i*w/5,h/2,0); lg.add(ms); } for(const y of [0.4,h-0.4]){ const ms=new THREE.Mesh(new THREE.BoxGeometry(w,0.12,0.1),mB); ms.position.set(0,y,0.08); lg.add(ms); } return lg; };
       const gw=Math.hypot(u1-u0,v1-v0)/2-0.15; const L1=leaf(gw,2.6); L1.position.set(u0+0.15,0,v0+0.05); L1.rotation.set(0,-1.15,0.06); G.add(L1); const L2=leaf(gw,2.6); L2.position.set(u1-0.2,0.06,v1+1.6); L2.rotation.set(-Math.PI/2+0.04,0.25,0); G.add(L2); }
-    /* the walkway round the inside of the wall: planks on bearers, posts under its inner edge; it stops either side of the gate */
-    { const deck=(a,nb)=>{ const [u,v]=at(a,rMid), q=W2(u,v); addCol(q.x,q.z,nb?0.02:0.62,y0+DK+0.02,0.78); const ar=grid.get(ck(q.z)); if(ar&&ar.length){ ar[ar.length-1].__poi=1; if(nb) ar[ar.length-1].nb=1; } };   /* the walkway's footing: close-set, so there is nowhere to drop through; over the gate it bears you but does not wall the way in below */
-      for(let a=0;a<6.283;a+=0.4/rMid) deck(a,gate(a)||gate(a-0.3/rMid)||gate(a+0.3/rMid));
-      const nS=Math.round(6.283*rMid/0.9), dA=6.283/nS; for(let i=0;i<nS;i++){ const a=(i+0.5)*dA; const [u,v]=at(a,rMid), len=dA*rMid+0.06;   /* planks all the way round, across the top of the gate too */
-        box(len,0.08,DW,mB,u,DK-0.04,v,a);
-        if(i%2===0&&!gate(a)){ const [pu,pv]=at(a,rIn+0.12); pole(0.08,0.08,[pu,-0.1,pv],[pu,DK-0.08,pv],mLog); const [qu,qv]=at(a,RF-0.35); pole(0.06,0.06,[pu,DK-0.14,pv],[qu,DK-0.14,qv],mLog); } } }
+    /* the walkway round the inside of the wall: planks on bearers, posts under its inner edge; it stops either side of the gate, leaving the way in open to the sky */
+    { const GW=GA+0.1, inGap=a=>{ const d=Math.atan2(Math.sin(a),Math.cos(a)); return Math.abs(d)<GW; };
+      const deck=a=>{ const [u,v]=at(a,rMid), q=W2(u,v); addCol(q.x,q.z,0.62,y0+DK+0.02,0.78); const ar=grid.get(ck(q.z)); if(ar&&ar.length) ar[ar.length-1].__poi=1; };   /* the walkway's footing: close-set, so there is nowhere to drop through */
+      for(let a=0;a<6.283;a+=0.4/rMid){ const d=Math.atan2(Math.sin(a),Math.cos(a)); if(Math.abs(d)<GW+0.3/rMid) continue; deck(a); }
+      const nS=Math.round(6.283*rMid/0.9), dA=6.283/nS; for(let i=0;i<nS;i++){ const a=(i+0.5)*dA; if(inGap(a)) continue; const [u,v]=at(a,rMid), len=dA*rMid+0.06;   /* planks all the way round but over the gate */
+        box(len,0.08,DW,mB,u,DK-0.04,v,a); const endL=inGap(a-dA), endR=inGap(a+dA);
+        if(endL||endR){ const [pu,pv]=at(a+(endL?-1:1)*dA*0.45,rIn+0.12), [ou,ov]=at(a+(endL?-1:1)*dA*0.45,RF-0.4); pole(0.09,0.09,[pu,-0.1,pv],[pu,DK-0.08,pv],mLog); pole(0.09,0.09,[ou,-0.1,ov],[ou,DK-0.08,ov],mLog); }   /* the cut ends stand on posts both sides */
+        if(i%2===0){ const [pu,pv]=at(a,rIn+0.12); pole(0.08,0.08,[pu,-0.1,pv],[pu,DK-0.08,pv],mLog); const [qu,qv]=at(a,RF-0.35); pole(0.06,0.06,[pu,DK-0.14,pv],[qu,DK-0.14,qv],mLog); } } }
     /* the steps up to it, against the wall on the left of the gate as you come in */
     { const a0=1.15, NS=6, run=0.48, rise=DK/NS;   /* straight in from the walkway's inner edge toward the middle, rising to it */
       for(let i=0;i<NS;i++){ const top=(i+1)*rise, [u,v]=at(a0,rIn-0.24-(NS-1-i)*run); box(DW-0.2,top,run,mB,u,top/2,v,a0); for(const s of [-0.28,0.28]){ const c=Math.cos(a0), sn=Math.sin(a0); colTop(u+c*s,v-sn*s,0.3,top,0.42); } } }
@@ -7932,7 +7934,7 @@ function updateAudio(dt){
   // breathing: the only stamina and health readout
   if(state==='play'){ const period=3.8-2.5*pl.exertion; pl.breath=(pl.breath+dt/period)%1; const b=pl.breath; let env=0, fq=700;
     if(b<0.4){ env=Math.sin(Math.PI*b/0.4); fq=1250; } else if(b>0.5&&b<0.95){ env=Math.sin(Math.PI*(b-0.5)/0.45); fq=680; }
-    A.set(A.bG.gain,env*(0.015+0.2*pl.exertion*pl.exertion),0.03); A.set(A.bF.frequency,fq,0.05); } else A.set(A.bG.gain,0,0.2);
+    A.set(A.bG.gain,0.8*env*(0.015+0.2*pl.exertion*pl.exertion),0.03);   /* (a fifth quieter) */ A.set(A.bF.frequency,fq,0.05); } else A.set(A.bG.gain,0,0.2);
 }/*@Y*/
 
 /* ---------- state machine ---------- */
