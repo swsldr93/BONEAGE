@@ -8225,7 +8225,7 @@ var GP={mx:0,mz:0,spr:false,b:[]};/*@Y*/
     for(const i in KEY) if(dn(+i)) kd(KEY[i],'keydown');
     if(dn(7)){ if(BOOK.held) BOOK.turn(1); else { pl.lmb=true; pl.lmbAt=tG; onAttack(); } }
     if(dn(6)&&BOOK.held) BOOK.turn(-1);
-    if(dn(12)) swapWeapon(); if(dn(14)) kd('KeyM','keydown');
+    if(dn(12)) swapWeapon(); if(dn(14)) kd('KeyM','keydown'); if(dn(15)) kd('KeyJ','keydown');
     if(dn(2)){ const c=(Math.abs(GP.mx)>0.35&&Math.abs(GP.mx)>=Math.abs(GP.mz)*0.7)?(GP.mx<0?'KeyA':'KeyD'):'KeyS'; tryDodge(c); }
     const rx=dz(ax[2]||0), ry=dz(ax[3]||0);
     if(rx||ry){ const s=3.2*dt*(aiming?0.55:1)*BA_SET.get('sens'), cx=rx*Math.abs(rx), cy=ry*Math.abs(ry);
@@ -9062,11 +9062,11 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
       alive(){ return this.m.some(n=>n.alive); }, lead(){ return this.m.find(n=>n.alive)||this.m[0]; }};
     for(let i=0;i<3;i++){ const a=i*2.1, r=i?1.6:0; const n=mkNpc(b,i,q.x+Math.cos(a)*r,q.z+Math.sin(a)*r); clampValley(n.pos,2); n.pos.y=heightAt(n.pos.x,n.pos.z); b.m.push(n); } b.wp=(b.wp+b.dir+patrol.length)%patrol.length; B.push(b); }
   function route(b){ return b.ring||patrol; }   /* one called up in test mode walks a round of its own about where it came */
-  function engage(b,why){ if(b.state!=='engage'){ b.state='engage'; b.throwCd=rand(0.6,1.5); const n=b.lead(); if(n&&n.alive) voice(n,'call'); } b.seenT=0; b.last={x:TG.p.x,z:TG.p.z}; }
+  function engage(b,why){ if(b.calmT&&tG<b.calmT) return; if(b.state!=='engage'){ b.state='engage'; b.throwCd=rand(0.6,1.5); const n=b.lead(); if(n&&n.alive) voice(n,'call'); } b.seenT=0; b.last={x:TG.p.x,z:TG.p.z}; }
   function voice(n,k){ try{ if(!A.ctx) return; const [v,pan]=sPos(n.pos); if(v<0.005) return; if(k==='hurt'&&A._sb){ const i=Math.floor(Math.random()*8); if(A._sb['grunt'+i]){ A.smp('grunt',0.65*v+0.08,pan,{i,far:0.4*(1-v)}); return; } }   /* a hurt one cries out like you do */ const t=A.ctx.currentTime, hurt=k==='hurt', o=A.out(0.5*v+0.04,pan,0.15), b0=hurt?200:(140+n.i*18);
       const os=A.osc('sawtooth',b0,hurt?110:b0*1.4,t,hurt?0.28:0.42), f1=A.biq('bandpass',hurt?650:560,3.5), f2=A.biq('bandpass',hurt?1300:1050,6); os.connect(f1); os.connect(f2); f1.connect(o); f2.connect(o); A.env(o,t,0.03,hurt?0.25:0.4);
       if(k==='call'){ const t2=t+0.48, o2=A.out(0.45*v+0.04,pan,0.15), os2=A.osc('sawtooth',b0*1.3,b0*0.9,t2,0.35), f3=A.biq('bandpass',720,3.5); os2.connect(f3); f3.connect(o2); A.env(o2,t2,0.03,0.33); } }catch(e){} }
-  function hurtNpc(n,dmg,dir,kbF,stag,src,by){ if(!n.alive) return; if(n.remote&&src!=='net'){ if(window.__NETHIT) window.__NETHIT(n,dmg,dir,kbF,stag,src,by); return; }   /* online: one played on another machine is hurt there, not here */ const b=n.band; if(src!=='pred'&&src!=='starve'){ b.hitBy=by||'P'; b.hitAt=tG; TG=by?tgN(by):tgP(); } n.hp-=dmg; n.kb.set(dir.x*kbF*0.5,0,dir.z*kbF*0.5); if(src!=='pred'&&src!=='starve') engage(b,src);
+  function hurtNpc(n,dmg,dir,kbF,stag,src,by){ if(!n.alive) return; if(n.band) n.band.calmT=0; if(n.remote&&src!=='net'){ if(window.__NETHIT) window.__NETHIT(n,dmg,dir,kbF,stag,src,by); return; }   /* online: one played on another machine is hurt there, not here */ const b=n.band; if(src!=='pred'&&src!=='starve'){ b.hitBy=by||'P'; b.hitAt=tG; TG=by?tgN(by):tgP(); } n.hp-=dmg; n.kb.set(dir.x*kbF*0.5,0,dir.z*kbF*0.5); if(src!=='pred'&&src!=='starve') engage(b,src);
     if(n.hp<=0){ die(n,dir); return; } if(dmg>0){ gore(n,false,dir); voice(n,'hurt'); n.flinch=1; } n.act=null; n.stag=Math.max(n.stag,stag>0?stag*0.8:0.3); }
   function die(n,dir){ n.alive=false; n.act=null; n.deadT=0; if(n.m&&n.m.glb) ragStart(n,dir); n.vel.set(0,0,0); n.fallDir=(dir.x*Math.sin(n.heading)+dir.z*Math.cos(n.heading))>0?1:-1; gore(n,true,dir); voice(n,'hurt'); if(pl.kills) pl.kills.hunter=(pl.kills.hunter||0)+1;
     if(n.armed&&n.spear){ n.armed=false; n.m.sp.visible=false; lay(n.spear,n.pos.x+Math.cos(n.heading)*0.8,n.pos.z-Math.sin(n.heading)*0.8,n.heading+1.2); }
@@ -9315,15 +9315,17 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
       else if(theirs.length){ const p=theirs.map(f=>pits[f.pi]).sort((a,b)=>Math.hypot(a.x-n.pos.x,a.z-n.pos.z)-Math.hypot(b.x-n.pos.x,b.z-n.pos.z))[0]; c={x:p.x,z:p.z}; r=2.2; }   /* the rest go to take theirs */
       else { const p=pits[mine[0].pi]; c={x:p.x,z:p.z}; r=6; }
       const key=Math.round(c.x)+','+Math.round(c.z)+','+r; if(n.band.rk!==key){ n.band.rk=key; n.band.ring=ring(c,r,6); n.band.wp=0; } } }
-  /* ---- yours keep with you while you are up: one back-left, one back-right, walking when you walk, running when you run, low when you go low.
+  /* ---- yours keep with you while you are up: one ahead-left, one ahead-right, walking when you walk, running when you run, low when you go low.
      Online, a side's bots keep with the nearest of that side's players; a side with none up fights by its orders ---- */
   const peers={};   /* id: the figure of a player on another machine */
+  function recall(s){ for(const n of bots){ if(!n||!n.alive||n.remote||n.side!==s) continue; n.hunt=null; n.predFoe=null; const b=n.band; if(b){ b.state='patrol'; b.sus=0; b.calmT=tG+6; } } }
+  addEventListener('keydown',e=>{ if(e.code!=='KeyJ'||e.repeat||state!=='play'||(typeof DEV!=='undefined'&&DEV.on)) return; if(HOST) recall(ME); else NETo.send(MP.host,{t:'gr'},true); showCard('to me',1.2); });
   const leaders=s=>{ const out=[]; if(s===ME&&state==='play') out.push({x:P.x,z:P.z,fx:-Math.sin(yaw),fz:-Math.cos(yaw),cr:!!pl.crouch});
     for(const id in peers){ const n=peers[id]; if(n&&n.alive&&n.side===s) out.push({x:n.pos.x,z:n.pos.z,fx:Math.sin(n.heading),fz:Math.cos(n.heading),cr:!!n.rcr}); } return out; };
   function follow(){ if(!HOST) return; const LD={A:leaders('A'),B:leaders('B')};
     for(const n of bots){ if(!n||!n.alive||n.remote){ continue; } const ls=LD[n.side]; if(!ls.length){ n.follow=null; continue; }
       const l=ls.reduce((a,c)=>Math.hypot(c.x-n.pos.x,c.z-n.pos.z)<Math.hypot(a.x-n.pos.x,a.z-n.pos.z)?c:a), rx=-l.fz, rz=l.fx;   /* (right of the way they face) */
-      const sd=n.slot%2?-1:1, back=l.cr?2.2:3, side=l.cr?1.8:2.4, q={x:l.x-l.fx*back+rx*side*sd,z:l.z-l.fz*back+rz*side*sd}; try{ clampValley(q,2); }catch(e){}
+      const sd=n.slot%2?-1:1, ahead=l.cr?2.0:2.6, side=l.cr?1.8:2.3, q={x:l.x+l.fx*ahead+rx*side*sd,z:l.z+l.fz*ahead+rz*side*sd}; try{ clampValley(q,2); }catch(e){}   /* ahead of you, one each side */
       n.follow={x:q.x,z:q.z,sneak:l.cr,face:Math.atan2(l.fx,l.fz)}; } }
   /* ---- the HUD: who is still standing. Bottom left the skull (you: dim while you are down) and a card for each of yours on their feet; bottom right a card for each of theirs.
      A thin bar at the top only while a fire is being taken ---- */
@@ -9391,6 +9393,10 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
       if(na>0&&nd===0){ fr.by=att; fr.cap=Math.min(1,fr.cap+dt/10); if(fr.cap>=1){ fr.owner=att; fr.cap=0; fr.swap=2.2; W.own[ID]=F.map(f=>f.owner); save(); tell('take',att); orders(); if(ON) NETo.send('*',{t:'gw',f:F.map(f=>[f.owner,0,null])},true); } }
       else { fr.cap=Math.max(0,fr.cap-dt/20); if(fr.cap===0) fr.by=null; } }
     W._o=(W._o||0)+dt; if(W._o>3){ W._o=0; orders(); }
+    /* a pack that has picked one of a side and is on them: that side's bots near by go for it, without waiting for the first bite */
+    { const PKS=typeof packs!=='undefined'?packs:(typeof pack!=='undefined'?[pack]:[]), preds=(typeof thyls!=='undefined'?thyls:[]).concat(typeof lions!=='undefined'?lions:[]).filter(m=>m&&m.alive);
+      for(const pk of PKS){ const v=pk&&pk.victim; if(!v||pk.state!=='hunt'||(pk.restT||0)>0) continue; const vp=v==='P'?(state==='play'?P:null):(v.alive?v.pos:null), vs=v==='P'?ME:v.side; if(!vp) continue;
+        let m=null, md=40; for(const q of preds){ const d=Math.hypot(q.pos.x-vp.x,q.pos.z-vp.z); if(d<md){ md=d; m=q; } } if(m) rally(vp,vs,m); } }
     /* the place is won when a side holds no fire here and has no one standing */
     if(endT<0) for(const s of ['A','B']){ if(!firesOf(s).length&&!standing(s).length){ const win=other(s); W.own[ID]=[win,win]; F.forEach(f=>f.owner=win); save(); endT=6;
         const a=total('A'), b=total('B'); if(a>=NEED||b>=NEED){ const w=a>=NEED?'A':'B'; if(ON) NETo.send('*',{t:'go',s:w},true); warOver(w); return; }
@@ -9413,7 +9419,8 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   window.__NETPUP=(n,dt)=>{ const g=n.tgt; if(!g) return; const ox=n.pos.x, oz=n.pos.z, d=Math.hypot(g.x-ox,g.z-oz);
     if(d>12){ n.pos.x=g.x; n.pos.z=g.z; } else { const k=1-Math.exp(-9*dt); n.pos.x+=(g.x-ox)*k; n.pos.z+=(g.z-oz)*k; }
     n.pos.y=heightAt(n.pos.x,n.pos.z); n.vel.set((n.pos.x-ox)/Math.max(dt,1e-3),0,(n.pos.z-oz)/Math.max(dt,1e-3)); if(d>12) n.vel.set(0,0,0);
-    n.heading=angLerp(n.heading,g.h,1-Math.exp(-12*dt)); if(n.m&&n.m.sp) n.m.sp.visible=n.m.root.visible&&n.armed; };
+    n.heading=angLerp(n.heading,g.h,1-Math.exp(-12*dt)); if(n.m&&n.m.sp) n.m.sp.visible=n.m.root.visible&&n.armed;
+    if(n.act){ n.act.t+=dt; if(n.act.t>=n.act.dur) n.act=null; } };   /* (a blow seen on a figure plays out and ends: it is struck on its own machine) */
   const tgtOf=o=>o.b?bots.find(b=>b&&b.side===o.b[0]&&b.slot===o.b[1]):peers[o._from];
   const BLOW={thrust:'Speared by ',stab:'Knifed by ',throw:'Speared by ',kick:'Kicked down by '};
   window.__NETHIT=(n,dmg,dir,kbF,stag,src,by)=>{ if(!ON||src==='pred'||src==='starve'||src==='net') return; const ax=by&&by.pos?by.pos.x:P.x, az=by&&by.pos?by.pos.z:P.z;
@@ -9439,8 +9446,10 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     if(o.t==='gw'){ if(HOST||f!==MP.host) return; o.f.forEach((r,i)=>{ const fr=F[i]; if(!fr) return; if(fr.owner!==r[0]){ fr.owner=r[0]; fr.swap=2.2; W.own[ID]=F.map(q=>q.owner); save(); } fr.cap=r[1]; fr.by=r[2]; }); return; }
     if(o.t==='ga'){ const n=tgtOf(o); if(n&&n.alive&&n.remote&&!n.act) NPCB.startAct(n,o.k,o.d||0.6,o.at||0.3); return; }
     if(o.t==='gs'){ try{ NPCB.visSpear(new V3(o.o[0],o.o[1],o.o[2]),new V3(o.v[0],o.v[1],o.v[2])); }catch(e){} const n=tgtOf(o); if(n&&n.remote) n.armed=false; return; }
+    if(o.t==='gr'){ if(HOST){ const w=MP.players.find(p=>p.id===f); if(w) recall(w.side); } return; }
     if(o.t==='gh'){ const dir={x:o.dir.x||0,z:o.dir.z||1};
-      if(o.p&&o.p===MP.me){ if(state!=='play') return; const T=NPCB.T, ap=new V3(o.ax,P.y,o.az);
+      if(o.p&&o.p===MP.me){ if(state==='paused'){ window.__gpNoLock=1; try{ begin(); }catch(e){} finally{ window.__gpNoLock=0; } }   /* struck while in the pause menu: back into it */
+        if(state!=='play') return; const T=NPCB.T, ap=new V3(o.ax,P.y,o.az);
         if(o.src==='kick'){ pl.kb.set(dir.x*9,0,dir.z*9); shake=Math.max(shake,0.3); try{ A.thud(0.7); }catch(e){} return; }
         if(pl.invuln>0) return; hurtPlayer({pos:ap,kind:'npc',alive:true},o.src==='throw'?T.toP.thr:(o.src==='stab'?T.toP.stab:T.toP.thrust),(BLOW[o.src]||'Killed by ')+(o.nm||'them')+'.'); return; }
       if(o.b&&HOST){ const n=bots.find(b=>b&&b.side===o.b[0]&&b.slot===o.b[1]); if(n&&n.alive&&!n.remote) NPCB.hurt(n,o.dmg,dir,o.kb||0,o.st||0,'net',peers[f]||null); } return; }
