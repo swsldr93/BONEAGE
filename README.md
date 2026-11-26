@@ -15,11 +15,11 @@ library are used. See `tools/mac.py`.
 
 ## Branches
 
-- `main`: Bone Age X, the game with warfare, where work goes on. Published to the "Bone Age X" artifact.
+- `main`: Bone Age X, the game with warfare, where work goes on. Published to the "Bone Age X" artifact. Online warfare was built on `multiplayer` and merged here.
 - `survival`: Bone Age Survival, for test players, without warfare. Published to its own "Bone Age Survival" artifact.
   Fixes to the shared game are made on `main` and brought into `survival` with git cherry-pick, leaving warfare out.
 
-## Online warfare (branch `multiplayer`)
+## Online warfare (on `main`)
 
 Warfare between players, 3 against 3, bots optional. Built in three layers:
 
