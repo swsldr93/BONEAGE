@@ -9306,10 +9306,13 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const FIG=window.__BA_FIG||{}, hud=document.createElement('div'); hud.style.cssText='position:fixed;left:0;right:0;top:calc(7.5vh + 12px);z-index:40;text-align:center;font:italic 14px/1.4 Alegreya,Georgia,serif;color:#efe6cf;text-shadow:0 1px 3px #000;pointer-events:none;letter-spacing:.06em';
   const row=(side)=>{ const d=document.createElement('div'); d.style.cssText='position:fixed;bottom:calc(7.5vh + 1.6vh);'+side+':max(2.4vw,env(safe-area-inset-'+side+',0px));z-index:40;display:flex;align-items:flex-end;gap:1vh;pointer-events:none';   /* standing on the lower black band */ document.body.appendChild(d); return d; };
   const hL=row('left'), hR=row('right'); document.body.appendChild(hud);
-  const card=f=>'<div style="width:calc(var(--wc,12vh)*.58);height:var(--wc,12vh);background:#f3f1ea;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.45)">'+(FIG[f]?'<img src="'+FIG[f]+'" alt="" style="height:88%;max-width:86%;object-fit:contain">':'')+'</div>';
+  /* a figure for each of the six, no card behind it: a thin pale edge and a dark shadow keep it readable over sky or scrub. Down = the skull in its place */
+  const fig=f=>'<img src="'+(FIG[f]||'')+'" alt="" style="height:var(--wc,12vh);width:auto;filter:drop-shadow(0 0 1px rgba(240,232,212,.95)) drop-shadow(0 2px 6px rgba(0,0,0,.75))">';
+  const down=()=>FIG.skull?'<img src="'+FIG.skull+'" alt="" style="height:calc(var(--wc,12vh)*.62);width:auto;margin:0 calc(var(--wc,12vh)*.06);opacity:.85;filter:drop-shadow(0 2px 6px rgba(0,0,0,.75))">':'';
   let hudKey='';
-  function hudTick(){ const cf=F.find(f=>f.cap>0.02), me=state==='play', nA=bots.filter(n=>n&&n.alive&&n.side==='A').length, nB=bots.filter(n=>n&&n.alive&&n.side==='B').length, k=me+'|'+nA+'|'+nB;
-    if(k!==hudKey){ hudKey=k; hL.innerHTML=(FIG.skull?'<img src="'+FIG.skull+'" alt="" style="height:calc(var(--wc,12vh)*.92);margin-right:.4vh;opacity:'+(me?1:0.3)+';filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))">':'')+card(FAC.A).repeat(nA); hR.innerHTML=card(FAC.B).repeat(nB); }
+  function hudTick(){ const cf=F.find(f=>f.cap>0.02), me=!['spec','dying','dead'].includes(state), up=(s,k)=>{ const n=bots.find(b=>b&&b.side===s&&b.slot===k); return !!(n&&n.alive); };
+    const L=[me,up('A',1),up('A',2)], R=[up('B',0),up('B',1),up('B',2)], k=L.join()+'|'+R.join();
+    if(k!==hudKey){ hudKey=k; hL.innerHTML=L.map(u=>u?fig(FAC.A):down()).join(''); hR.innerHTML=R.map(u=>u?fig(FAC.B):down()).join(''); }
     hud.innerHTML=cf?'<span style="display:inline-block;width:180px;height:5px;background:rgba(0,0,0,.4);vertical-align:middle"><span style="display:block;height:5px;width:'+Math.round(cf.cap*100)+'%;background:'+(cf.by==='A'?'#d9c27a':'#c0573a')+'"></span></span><br>'+(cf.by==='A'?'taking their fire':'they are taking your fire'):''; }
   /* ---- start: you and yours at your fire (or the edge, if you hold none here), theirs at theirs ---- */
   function start(){ started=true; for(const s of ['A','B']) for(let k=(s==='A'?1:0);k<3;k++){ bots.push({side:s,slot:k}); spawnBot(s,k); }
