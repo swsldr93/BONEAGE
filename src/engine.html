@@ -169,7 +169,7 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
 
 <script>/* pause and title menu: aims | logo and buttons | this place and its fires */
 (()=>{ const t=document.getElementById('title'); if(!t) return; const q=s=>t.querySelector(s), pz=q('.pz'); if(!pz||q('.pzColC')) return;
-  const st=document.createElement('style'); st.textContent="#title .pz{display:grid!important;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:4vw;width:min(1600px,96vw);max-width:none;margin:auto;padding:2vh 2vw}#title .pzRow,#title .pzOpts{display:none!important}#title .pzColL{justify-self:center;width:min(100%,360px);text-align:center}#title .pzColL .aims{width:100%!important;color:var(--ink)}#title .pzColL .aims li{margin:0 0 2.1em;font-size:clamp(15px,1.2vw,21px);line-height:1.38;padding:0}#title .pzColL .aims li::before{display:none!important}#title .pzColL .ctrlv,#title .pzColL .setv{max-height:72vh;overflow:auto;text-align:left}#title.ctrl .pzColL,#title.sett .pzColL{width:min(100%,520px)}#title .pzColC{display:flex;flex-direction:column;align-items:center;gap:7vh}#title .pzColC .logo{margin:0}#title .pzColC .logo img{width:min(24vw,420px);height:auto;display:block}#title .pzColC .pzBtns{width:min(22vw,340px);margin:0;gap:12px}#title .pzColR{justify-self:center;text-align:center;color:var(--ochre,#c28f4c);width:min(100%,270px)}#title .pzColR .zone{font-style:italic;font-size:clamp(17px,1.35vw,24px);margin:0 0 2.4em;line-height:1.3}#title .pzColR .pzTot{color:var(--ink,#dcd4c1);opacity:1;margin-top:1.6em;font-size:1.05em}.pzColR #zoneDay{display:block;font-style:normal;font-size:1.35em}#title .pzFires p{margin:0 0 2.1em;font-size:clamp(15px,1.2vw,21px);line-height:1.38;opacity:.42}#title .pzFires p.on{opacity:1}@media (max-width:900px){#title .pz{grid-template-columns:1fr}#title .pzColC .logo img{width:min(60vw,300px)}#title .pzColC .pzBtns{width:min(80vw,320px)}}"; document.head.appendChild(st);
+  const st=document.createElement('style'); st.textContent="#title .pz{display:grid!important;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:4vw;width:min(1600px,96vw);max-width:none;margin:auto;padding:2vh 2vw}#title .pzRow,#title .pzOpts{display:none!important}#title .pzColL{justify-self:center;width:min(100%,360px);text-align:center}#title .pzColL .aims{width:100%!important;color:var(--ink)}#title .pzColL .aims li{margin:0 0 2.1em;font-size:clamp(15px,1.2vw,21px);line-height:1.38;padding:0}#title .pzColL .aims li::before{display:none!important}#title .pzColL .ctrlv,#title .pzColL .setv{max-height:72vh;overflow:auto;text-align:left}#title.ctrl .pzColL,#title.sett .pzColL{width:min(100%,520px)}#title .pzColC{display:flex;flex-direction:column;align-items:center;gap:7vh}#title .pzColC .logo{margin:0}#title .pzColC .logo img{width:min(24vw,420px);height:auto;display:block}#title .pzColC .pzBtns{width:min(22vw,340px);margin:0;gap:12px}#title .pzColR{justify-self:center;text-align:center;color:var(--ochre,#c28f4c);width:min(100%,270px)}#title .pzColR .zone{font-style:italic;font-size:clamp(17px,1.35vw,24px);margin:0 0 2.4em;line-height:1.3}#title .pzColR .pzTot{color:var(--ink,#dcd4c1);opacity:1;margin-top:1.6em;font-size:1.05em}.pzColR #zoneDay{display:block;font-style:normal;font-size:1.35em}#title .pzFires p{margin:0 0 2.1em;font-size:clamp(15px,1.2vw,21px);line-height:1.38;opacity:.42}#title .pzFires p.on{opacity:1}#title.tutoff .pzColL .aims{display:none!important}@media (max-width:900px){#title .pz{grid-template-columns:1fr}#title .pzColC .logo img{width:min(60vw,300px)}#title .pzColC .pzBtns{width:min(80vw,320px)}}"; document.head.appendChild(st);
   const L=document.createElement('div'), C=document.createElement('div'), R=document.createElement('div'); L.className='pzColL'; C.className='pzColC'; R.className='pzColR';
   const aims=q('.aims'); if(aims) aims.innerHTML='<li><b>Survive</b>: you will die - life is measured in days in bone age. learn strategies to stay alive longer and master the three levels of the mountains.</li><li><b>Hunt</b>: don\u2019t starve. hunt prey and defeat predators to stay alive and discover new variants.</li><li><b>Explore</b>: only the fire you wake beside is burning. light your spear and bring fire to the other camps, find new prey, and learn about those who came before you.</li>';
   [aims,q('.ctrlv'),q('.setv')].forEach(e=>{ if(e) L.appendChild(e); }); [q('h1.logo'),q('.pzBtns')].forEach(e=>{ if(e) C.appendChild(e); });
@@ -2828,7 +2828,9 @@ function makeShelter(x,z,yaw,wallSide=1){ const L=R(TUNE.makeShelter_1,TUNE.make
 //@end
 function shelterLocal(sh,px,pz){ const dx=px-sh.x, dz=pz-sh.z; return {l:dx*sh.ax.x+dz*sh.ax.z, w:dx*sh.pp.x+dz*sh.pp.z}; }/*@Y*/
 function shelterAt(px,pz){ for(const sh of shelters){ const q=shelterLocal(sh,px,pz); if(Math.abs(q.l)<sh.hl-0.3&&Math.abs(q.w)<sh.gap/2+0.2) return sh; } return null; }/*@Y*/
-function inShelter(px,pz){ for(const sh of shelters){ const q=shelterLocal(sh,px,pz); if(Math.abs(q.l)<sh.hl-0.3&&Math.abs(q.w)<sh.gap/2+0.2) return true; } return false; }/*@Y*/
+var POISH=[];/*@Y*/   /* the insides of the places built in the land that close round you (the hollow log, a shack, a bark hut): no predator reaches in through their walls */
+function inPoiShelter(px,pz){ for(const s of POISH){ const dx=px-s.x, dz=pz-s.z, u=dx*s.ux+dz*s.uz, v=-dx*s.uz+dz*s.ux; if(Math.abs(u)<s.hu&&Math.abs(v)<s.hv) return true; } return false; }/*@Y*/
+function inShelter(px,pz){ for(const sh of shelters){ const q=shelterLocal(sh,px,pz); if(Math.abs(q.l)<sh.hl-0.3&&Math.abs(q.w)<sh.gap/2+0.2) return true; } return inPoiShelter(px,pz); }/*@Y*/
 //@if plains escarpment
 function keepOutOfShelters(a){ for(const sh of shelters){ const q=shelterLocal(sh,a.pos.x,a.pos.z), hw=sh.gap/2+sh.T+TUNE.keepOutOfShelters_1, hl=sh.hl+TUNE.keepOutOfShelters_2; if(Math.abs(q.l)<hl&&Math.abs(q.w)<hw){
       const pl2=hl-Math.abs(q.l), pw=hw-Math.abs(q.w); let l=q.l, w=q.w; if(pl2<pw) l=Math.sign(q.l||1)*hl; else w=Math.sign(q.w||1)*hw;
@@ -4755,6 +4757,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
   const mB=new THREE.MeshLambertMaterial({map:tBoard}), mI=new THREE.MeshLambertMaterial({map:tIron,side:THREE.DoubleSide}), mP=new THREE.MeshLambertMaterial({map:tPole}), mBone=new THREE.MeshLambertMaterial({color:0xd8ccb2});
   const G=new THREE.Group(); G.position.set(x,y0,z); G.rotation.y=rot; scene.add(G);
     const cr=Math.cos(rot), sr=Math.sin(rot), W2=(u,v)=>({x:x+u*cr+v*sr,z:z-u*sr+v*cr});   /* group space (u across, v along) to the world */
+    const shBox=(u,v,hu,hv)=>{ const c=W2(u,v); POISH.push({x:c.x,z:c.z,ux:cr,uz:-sr,hu,hv}); };   /* this place's inside, safe from predators */
   const mCh=new THREE.MeshLambertMaterial({map:tPole,color:0x4a3c32}), mSoot=new THREE.MeshLambertMaterial({color:0x1e1a17});
     const BL=[], blk=(x,y,z,sx,sy,sz,ry,rx,rz,c,loose)=>BL.push([x,y,z,sx,sy,sz,ry,rx,rz,c,Math.floor(U(0,4))+(loose?4:0)]);
     const PAL=[[1.0,0.97,0.92],[0.96,0.9,0.82],[1.02,0.98,0.93],[0.98,0.91,0.82],[0.94,0.91,0.88]], tone=()=>{ const k=U(0.9,1.04); return PAL[Math.floor(U(0,PAL.length))].map(v=>v*k); };
@@ -4789,6 +4792,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
         pa.setZ(i,((1-w)*(0.06*Math.sin(y*9+k*5)+0.04*Math.sin(t*0.9+k*3))+w*(0.13*Math.sin(x*3.1-t*6.5)+0.05*Math.sin(x*5.3-t*8.4+y*2)))*k); }   /* limp: soft folds and a slow stir; streaming: ripples run out along it */
       pa.needsUpdate=true; fg.computeVertexNormals(); })(); };
   if(kind==='shack'){ const W=big?7.0:4.2, D=big?5.4:3.2, HF=big?2.8:2.35, HB=big?2.35:2.0, th=0.07, dg=big?1.2:1.0;   /* with a fire in it, a bigger one: room to sit round it */
+    shBox(0,0,W/2-0.25,D/2-0.25);
     const wall=(w,h,px,pz,ry,hb)=>{ const g=new THREE.BoxGeometry(w,1,th); g.translate(0,0.5,0); const p=g.attributes.position; for(let i=0;i<p.count;i++){ const yy=p.getY(i), xx=p.getX(i); if(yy>0.5){ p.setY(i,hb==null?h:h+(hb-h)*((xx/w)+0.5)); } } g.computeVertexNormals(); const t=g.attributes.uv; for(let i=0;i<t.count;i++) t.setXY(i,t.getX(i)*w/1.1,t.getY(i)*2.4/2.4); const ms=new THREE.Mesh(g,mB); ms.position.set(px,0,pz); ms.rotation.y=ry; G.add(ms); return ms; };
     /* front with its doorway, back, and the two sides stepping down with the lean of the roof */
     wall((W-dg)/2-0.4,HF,-W/2+((W-dg)/2-0.4)/2,D/2,0); wall((W-dg)/2+0.4,HF,W/2-((W-dg)/2+0.4)/2,D/2,0); box(dg,HF-2.0,th,mB,-0.4+0,2.0+(HF-2.0)/2,D/2);
@@ -4982,7 +4986,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     if(wp.length){ const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(wp,3)); G.add(new THREE.LineSegments(g,mW)); } }
   else if(kind==='barkhut'){ /* a bark hut: split slabs stood on end, a roof of bark sheets weighed down with poles, a stone chimney at one end.
        With a fire in it, wider, and the fire in the middle under a gap left along the ridge */
-    const W=big?6.4:4.4, D=big?4.8:3.4, HE=1.9, HR=big?3.4:3.0, hw=W/2, hd=D/2, a=Math.atan2(HR-HE,hd), sl=Math.hypot(HR-HE,hd); SPOT=[hw-0.75,null,hd-0.65,0.05,0,'table'];   /* a small table in the corner */
+    const W=big?6.4:4.4, D=big?4.8:3.4, HE=1.9, HR=big?3.4:3.0, hw=W/2, hd=D/2, a=Math.atan2(HR-HE,hd), sl=Math.hypot(HR-HE,hd); shBox(0,0,hw-0.25,hd-0.25); SPOT=[hw-0.75,null,hd-0.65,0.05,0,'table'];   /* a small table in the corner */
     const tBk=ctex(128,256,(g,w,h)=>{ g.fillStyle='#5e4f43'; g.fillRect(0,0,w,h); for(let i=0;i<160;i++){ const x=Math.random()*w; g.strokeStyle=Math.random()<0.6?'rgba(36,28,22,.35)':'rgba(140,124,104,.22)'; g.lineWidth=0.6+Math.random()*1.4; g.beginPath(); g.moveTo(x,0); g.bezierCurveTo(x+Math.random()*6-3,h*0.3,x+Math.random()*6-3,h*0.7,x+Math.random()*8-4,h); g.stroke(); } for(let i=0;i<6;i++){ const y=Math.random()*h; g.fillStyle='rgba(28,22,18,.4)'; g.fillRect(0,y,w,1+Math.random()*2); } for(let i=0;i<14;i++){ g.fillStyle='rgba(30,24,20,.35)'; g.beginPath(); g.ellipse(Math.random()*w,Math.random()*h,4+Math.random()*10,10+Math.random()*30,0,0,6.283); g.fill(); } },{repeat:true});
     const mBk=new THREE.MeshLambertMaterial({map:tBk,side:THREE.DoubleSide}), mSl=new THREE.MeshLambertMaterial({map:tPole,color:0x9a8a76});
     const hAt=v=>HE+(HR-HE)*Math.max(0,1-Math.abs(v)/hd);
@@ -5009,6 +5013,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
   else if(kind==='log'){ /* a fallen mountain ash, one of the giants: the same girth and bark as those still standing. The buttressed foot at one end with its broken roots,
        the rough dark stocking up the first stretch, smooth pale bark above, the top end snapped off and splintered. Hollow: big enough to walk through. It lies along the ground's slope. */
     const L=24, R0=1.3, R1=1.12, Rr=u=>R0+(R1-R0)*(0.5-u/L), TH=0.24;   /* u: -L/2 the broken top end, +L/2 the foot */
+    shBox(0,0,L/2-1.2,0.85);   /* inside the hollow, nothing gets at you through the wood */
     const cy=R0-0.36, hA=heightAt(W2(-L/2,0).x,W2(-L/2,0).z), hB=heightAt(W2(L/2,0).x,W2(L/2,0).z), tilt=Math.atan2(hB-hA,L), sT=Math.sin(tilt), cT=Math.cos(tilt); let yc=(hA+hB)/2-y0;
     /* it rests on the ground, never through it: wherever the ground rises above its underside (along it and to either side) the whole trunk is lifted to sit on that */
     { let lift=-1e9; for(let u=-L/2;u<=L/2+0.01;u+=0.75) for(const k of [-0.85,-0.5,0,0.5,0.85]){ const R=Rr(u), s=k*R, q=W2(u,s), g=heightAt(q.x,q.z)-y0, bot=yc+u*sT+cT*(cy-Math.sqrt(R*R-s*s)); lift=Math.max(lift,g-(bot+0.03)); } yc+=lift; }
@@ -8020,7 +8025,8 @@ function applyPreds(){
   const OK=(window.__predList?window.__predList():['mega','lion','thy']); let want=PRED_NATIVE; if(randPredOn()){ let c=OK.filter(x=>x!==PRED_NATIVE); if(!c.length) c=OK; want=c[Math.floor(Math.random()*c.length)]; } if(!OK.includes(want)) want=OK[Math.floor(Math.random()*OK.length)]; if(want===cur) return;
   al.forEach(m=>{ m.alive=false; m.eaten=true; m.mesh.visible=false; }); spawnReplacement(want); pack.seq=null; }/*@Y*/
 setTimeout(()=>{ try{ pauseSetup(); }catch(e){} },0);/*@Y*/   // the opening screen shows the level map too
-function pause(){ pauseSetup(); { const zd=document.getElementById('zoneDay'); if(zd){ let nf=0; for(const k in baFires) nf+=baFires[k].length; const nl=(baFires[__BAFK]||[]).length; zd.innerHTML='fires lit '+nl+'/'+pits.length; { const pf=document.getElementById('pzFires'); if(pf){ const T=['1 fire: resting by a lit fire you get hungry more slowly, and predators hang back for a while','2 fires: by a fire you do not get hungry at all, and your health slowly returns','3 fires: a lit spear strikes harder, and fells a '+LV.preyWord+' in one blow']; pf.innerHTML=T.map((x,i)=>'<p'+(nl>i?' class="on"':'')+'>'+x+'</p>').join('')+'<p class="pzTot">total fires lit '+nf+'/'+FIRES_ALL+'</p>'; } } } } $('title').classList.remove('ctrl','sett'); { const cb=document.getElementById('ctrlBtn'); if(cb) cb.textContent='Controls'; const sb=document.getElementById('settBtn'); if(sb) sb.textContent='Settings'; } state='paused'; aiming=false; for(const k in keys) keys[k]=false; $('startBtn').textContent='Resume'; $('title').classList.add('show'); }/*@Y*/
+function pause(){ pauseSetup(); { const zd=document.getElementById('zoneDay'); if(zd){ let nf=0; for(const k in baFires) nf+=baFires[k].length; const nl=(baFires[__BAFK]||[]).length; zd.innerHTML='fires lit '+Math.min(nl,2)+'/2'; { const pf=document.getElementById('pzFires'); if(pf) pf.innerHTML=''; } } }   /* the right of the pause screen: only where you are and how many of its two fires are lit */
+  { let off=false; try{ off=BA_PLAT.get('ba_tutoff')==='1'; }catch(e){} $('title').classList.toggle('tutoff',off); }   /* tutorial off: the aims on the left are not shown either */ $('title').classList.remove('ctrl','sett'); { const cb=document.getElementById('ctrlBtn'); if(cb) cb.textContent='Controls'; const sb=document.getElementById('settBtn'); if(sb) sb.textContent='Settings'; } state='paused'; aiming=false; for(const k in keys) keys[k]=false; $('startBtn').textContent='Resume'; $('title').classList.add('show'); }/*@Y*/
 /* ---------- first time ever: the aims, this place and its fires, and the twelve fires, one page at a time over the game; space to go on ---------- */
 const ONB=(()=>{ let el=null, i=0, pages=[];
   const FT=['1 fire: resting by a lit fire you get hungry more slowly, and predators hang back for a while','2 fires: by a fire you do not get hungry at all, and your health slowly returns','3 fires: a lit spear strikes harder, and fells a '+LV.preyWord+' in one blow'];
@@ -8091,7 +8097,7 @@ const TUT=(()=>{ let el=null, cur=null, cd=0, predK='thy', exT=0; const K=()=>GP
   function skip(){ if(state!=='tut'||tG<cd) return; try{ BA_PLAT.set('ba_tutoff','1'); }catch(e){} syncBtn(); cur=null; const e0=el; el=null; if(e0){ e0.style.opacity='0'; setTimeout(()=>e0.remove(),400); } state='play'; showCard('tutorial off\nturn it back on in the pause menu',4); try{ if(!lockEl()) requestLock(); }catch(e){} }
   addEventListener('keydown',e=>{ if(state==='tut'&&(e.code==='Space'||e.code==='Enter'||e.key===' ')){ e.preventDefault(); e.stopImmediatePropagation(); if(!e.repeat) next(); } else if(state==='tut'&&e.code==='KeyT'){ e.preventDefault(); e.stopImmediatePropagation(); if(!e.repeat) skip(); } },true);
   addEventListener('mousedown',e=>{ if(state==='tut'){ e.preventDefault(); e.stopImmediatePropagation(); } },true);
-  const syncBtn=()=>{ const b=document.getElementById('tutBtn'); if(b) b.textContent='Tutorial: '+(off()?'off':'on'); }; syncBtn(); window.__tutToggle=()=>{ try{ BA_PLAT.set('ba_tutoff',off()?'0':'1'); }catch(e){} syncBtn(); };
+  const syncBtn=()=>{ const b=document.getElementById('tutBtn'); if(b) b.textContent='Tutorial: '+(off()?'off':'on'); const ti=document.getElementById('title'); if(ti) ti.classList.toggle('tutoff',off()); }; syncBtn(); window.__tutToggle=()=>{ try{ BA_PLAT.set('ba_tutoff',off()?'0':'1'); }catch(e){} syncBtn(); };
   return {tick,next,skip}; })();/*@Y*/
 
 function tutFirstRun(){ try{ if(BA_PLAT.get('ba_tut')==='1') return; BA_PLAT.set('ba_tut','1'); }catch(e){ return; } window.__tutFirst=true; if(BA_LVK!=='plains') window.__tutHold=true; }/*@Y*/
@@ -8146,7 +8152,7 @@ addEventListener('mousedown',e=>{ if(state==='dead'){ if(e.target&&e.target.clos
   if(BOOK.held){ if(e.button===0) BOOK.turn(1); if(e.button===2) BOOK.turn(-1); return; }   // reading: the mouse turns the pages, no fighting
   if(e.button===0){ pl.lmb=true; pl.lmbAt=tG; onAttack(); } if(e.button===2){ keys.__rmb=true; startAim(); } });/*@Y*/
 addEventListener('mouseup',e=>{ if(e.button===0) pl.lmb=false; if(e.button===2){ keys.__rmb=false; if(!keys.AltLeft&&!keys.AltRight) releaseAim(); } });/*@Y*/
-addEventListener('mousemove',e=>{ if(state!=='play'||!(locked||fallback)) return; if(Math.abs(e.movementX)>220||Math.abs(e.movementY)>220||performance.now()-(window.__lockAt||0)<150) return;   /* the jump some browsers report as the pointer locks */ const s=0.0022*(aiming?0.7:1)*BA_SET.get('sens');
+addEventListener('mousemove',e=>{ if((state!=='play'&&state!=='spec')||!(locked||fallback)) return; if(Math.abs(e.movementX)>220||Math.abs(e.movementY)>220||performance.now()-(window.__lockAt||0)<150) return;   /* the jump some browsers report as the pointer locks */ const s=0.0022*(aiming?0.7:1)*BA_SET.get('sens');
   yaw-=e.movementX*s; pitch=clamp(pitch-e.movementY*s*(BA_SET.get('inv')?-1:1),-1.45,1.45); swayX=clamp(swayX+e.movementX*0.0003,-0.04,0.04); swayY=clamp(swayY+e.movementY*0.0003,-0.04,0.04); });/*@Y*/
 /* ---------- controller in menus: d-pad or left stick moves between buttons, X presses, O goes back, left/right change sliders and lists ---------- */
 (()=>{ const gen=window.__gpNavGen=(window.__gpNavGen||0)+1;
@@ -8212,7 +8218,7 @@ var GP={mx:0,mz:0,spr:false,b:[]};/*@Y*/
     if(state==='dead'){ if(dn(9)) restart(); return; }
     if(state==='title'||state==='paused'){ if(dn(9)) noLock(begin); return; }
     if(state==='tut'){ if(dn(0)||dn(9)) TUT.next(); else if(dn(1)) TUT.skip(); return; }
-    if(state!=='play') return;
+    if(state!=='play'&&state!=='spec') return;
     if(dn(9)){ pause(); return; }
     for(const i in KEY) if(dn(+i)) kd(KEY[i],'keydown');
     if(dn(7)){ if(BOOK.held) BOOK.turn(1); else { pl.lmb=true; pl.lmbAt=tG; onAttack(); } }
@@ -8949,7 +8955,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
     AX:{bassia:[0.11,0.06,-0.99],torresian:[-0.17,-0.23,-0.96],eromangan:[-0.14,0.02,-0.99]},   /* the line of the haft through each one's right fist */
     buf:{}, get(f){ if(!this.buf[f]){ const s=(window.__HUMANS||{})[f]; if(!s) return null; const bin=atob(s), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); this.buf[f]=u.buffer; } return this.buf[f]; } };
   const HB=['Hips','Spine','Spine1','Spine2','Neck','Head','LeftArm','LeftForeArm','LeftHand','RightArm','RightForeArm','RightHand','LeftUpLeg','LeftLeg','LeftFoot','RightUpLeg','RightLeg','RightFoot','LeftShoulder','RightShoulder'];
-  function humanBody(fac){ const root=new THREE.Group(); scene.add(root); const sp=buildSpear(2.2).g; scene.add(sp); const m={root,glb:true,fac,ready:false,sp,B:{},W:{},act:null,ax:new V3(...HUM.AX[fac]).normalize()};
+  function humanBody(fac){ const root=new THREE.Group(); scene.add(root); const sp=buildSpear(2.2).g; sp.scale.setScalar(0.8); scene.add(sp);   /* (a fifth smaller than yours: at full size it looked a pole in their hands) */ const m={root,glb:true,fac,ready:false,sp,B:{},W:{},act:null,ax:new V3(...HUM.AX[fac]).normalize()};
     const buf=HUM.get(fac); if(buf&&THREE.GLTFLoader) new THREE.GLTFLoader().parse(buf.slice(0),'',g=>{ const o=g.scene; o.scale.setScalar(1.75); root.add(o); o.traverse(x=>{ if(x.isMesh){ x.castShadow=true; x.frustumCulled=false; if(x.material&&x.material.map){ const mm=new THREE.MeshLambertMaterial({map:x.material.map,skinning:true}); x.material=mm; } } const nm=String(x.name||'').replace(/^mixamorig:?/,''); if(x.isBone&&HB.includes(nm)) m.B[nm]=x; });
       m.mix=new THREE.AnimationMixer(o); m.A={}; for(const c of g.animations){ const k=/thrust/.test(c.name)?'thrust':/throw/.test(c.name)?'throw':/crouch|sneak/.test(c.name)?'sneak':c.name; const a=m.mix.clipAction(c); a.play(); a.setEffectiveWeight(0); m.A[k]=a; m.W[k]=0; }
       if(m.A.thrust){ m.A.thrust.timeScale=0; } if(m.A.throw){ m.A.throw.timeScale=0; } m.ready=true; },e=>{ window.__humErr=String(e&&e.message||e); });
@@ -8959,7 +8965,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   function poseGLB(n,dt){ const m=n.m, dp=dP(n); m.root.visible=dp<170; m.sp.visible=m.root.visible&&n.armed&&m.ready; if(!m.root.visible) return;
     if(!n.alive){ if(m.rag) ragTick(n,dt); return; }
     m.root.position.copy(n.pos); m.root.rotation.set(0,n.heading,0); if(!m.ready) return;
-    const sp=Math.hypot(n.vel.x,n.vel.z), a=n.act, st=n.band.state, kneel=!a&&n.hunt&&n.hunt.kneel, sneak=kneel||(n.armed&&!a&&(st==='search'||st==='alert'||(n.hunt&&n.hunt.sneak))&&sp<2.4&&sp>0.2);
+    const sp=Math.hypot(n.vel.x,n.vel.z), a=n.act, st=n.band.state, kneel=!a&&((n.hunt&&n.hunt.kneel)||(n.follow&&n.follow.sneak&&st!=='engage'&&Math.hypot(n.vel.x,n.vel.z)<=0.2)), sneak=kneel||(n.armed&&!a&&(st==='search'||st==='alert'||(n.hunt&&n.hunt.sneak)||(n.follow&&n.follow.sneak))&&sp<2.4&&sp>0.2);
     const want={idle:0,walk:0,run:0,sneak:0,thrust:0,throw:0}; let lead=null;
     if(a&&(a.k==='thrust'||a.k==='stab')){ want.thrust=1; lead='thrust'; m.A.thrust.time=0.75+Math.min(a.t,a.dur)*((1.37-0.75)/a.at); }
     else if(a&&a.k==='throw'){ want.throw=1; lead='throw'; m.A.throw.time=1.0+Math.min(a.t,a.dur)*((2.11-1.0)/a.at); }
@@ -9017,7 +9023,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   const PT=()=>window.__WARTEAM||'P';   /* your side */
   const NOTG={isP:false,n:null,p:{x:1e6,y:0,z:1e6},v:{x:0,z:0},e:1.6,cr:false,sp:false,ok:false};
   const tgP=()=>({isP:true,n:null,p:P,v:pl.vel,e:pl.eyeH,cr:pl.crouch,sp:pl.sprinting,ok:state==='play'&&!ghost()});
-  const tgN=o=>({isP:false,n:o,p:o.pos,v:o.vel,e:1.62,cr:false,sp:false,ok:o.alive});
+  const tgN=o=>({isP:false,n:o,p:o.pos,v:o.vel,e:1.62,cr:!!(o.follow&&o.follow.sneak),sp:false,ok:o.alive});
   let TG=NOTG;
   function pickTarget(b){ const ld=b.lead(); if(!ld) return NOTG; const team=ld.team||'H', cand=[];
     if(team!==PT()&&state==='play'&&!ghost()) cand.push(tgP());
@@ -9031,7 +9037,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
     for(const o of L) if(o!==n&&o.alive&&!foe(o,n)) pts.push(o.pos); if((n.team||'H')===PT()&&state==='play') pts.push(P);
     return pts.some(q=>{ const rx=q.x-n.pos.x, rz=q.z-n.pos.z, al=rx*ux+rz*uz, lat=Math.abs(rx*uz-rz*ux); return al>0.5&&al<L2-0.5&&lat<1.4; }); }   /* one of theirs in the way: hold the throw */
   /* ---------- spears: carried, in flight, lodged, or lying about ---------- */
-  const SP=[]; function spearItem(){ const g=new THREE.Group(), s=buildSpear(2.2); s.g.rotation.x=Math.PI/2; g.add(s.g); g.visible=false; scene.add(g); const it={g,state:'carried',pos:new V3(),vel:new V3(),owner:null,host:null}; SP.push(it); return it; }
+  const SP=[]; function spearItem(){ const g=new THREE.Group(), s=buildSpear(2.2); s.g.rotation.x=Math.PI/2; s.g.scale.setScalar(0.8); g.add(s.g); g.visible=false; scene.add(g); const it={g,state:'carried',pos:new V3(),vel:new V3(),owner:null,host:null}; SP.push(it); return it; }
   function lay(it,x,z,yaw){ const q={x,z}; clampValley(q,2.5); it.state='ground'; it.host=null; it.pos.set(q.x,heightAt(q.x,q.z)+0.06,q.z); it.g.position.copy(it.pos); it.g.rotation.set(0,yaw==null?rand(0,6.28):yaw,0); it.g.rotateX(-0.02); it.g.visible=true; }
   const hitTip=it=>_v.copy(it.vel).normalize().multiplyScalar(1.2).add(it.pos);
   function spearTick(dt){ for(const it of SP){
@@ -9083,7 +9089,10 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   /* ---------- moving ---------- */
   function goTo(n,tx,tz,spd,dt){ let t={x:tx,z:tz}; clampValley(t,2); t=navPre(n,t,spd,dt); const dx=t.x-n.pos.x, dz=t.z-n.pos.z, d=Math.hypot(dx,dz); let vx=0,vz=0; if(d>0.12){ const s=Math.min(spd,d*2.2); vx=dx/d*s; vz=dz/d*s; } const k=1-Math.exp(-7*dt); n.vel.x+=(vx-n.vel.x)*k; n.vel.z+=(vz-n.vel.z)*k; navPost(n); }
   const runSpd=(n,dt,want)=>{ if(want>T.jog&&n.stam>0.12){ n.stam=Math.max(0,n.stam-dt/7); return want; } n.stam=Math.min(1,n.stam+dt/4); return Math.min(want,T.jog); };
-  function seeP(n){ if(!TG.ok) return false; const dx=TG.p.x-n.pos.x, dz=TG.p.z-n.pos.z, d=Math.hypot(dx,dz); let R=((window.__dayK??1)<0.3)?T.sightN:T.sight; if(TG.cr) R*=0.55; if(TG.sp) R+=10; if(d>R) return false;
+  function seeP(n){ if(!TG.ok) return false; const dx=TG.p.x-n.pos.x, dz=TG.p.z-n.pos.z, d=Math.hypot(dx,dz);
+    /* how near you can get before they know you are there: the same as with the animals. Standing still or walking, crouched, crouched in cover, running */
+    let R; if(TG.isP){ const mv=pl.speedNow>0.5; R=mv?32:22; if(pl.crouch) R=pl.inCover?(mv?7:4):(mv?12:8); if(pl.sprinting) R=48; } else { const v=Math.hypot(TG.v.x,TG.v.z), mv=v>0.5; R=TG.cr?(mv?12:8):(mv?32:22); if(v>4.5) R=48; }
+    if((window.__dayK??1)<0.3) R*=0.6; if(d>R) return false;
     if(d>4&&(dx*Math.sin(n.heading)+dz*Math.cos(n.heading))/d<0.1) return false; return losClear(n.pos.x,n.pos.z,TG.p.x,TG.p.z); }
   function freeSpear(n,r){ let best=null, bd=r; for(const it of SP){ if(it.state!=='ground') continue; const d=Math.hypot(it.pos.x-n.pos.x,it.pos.z-n.pos.z); if(d<bd){ bd=d; best=it; } } if(typeof proj!=='undefined'&&proj&&proj.state==='ground'){ const d=Math.hypot(proj.pos.x-n.pos.x,proj.pos.z-n.pos.z); if(d<bd){ bd=d; best='P'; } } return best; }
   function take(n,it){ if(it==='P'){ proj=null; worldSpear.visible=false; it=spearItem(); } it.state='carried'; it.g.visible=false; it.owner=n; n.spear=it; n.armed=true; n.throws=Math.max(n.throws,n.i===1?0:1); }
@@ -9127,6 +9136,8 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
       const gap=Math.hypot(tx-n.pos.x,tz-n.pos.z); spd=gap>6?runSpd(n,dt,T.run):(gap>1.5?runSpd(n,dt,T.jog):1.2);
       if(TG.isP&&aiming&&aimT>0.25&&d<26&&frontDot(n.pos)>0.97){ const sd=(n.i%2?1:-1); tx+=Math.cos(toP)*sd*3; tz-=Math.sin(toP)*sd*3; spd=Math.max(spd,T.jog); } }   /* weave when you aim at them */
     else if(b.war&&n.hunt&&huntTick(n,b,dt)) return;
+    else if(n.follow){ const F=n.follow, gp=Math.hypot(F.x-n.pos.x,F.z-n.pos.z); tx=F.x; tz=F.z;   /* warfare: one of yours keeps its place beside you, and goes low when you do */
+      spd=gp<0.7?0:(F.sneak?Math.min(1.1,0.4+gp*0.4):(gp>7?runSpd(n,dt,T.run):(gp>2.5?T.jog:T.walk))); if(gp<0.7) face=F.face; }
     else if(b.state==='search'){ const q=b.last||n.pos; tx=q.x+Math.sin(n.i*2.1+b.searchT*0.3)*5; tz=q.z+Math.cos(n.i*2.1+b.searchT*0.3)*5; spd=T.jog*0.8; if(!n.armed){ const it=freeSpear(n,30); if(it&&it!=='P'){ tx=it.pos.x; tz=it.pos.z; if(Math.hypot(tx-n.pos.x,tz-n.pos.z)<1.1) take(n,it); } } }
     else if(b.state==='alert'){ face=toP; spd=0; if(n===al[0]){ tx=n.pos.x+Math.sin(toP)*2; tz=n.pos.z+Math.cos(toP)*2; spd=0.8; } }
     else { const ld=al[0]; if(n===ld){ const RT=route(b), q=RT[b.wp%RT.length]; if(b.restT<=0){ tx=q.x; tz=q.z; spd=T.walk; } } else { const h=ld.heading, sd=(k%2?1:-1); tx=ld.pos.x-Math.sin(h)*1.9*k+Math.cos(h)*sd*1.1; tz=ld.pos.z-Math.cos(h)*1.9*k-Math.sin(h)*sd*1.1; const gp=Math.hypot(tx-n.pos.x,tz-n.pos.z); spd=gp<0.6?0:(gp>4?T.jog:T.walk*1.15); }
@@ -9253,8 +9264,13 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   /* ---- the flagpoles: a pole beside each fire, the holder's flag on a halyard, lowered as it is being taken and run up again in the new colours ---- */
   const TEX={}; const tex=f=>TEX[f]||(TEX[f]=(()=>{ const t=new THREE.TextureLoader().load(PEO[f].flag); return t; })());
   const mPole=new THREE.MeshLambertMaterial({color:0x8a7a62});
+  /* a pole stands where nothing is over it or close round it: not under a cave's roof or a rock shelf, not against a wall, a trunk or a boulder, and the flag clear to fly */
+  scene.updateMatrixWorld(true); const RC=new THREE.Raycaster(), DN=new V3(0,-1,0), O=new V3(), BS=new THREE.Sphere();
+  const roofed=(near,x,z,g)=>{ for(const [dx,dz] of [[0,0],[1.3,0],[-1.3,0],[0,1.3],[0,-1.3],[0.9,0.9],[-0.9,-0.9]]){ O.set(x+dx,g+9,z+dz); RC.set(O,DN); RC.far=8.4; const h=RC.intersectObjects(near,false); if(h.some(i=>i.point.y>heightAt(x+dx,z+dz)+0.35)) return true; } return false; };
   F.forEach(fr=>{ const p=pits[fr.pi], y0=p.y!=null?p.y:heightAt(p.x,p.z); let best=null;
-    for(let k=0;k<16;k++){ const a=k/16*6.283, r=2.6, x=p.x+Math.cos(a)*r, z=p.z+Math.sin(a)*r, h=heightAt(x,z); if(Math.abs(h-y0)>0.6||overlaps(x,z,0.3)) continue; const sc=-Math.abs(h-y0)+(typeof distCreek==='function'?Math.min(3,distCreek(x,z))*0.2:0); if(!best||sc>best.sc) best={x,z,h,sc}; }
+    const near=[]; scene.traverse(o=>{ if(!o.isMesh||o.isInstancedMesh||o.isSkinnedMesh||!o.visible||(o.userData&&o.userData.terrain)) return; const g=o.geometry; if(!g||!g.attributes||!g.attributes.position) return; if(!g.boundingSphere) g.computeBoundingSphere(); BS.copy(g.boundingSphere).applyMatrix4(o.matrixWorld); if(Math.hypot(BS.center.x-p.x,BS.center.z-p.z)-BS.radius<9) near.push(o); });
+    for(const r of [2.8,3.6,4.6,5.8,7]) for(let k=0;k<16;k++){ const a=k/16*6.283+r, x=p.x+Math.cos(a)*r, z=p.z+Math.sin(a)*r, h=heightAt(x,z); if(Math.abs(h-y0)>0.8||overlaps(x,z,1.1)) continue; if(typeof psAtAll==='function'&&psAtAll(x,z,2.5).length) continue; if(roofed(near,x,z,h)) continue;
+      const sc=-Math.abs(h-y0)-r*0.35+(typeof distCreek==='function'?Math.min(3,distCreek(x,z))*0.2:0); if(!best||sc>best.sc) best={x,z,h,sc}; }
     if(!best) best={x:p.x+2.4,z:p.z,h:heightAt(p.x+2.4,p.z)};
     const H=6.2, g=new THREE.Group(); g.position.set(best.x,best.h,best.z); scene.add(g);
     const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.07,H,7),mPole); pole.position.y=H/2-0.2; g.add(pole); const kn=new THREE.Mesh(new THREE.SphereGeometry(0.09,6,4),mPole); kn.position.y=H-0.15; g.add(kn); addCol(best.x,best.z,0.15);
@@ -9280,31 +9296,61 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
       else if(theirs.length){ const p=theirs.map(f=>pits[f.pi]).sort((a,b)=>Math.hypot(a.x-n.pos.x,a.z-n.pos.z)-Math.hypot(b.x-n.pos.x,b.z-n.pos.z))[0]; c={x:p.x,z:p.z}; r=2.2; }   /* the rest go to take theirs */
       else { const p=pits[mine[0].pi]; c={x:p.x,z:p.z}; r=6; }
       const key=Math.round(c.x)+','+Math.round(c.z)+','+r; if(n.band.rk!==key){ n.band.rk=key; n.band.ring=ring(c,r,6); n.band.wp=0; } } }
-  /* ---- the HUD: the count of fires, who holds the two here, and a bar while one is being taken ---- */
-  const hud=document.createElement('div'); hud.style.cssText='position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:40;font:15px/1.4 Alegreya,Georgia,serif;color:#efe6cf;text-shadow:0 1px 3px #000;text-align:center;pointer-events:none;letter-spacing:.04em';
-  document.body.appendChild(hud);
-  function hudTick(){ const a=total('A'), b=total('B'), cf=F.find(f=>f.cap>0.02);
-    hud.innerHTML='<b>'+PEO[FAC.A].nm+'</b> '+a+' &nbsp;·&nbsp; '+b+' <b>'+PEO[FAC.B].nm+'</b><br><span style="font-size:13px;opacity:.85">'+NAMES[ID]+': '+F.map(f=>PEO[FAC[f.owner]].nm.replace(/s$/,'')).join(' fire, ')+' fire'+(cf?'<br><span style="display:inline-block;width:160px;height:5px;background:rgba(0,0,0,.4);vertical-align:middle"><span style="display:block;height:5px;width:'+Math.round(cf.cap*100)+'%;background:'+(cf.by==='A'?'#d9c27a':'#c0573a')+'"></span></span> '+(cf.by==='A'?'taking their fire':'they are taking your fire'):'')+'</span>'; }
+  /* ---- yours keep with you while you are up: one back-left, one back-right, walking when you walk, running when you run, low when you go low ---- */
+  function follow(){ const up=state==='play', fx=-Math.sin(yaw), fz=-Math.cos(yaw), rx=Math.cos(yaw), rz=-Math.sin(yaw);
+    for(const n of bots){ if(!n||!n.alive||n.side!=='A'){ if(n) n.follow=null; continue; } if(!up){ n.follow=null; continue; }
+      const sd=n.slot%2?-1:1, back=pl.crouch?2.2:3, side=pl.crouch?1.8:2.4, q={x:P.x-fx*back+rx*side*sd,z:P.z-fz*back+rz*side*sd}; try{ clampValley(q,2); }catch(e){}
+      n.follow={x:q.x,z:q.z,sneak:!!pl.crouch,face:Math.atan2(fx,fz)}; } }
+  /* ---- the HUD: who is still standing. Bottom left the skull (you: dim while you are down) and a card for each of yours on their feet; bottom right a card for each of theirs.
+     A thin bar at the top only while a fire is being taken ---- */
+  const FIG=window.__BA_FIG||{}, hud=document.createElement('div'); hud.style.cssText='position:fixed;left:0;right:0;top:calc(7.5vh + 12px);z-index:40;text-align:center;font:italic 14px/1.4 Alegreya,Georgia,serif;color:#efe6cf;text-shadow:0 1px 3px #000;pointer-events:none;letter-spacing:.06em';
+  const row=(side)=>{ const d=document.createElement('div'); d.style.cssText='position:fixed;bottom:calc(7.5vh + 1.6vh);'+side+':max(2.4vw,env(safe-area-inset-'+side+',0px));z-index:40;display:flex;align-items:flex-end;gap:1vh;pointer-events:none';   /* standing on the lower black band */ document.body.appendChild(d); return d; };
+  const hL=row('left'), hR=row('right'); document.body.appendChild(hud);
+  const card=f=>'<div style="width:calc(var(--wc,12vh)*.58);height:var(--wc,12vh);background:#f3f1ea;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.45)">'+(FIG[f]?'<img src="'+FIG[f]+'" alt="" style="height:88%;max-width:86%;object-fit:contain">':'')+'</div>';
+  let hudKey='';
+  function hudTick(){ const cf=F.find(f=>f.cap>0.02), me=state==='play', nA=bots.filter(n=>n&&n.alive&&n.side==='A').length, nB=bots.filter(n=>n&&n.alive&&n.side==='B').length, k=me+'|'+nA+'|'+nB;
+    if(k!==hudKey){ hudKey=k; hL.innerHTML=(FIG.skull?'<img src="'+FIG.skull+'" alt="" style="height:calc(var(--wc,12vh)*.92);margin-right:.4vh;opacity:'+(me?1:0.3)+';filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))">':'')+card(FAC.A).repeat(nA); hR.innerHTML=card(FAC.B).repeat(nB); }
+    hud.innerHTML=cf?'<span style="display:inline-block;width:180px;height:5px;background:rgba(0,0,0,.4);vertical-align:middle"><span style="display:block;height:5px;width:'+Math.round(cf.cap*100)+'%;background:'+(cf.by==='A'?'#d9c27a':'#c0573a')+'"></span></span><br>'+(cf.by==='A'?'taking their fire':'they are taking your fire'):''; }
   /* ---- start: you and yours at your fire (or the edge, if you hold none here), theirs at theirs ---- */
   function start(){ started=true; for(const s of ['A','B']) for(let k=(s==='A'?1:0);k<3;k++){ bots.push({side:s,slot:k}); spawnBot(s,k); }
     const q=homePt('A')||entry('A'); P.set(q.x,heightAt(q.x,q.z),q.z); const e=F.find(f=>f.owner==='B')||F[1]; const ep=pits[e.pi]; yaw=Math.atan2(-(ep.x-P.x),-(ep.z-P.z)); pitch=-0.05;
     showCard(PEO[FAC.A].nm+' against '+PEO[FAC.B].nm+'\n'+NAMES[ID]+(firesOf('A').length?'':'\nyou hold no fire here: take one'),4); orders(); }
-  /* ---- you go down: fifteen seconds, then back at a fire your side holds here ---- */
+  /* ---- you go down: ninety seconds as a free eye over the place (spectator), then back at a fire your side holds here, fed. The dev can come back at once (R) ---- */
+  const RESP=90, SPEC=new V3(); const devOK=()=>{ try{ return !!DEV.on; }catch(e){ return false; } };   /* with the dev panel open (the ` key) */
   function playerBack(){ const q=homePt('A'); if(!q) return false; try{ deadShow(false); if(window.__bloodFill) window.__bloodFill.style.opacity='0'; elFade.style.opacity='0'; }catch(e){} deathBy=null;
-    P.set(q.x,heightAt(q.x,q.z),q.z); pl.vel.set(0,0,0); pl.kb.set(0,0,0); Object.assign(pl,{air:false,vy:0,elev:0,hp:4,armed:'spear',stowed:false,spearLit:0,charging:false,chargeHold:0,invuln:2,eatT:0,eating:null,eyeH:1.62,carry:null,spearMeat:null,cooking:false});
+    P.set(q.x,heightAt(q.x,q.z),q.z); pl.vel.set(0,0,0); pl.kb.set(0,0,0); Object.assign(pl,{air:false,vy:0,elev:0,hp:4,hunger:0,stamina:1,exhausted:false,armed:'spear',stowed:false,spearLit:0,charging:false,chargeHold:0,invuln:2,eatT:0,eating:null,eyeH:1.62,carry:null,spearMeat:null,cooking:false,crouch:false,crouchOn:false});
+    { const ww=document.getElementById('warWait'); if(ww) ww.style.display='none'; }
     try{ if(proj){ proj=null; worldSpear.visible=false; } }catch(e){} roll=0; pitch=-0.05;
     try{ (typeof packs!=='undefined'?packs:[pack]).forEach(pk=>{ if(!pk) return; if(pk.state==='feed'&&!(pk.prey&&pk.prey.pos)){ pk.state='patrol'; pk.prey=null; } pk.lunger=null; }); [...(typeof thyls!=='undefined'?thyls:[]),...(typeof lions!=='undefined'?lions:[])].forEach(m=>{ if(m&&m.alive&&(m.state==='pack'||m.state==='maul')){ m.state='orbit'; m.t=0; } }); }catch(e){}   /* the ones that killed you were left feeding on you */
     state='play'; playerDownAt=-1; showCard('back at your fire',2); return true; }
-  const _sd=showDeath; showDeath=function(){ if(over) return _sd.apply(this,arguments); if(playerDownAt<0) playerDownAt=tG-(typeof deathT==='number'?deathT:0); const left=15-(tG-playerDownAt);
-    if(left<=0&&firesOf('A').length){ playerBack(); return; } const el=document.getElementById('warWait')||(()=>{ const d=document.createElement('div'); d.id='warWait'; d.style.cssText='position:fixed;left:0;right:0;top:74%;z-index:99;text-align:center;font:italic 22px Alegreya,Georgia,serif;color:#efe6cf;letter-spacing:.1em;pointer-events:none'; document.body.appendChild(d); return d; })();
-    el.style.display='block'; el.textContent=firesOf('A').length?'back in '+Math.ceil(left):'your side holds no fire here'; };
+  const _sd=showDeath; showDeath=function(){ if(over) return _sd.apply(this,arguments); if(playerDownAt<0) playerDownAt=tG-(typeof deathT==='number'?deathT:0); if(state==='spec') return;
+    state='spec'; SPEC.copy(camera.position); SPEC.y+=2.5; roll=0; pl.hp=4; hurtFlash=0;   /* (the red of your wounds goes: you are only watching) */ deathBy=null; for(const k in keys) keys[k]=false; pl.lmb=false; try{ deadShow(false); if(window.__bloodFill) window.__bloodFill.style.opacity='0'; elFade.style.opacity='0'; }catch(e){} };
+  const waitEl=()=>document.getElementById('warWait')||(()=>{ const d=document.createElement('div'); d.id='warWait'; d.style.cssText='position:fixed;left:0;right:0;top:74%;z-index:99;text-align:center;font:italic 22px Alegreya,Georgia,serif;color:#efe6cf;letter-spacing:.1em;text-shadow:0 1px 4px #000;pointer-events:none'; document.body.appendChild(d); return d; })();
+  const LVA={plains:'day_plains',escarpment:'day_cliffs',gully:'day_gully'}[window.__BA_LVKEY]||null;
+  window.__SPEC=function(dt){ const can=firesOf('A').length>0, left=RESP-(tG-playerDownAt);
+    const el=waitEl(); el.style.display='block'; el.innerHTML=can?'back in '+Math.max(0,Math.ceil(left))+(devOK()?'<br><span style="font-size:14px;opacity:.7">R: back now</span>':''):'your side holds no fire here';
+    if(can&&left<=0){ playerBack(); return; }
+    /* the free eye: W A S D along where you look, space up, C down, shift faster; it stays above the ground */
+    const gx=(typeof GP!=='undefined'&&GP)?GP:{mx:0,mz:0}, f=((keys.KeyW?1:0)-(keys.KeyS?1:0))||gx.mz||0, s=((keys.KeyD?1:0)-(keys.KeyA?1:0))||gx.mx||0, u=(keys.Space?1:0)-((keys.KeyC||keys.ControlLeft)?1:0), v=(keys.ShiftLeft||keys.ShiftRight)?22:8;
+    const cp=Math.cos(pitch); SPEC.x+=(-Math.sin(yaw)*cp*f+Math.cos(yaw)*s)*v*dt; SPEC.z+=(-Math.cos(yaw)*cp*f-Math.sin(yaw)*s)*v*dt; SPEC.y+=(Math.sin(pitch)*f+u)*v*dt;
+    const gy=heightAt(SPEC.x,SPEC.z); SPEC.y=Math.min(gy+70,Math.max(gy+0.6,SPEC.y)); const r=Math.hypot(SPEC.x,SPEC.z); if(r>500){ SPEC.x*=500/r; SPEC.z*=500/r; }
+    /* the place goes on without you */
+    try{ baDayTick(); }catch(e){} try{ baAudFade(); }catch(e){} try{ BIRDS.update(dt); }catch(e){} try{ MODELS.tick(dt,performance.now()/1000); }catch(e){} try{ if(window.__FT) window.__FT.tick(dt); if(window.__WD) window.__WD.tick(dt); if(window.__GB) window.__GB.tick(dt); }catch(e){} try{ if(LVA) AMB.tick(LVA); }catch(e){}
+    try{ updateProj(dt); }catch(e){} try{ if(typeof updateAllPacks==='function') updateAllPacks(dt); else updatePack(dt); }catch(e){} try{ updateWallabies(dt); }catch(e){} try{ if(typeof updateDips==='function') updateDips(dt); if(typeof keepAnimalsIn==='function') keepAnimalsIn(); }catch(e){}
+    NPCB.tick(dt); };
+  const _uc=updateCamera; updateCamera=function(){ if(state!=='spec') return _uc(); camera.position.copy(SPEC); camera.rotation.set(pitch,yaw,0); };
+  addEventListener('keydown',e=>{ if(state==='spec'&&e.code==='KeyR'&&devOK()&&firesOf('A').length) playerDownAt=-1e9; });
+  addEventListener('mousedown',()=>{ if(state==='spec'&&!locked&&!fallback) try{ requestLock(); }catch(e){} });
+  /* a new run in this place (the place being started, or handed over to you) clears everyone; the war then begins again here on the next frame of play, so its fighters are never left out of the world */
+  { const _rr=resetRun; resetRun=function(){ const r=_rr.apply(this,arguments); if(started&&!over){ bots.length=0; started=false; playerDownAt=-1; } return r; }; }
   baCheckExits=function(){ baAudFade(); };   /* no leaving: the war moves on when this place is won. (The place's sound is still brought up each frame: that is done here, and without it a place handed over in a war stayed silent) */
   /* ---- each frame ---- */
   function tick(dt){ if(!started){ if(state==='play') start(); else return; } flagTick(dt); hudTick(); { const ww=document.getElementById('warWait'); if(ww&&state==='play') ww.style.display='none'; }
     bots.forEach(n=>{ if(n&&n.inv>0) n.inv=Math.max(0,n.inv-dt); });
+    follow();
     if(over) return;
     /* the fallen: back after fifteen seconds at a fire of theirs here, if they have one */
-    bots.forEach((n,i)=>{ if(!n||n.alive) return; n.downT=(n.downT||0)+dt; if(n.downT>=15&&firesOf(n.side).length){ const s=n.side, k=n.slot; try{ NPCB.drop(n); }catch(e){} spawnBot(s,k); }   /* (its body goes as it comes back: never more than three a side) */ });
+    bots.forEach((n,i)=>{ if(!n||n.alive) return; n.downT=(n.downT||0)+dt; if(n.downT>=RESP&&firesOf(n.side).length){ const s=n.side, k=n.slot; try{ NPCB.drop(n); }catch(e){} spawnBot(s,k); }   /* (its body goes as it comes back: never more than three a side) */ });
     /* who stands at each fire */
     const inA=s=>[...bots.filter(n=>n&&n.alive&&n.side===s).map(n=>n.pos),...(s==='A'&&state==='play'?[P]:[])];
     for(const fr of F){ const p=pits[fr.pi], near=s=>inA(s).filter(q=>Math.hypot(q.x-p.x,q.z-p.z)<5).length, att=other(fr.owner), na=near(att), nd=near(fr.owner);
@@ -9322,9 +9368,17 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   function asVictim(n,fn){ const sp=P.clone(), sv={}; VK.forEach(k=>sv[k]=pl[k]); const ss=state, hp_=hurtPlayer, di_=die, sh=shake, hf=hurtFlash;
     P.set(n.pos.x,n.pos.y,n.pos.z); Object.assign(pl,{vel:n.vel,kb:n.kb,elev:0,inShelter:false,spearLit:0,fireNear:false,dodgeOk:-9,dodgeAt:-9,speedNow:Math.hypot(n.vel.x,n.vel.z),invuln:n.inv||0,hp:n.hp,crouch:false,sprinting:false,armed:n.armed?'spear':'none',inCover:false,burrow:false,eyeH:1.62,air:false,charging:false,stowed:false,carry:null});
     state='play';
-    hurtPlayer=function(m,dmg){ if((n.inv||0)>0||!n.alive) return; n.inv=1.1; if(m&&m.pos&&m.alive){ n.predFoe=m; n.predT=tG; } const dx=m&&m.pos?n.pos.x-m.pos.x:0, dz=m&&m.pos?n.pos.z-m.pos.z:1, l=Math.hypot(dx,dz)||1; NPCB.hurt(n,dmg||1,{x:dx/l,z:dz/l},5,0.8,'pred'); try{ const [v,p]=sPos(n.pos); A.stab(0.6*v+0.1,p); }catch(e){} };
+    hurtPlayer=function(m,dmg){ if((n.inv||0)>0||!n.alive) return; n.inv=1.1; if(m&&m.pos&&m.alive){ n.predFoe=m; n.predT=tG; rally(n.pos,n.side,m); } const dx=m&&m.pos?n.pos.x-m.pos.x:0, dz=m&&m.pos?n.pos.z-m.pos.z:1, l=Math.hypot(dx,dz)||1; NPCB.hurt(n,dmg||1,{x:dx/l,z:dz/l},5,0.8,'pred'); try{ const [v,p]=sPos(n.pos); A.stab(0.6*v+0.1,p); }catch(e){} };
     die=function(){ if(n.alive) NPCB.hurt(n,99,{x:0,z:1},0,0,'pred'); };
     try{ fn(); } finally { P.copy(sp); VK.forEach(k=>pl[k]=sv[k]); state=ss; hurtPlayer=hp_; die=di_; shake=sh; hurtFlash=hf; } }
+  /* who is too close to a pack: you (less near when you go low) or any fighter of either side */
+  function nearPack(){ const ms=(typeof thyls!=='undefined'?thyls:[]).concat(typeof lions!=='undefined'?lions:[]).filter(m=>m&&m.alive&&(typeof packOf!=='function'||packOf(m)===pack)); if(!ms.length) return null;
+    const within=(p,r)=>ms.some(m=>Math.hypot(m.pos.x-p.x,m.pos.z-p.z)<r);
+    if(state==='play'&&within(P,pl.crouch?(pl.inCover?5:8):(pl.sprinting?20:14))) return 'P';
+    for(const n of bots) if(n&&n.alive&&within(n.pos,n.follow&&n.follow.sneak?8:14)) return n; return null; }
+  /* a predator that bites one of a side brings that one's people near by down on it, until it is driven off or dead */
+  function rally(at,side,m){ for(const o of bots){ if(!o||!o.alive||o.side!==side) continue; if(Math.hypot(o.pos.x-at.x,o.pos.z-at.z)<30){ o.predFoe=m; o.predT=tG; } } }
+  { const _hp0=hurtPlayer; hurtPlayer=function(m){ try{ if(state==='play'&&m&&m.pos&&m.alive&&m.kind!=='npc') rally(P,'A',m); }catch(e){} return _hp0.apply(this,arguments); }; }
   /* a resting pack that is attacked wakes, and goes for whoever struck it */
   if(typeof hitAnimal==='function'){ const _ha=hitAnimal; hitAnimal=function(a){ const by=window.__hitBy||'P'; window.__hitBy=null;
       try{ if(a&&a.kind==='thyl'&&a.alive&&typeof packOf==='function'){ const pk=packOf(a); if(pk&&pk.restT>0){ pk.restT=0; pk.victim=by; } } }catch(e){} return _ha.apply(this,arguments); }; }
@@ -9333,8 +9387,9 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   if(typeof updatePack==='function'){ const _up=updatePack; updatePack=function(dt){ if(typeof pack==='undefined'||!pack) return _up(dt);
       let v=pack.victim; if(v&&v!=='P'&&!v.alive) v=null; if(v==='P'&&state!=='play'&&!(state==='dying'&&deathT<8)) v=null;   /* (they finish mauling you first) */
       if(!v&&pack.victim){ pack.victim=null; pack.restT=rand(60,120); if(pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } }
-      if(pack.restT>0){ pack.restT-=dt; if(pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } return _up(dt); }
-      if(!v){ const c=[...(state==='play'?['P']:[]),...bots.filter(n=>n&&n.alive)]; v=c.length?c[Math.floor(Math.random()*c.length)]:'P'; }
+      if(pack.restT>0){ /* resting, but anyone who comes too close is taken on, as in survival */ const near=nearPack(); if(near){ pack.restT=0; pack.victim=near; return near==='P'?_up(dt):asVictim(near,()=>_up(dt)); }
+        pack.restT-=dt; if(pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } return _up(dt); }
+      if(!v){ const c=[...(state==='play'?['P']:[]),...bots.filter(n=>n&&n.alive)]; if(!c.length){ pack.restT=5; return _up(dt); } v=c[Math.floor(Math.random()*c.length)]; }
       pack.victim=v; if(v==='P') return _up(dt); return asVictim(v,()=>_up(dt)); }; }
   return {tick,F,bots,W}; })();/*@Y*/ window.__WAR=WAR;/*@Y*/
 const BA_CARRY=(()=>{ try{ const c=BAS.get('ba_carry'); BAS.del('ba_carry'); return c?JSON.parse(c):null; }catch(e){ return null; } })();/*@Y*/ let baCarryPending=null;/*@Y*/
@@ -9385,6 +9440,7 @@ function frame(now,once){ if(!once) requestAnimationFrame(frame);   /* once: a s
 //@if gully escarpment
     if(deathBy){ deathMaul(dt,updatePack); } else { deadShow(deathT>0.05); elFade.style.opacity=c01((deathT-2.4)/0.8).toFixed(2); updatePack(dt); if(deathT>3.3) showDeath(); } }
 //@end
+  else if(state==='spec'){ if(window.__SPEC) window.__SPEC(dt); }   /* warfare: down and waiting, looking round as a free eye */
   else if(state==='title'){ yaw=SPAWN_YAW+Math.sin(tG*0.05)*0.35; pitch=0.02; }
 //@if plains
   if(window.__pondShore){ for(const a of aliveAnimals()){ if(!a.pos) continue; const r=Math.hypot(a.pos.x,a.pos.z), th=Math.atan2(a.pos.z,a.pos.x), lim=window.__pondShore(th)+(a.lizard||a.kind==='dip'?2.2:(a.big?1.6:0.9)); if(r<lim){ const k=lim/(r||1e-3); a.pos.x*=k; a.pos.z*=k; a.pos.y=heightAt(a.pos.x,a.pos.z); if(a.mesh){ a.mesh.position.x=a.pos.x; a.mesh.position.z=a.pos.z; } if(a.vel){ const nx=a.pos.x/lim, nz=a.pos.z/lim, vn=a.vel.x*nx+a.vel.z*nz; if(vn<0){ a.vel.x-=vn*nx; a.vel.z-=vn*nz; } } } } }
