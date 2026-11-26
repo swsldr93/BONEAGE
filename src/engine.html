@@ -9242,7 +9242,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
    holds none here cannot come back. A place is won when the other side holds no fire in it and has no one standing: the winners take both its fires,
    and everyone goes on to the next place in the round. The first side to hold all twelve fires wins the war. Hunger, the animals, everything else as ever. */
 const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catch(e){} const NODE=window.__BA_NODE; if(!W||!NPCB||!NODE||!NODE.id||window.__BA_MAPONLY) return null;
-  const LINE=['C2','C1','G1','G2','P1','P2'], NAMES={C2:'the high forest',C1:'the east cliffs',G1:'the upper gully',G2:'the lower gully',P1:'the high plains',P2:'the far plains'}, ID=NODE.id;
+  const LINE=(Array.isArray(W.line)&&W.line.length?W.line:['G1','G2','P1','P2','C2','C1']), NEED=LINE.length*2, NAMES={C2:'the high forest',C1:'the east cliffs',G1:'the upper gully',G2:'the lower gully',P1:'the high plains',P2:'the far plains'}, ID=NODE.id;
   const PEO={bassia:{nm:'Bassians',flag:'@@S:flagBassia@@'},torresian:{nm:'Torresians',flag:'@@S:flagTorresia@@'},eromangan:{nm:'Eromangans',flag:'@@S:flagEromanga@@'}};
   W.own=W.own||{}; LINE.forEach(id=>{ if(!W.own[id]) W.own[id]=['A','B']; }); const FAC={A:W.A,B:W.B}, other=s=>s==='A'?'B':'A';
   window.__WARTEAM='A'; const save=()=>{ try{ BAS.set('ba_war',JSON.stringify(W)); }catch(e){} };
@@ -9311,7 +9311,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     W._o=(W._o||0)+dt; if(W._o>3){ W._o=0; orders(); }
     /* the place is won when a side holds no fire here and has no one standing */
     if(endT<0) for(const s of ['A','B']){ const up=bots.some(n=>n&&n.alive&&n.side===s)||(s==='A'&&state==='play'); if(!firesOf(s).length&&!up){ const win=other(s); W.own[ID]=[win,win]; save(); endT=6;
-        const a=total('A'), b=total('B'); if(a>=12||b>=12){ over=true; const won=a>=12; showCard((won?'the war is yours: ':'the war is lost: ')+PEO[FAC[won?'A':'B']].nm+' hold all twelve fires',8); setTimeout(()=>{ try{ BAS.del('ba_war'); }catch(e){} baReload(true); },9000); return; }
+        const a=total('A'), b=total('B'); if(a>=NEED||b>=NEED){ over=true; const won=a>=NEED; showCard((won?'the war is yours: ':'the war is lost: ')+PEO[FAC[won?'A':'B']].nm+' hold '+(NEED===12?'all twelve fires':'every fire'),8); setTimeout(()=>{ try{ BAS.del('ba_war'); }catch(e){} baReload(true); },9000); return; }
         showCard(PEO[FAC[win]].nm+' hold '+NAMES[ID]+'\non to the next place',5); } }
     if(endT>0){ endT-=dt; if(endT<=0){ const i=(LINE.indexOf(ID)+1)%LINE.length, nx=LINE[i]; W.i=(W.i||0)+1; save(); try{ BAS.del('ba_arrive'); BAS.del('ba_carry'); BAS.set('ba_skip_intro','1'); BAS.set('ba_next','node:'+nx); }catch(e){} baReload(); } } }
   /* ---- the predators: each pack picks one of the fighters at random (you, or any bot of either side) and hunts that one alone until it is dead.
