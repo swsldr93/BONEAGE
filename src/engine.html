@@ -8221,6 +8221,7 @@ var GP={mx:0,mz:0,spr:false,b:[]};/*@Y*/
     if(state==='title'||state==='paused'){ if(dn(9)) noLock(begin); return; }
     if(state==='tut'){ if(dn(0)||dn(9)) TUT.next(); else if(dn(1)) TUT.skip(); return; }
     if(state!=='play'&&state!=='spec') return;
+    if(state==='spec'&&window.__specPad&&window.__specPad(dn)) return;   /* watching after a death: Start opens the way out, A leaves, B keeps watching */
     if(dn(9)){ pause(); return; }
     for(const i in KEY) if(dn(+i)) kd(KEY[i],'keydown');
     if(dn(7)){ if(BOOK.held) BOOK.turn(1); else { pl.lmb=true; pl.lmbAt=tG; onAttack(); } }
@@ -9348,7 +9349,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const RESP=90, SPEC=new V3(); const devOK=()=>{ try{ return !!DEV.on; }catch(e){ return false; } };   /* with the dev panel open (the ` key) */
   function playerBack(){ const q=homePt(ME); if(!q) return false; try{ deadShow(false); if(window.__bloodFill) window.__bloodFill.style.opacity='0'; elFade.style.opacity='0'; }catch(e){} deathBy=null;
     P.set(q.x,heightAt(q.x,q.z),q.z); pl.vel.set(0,0,0); pl.kb.set(0,0,0); Object.assign(pl,{air:false,vy:0,elev:0,hp:4,hunger:0,stamina:1,exhausted:false,armed:'spear',stowed:false,spearLit:0,charging:false,chargeHold:0,invuln:2,eatT:0,eating:null,eyeH:1.62,carry:null,spearMeat:null,cooking:false,crouch:false,crouchOn:false});
-    { const ww=document.getElementById('warWait'); if(ww) ww.style.display='none'; }
+    { const ww=document.getElementById('warWait'); if(ww) ww.style.display='none'; } { const sm=document.getElementById('warSpecMenu'); if(sm) sm.hidden=true; }
     try{ if(proj){ proj=null; worldSpear.visible=false; } }catch(e){} roll=0; pitch=-0.05;
     try{ (typeof packs!=='undefined'?packs:[pack]).forEach(pk=>{ if(!pk) return; if(pk.state==='feed'&&!(pk.prey&&pk.prey.pos)){ pk.state='patrol'; pk.prey=null; } pk.lunger=null; }); [...(typeof thyls!=='undefined'?thyls:[]),...(typeof lions!=='undefined'?lions:[])].forEach(m=>{ if(m&&m.alive&&(m.state==='pack'||m.state==='maul')){ m.state='orbit'; m.t=0; } }); }catch(e){}   /* the ones that killed you were left feeding on you */
     state='play'; playerDownAt=-1; showCard('back at your fire',2); return true; }
@@ -9357,7 +9358,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const waitEl=()=>document.getElementById('warWait')||(()=>{ const d=document.createElement('div'); d.id='warWait'; d.style.cssText='position:fixed;left:0;right:0;top:74%;z-index:99;text-align:center;font:italic 22px Alegreya,Georgia,serif;color:#efe6cf;letter-spacing:.1em;text-shadow:0 1px 4px #000;pointer-events:none'; document.body.appendChild(d); return d; })();
   const LVA={plains:'day_plains',escarpment:'day_cliffs',gully:'day_gully'}[window.__BA_LVKEY]||null;
   window.__SPEC=function(dt){ const can=firesOf(ME).length>0, left=RESP-(tG-playerDownAt);
-    const el=waitEl(); el.style.display='block'; el.innerHTML=can?'back in '+Math.max(0,Math.ceil(left))+(devOK()?'<br><span style="font-size:14px;opacity:.7">R: back now</span>':''):'your side holds no fire here';
+    const el=waitEl(); el.style.display='block'; el.innerHTML=(can?'back in '+Math.max(0,Math.ceil(left))+(devOK()?'<br><span style="font-size:14px;opacity:.7">R: back now</span>':''):'your side holds no fire here')+'<br><span style="font-size:13px;opacity:.6">Esc: leave the war</span>';
     if(can&&left<=0){ playerBack(); return; }
     /* the free eye: W A S D along where you look, space up, C down, shift faster; it stays above the ground */
     const gx=(typeof GP!=='undefined'&&GP)?GP:{mx:0,mz:0}, f=((keys.KeyW?1:0)-(keys.KeyS?1:0))||gx.mz||0, s=((keys.KeyD?1:0)-(keys.KeyA?1:0))||gx.mx||0, u=(keys.Space?1:0)-((keys.KeyC||keys.ControlLeft)?1:0), v=(keys.ShiftLeft||keys.ShiftRight)?22:8;
@@ -9370,7 +9371,14 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   if(ON) window.__MPPAUSE=function(dt){ try{ baAudFade(); }catch(e){} try{ updateProj(dt); }catch(e){} try{ if(typeof updateAllPacks==='function') updateAllPacks(dt); else updatePack(dt); }catch(e){} try{ updateWallabies(dt); }catch(e){} NPCB.tick(dt); };
   const _uc=updateCamera; updateCamera=function(){ if(state!=='spec') return _uc(); camera.position.copy(SPEC); camera.rotation.set(pitch,yaw,0); };
   addEventListener('keydown',e=>{ if(state==='spec'&&e.code==='KeyR'&&devOK()&&firesOf(ME).length) playerDownAt=-1e9; });
-  addEventListener('mousedown',()=>{ if(state==='spec'&&!locked&&!fallback) try{ requestLock(); }catch(e){} });
+  /* the way out while you watch: Esc frees the mouse and shows it (Start on a controller) */
+  const specMenu=(()=>{ const d=document.createElement('div'); d.id='warSpecMenu'; d.hidden=true; d.style.cssText='position:fixed;left:0;right:0;top:40%;z-index:120;display:flex;flex-direction:column;align-items:center;gap:14px;font:italic 22px Alegreya,Georgia,serif;color:#efe6cf;text-shadow:0 1px 4px #000';
+    const b=(txt,fn)=>{ const x=document.createElement('button'); x.type='button'; x.textContent=txt; x.style.cssText='background:rgba(0,0,0,.45);border:1px solid rgba(239,230,207,.5);color:inherit;font:inherit;padding:8px 22px;cursor:pointer;letter-spacing:.08em'; x.addEventListener('click',e=>{ e.stopPropagation(); fn(); }); d.appendChild(x); return x; };
+    b('keep watching',()=>{ d.hidden=true; try{ requestLock(); }catch(e){} }); b('leave the war',leaveWar); const h=document.createElement('div'); h.style.cssText='font-size:14px;opacity:.7'; h.textContent='controller: A leave, B keep watching'; d.appendChild(h); document.body.appendChild(d); return d; })();
+  function leaveWar(){ specMenu.hidden=true; try{ BAS.del('ba_war'); }catch(e){} baReload(true); }
+  window.__specPad=dn=>{ if(dn(9)){ specMenu.hidden=!specMenu.hidden; return true; } if(!specMenu.hidden){ if(dn(0)){ leaveWar(); return true; } if(dn(1)){ specMenu.hidden=true; return true; } } return false; };
+  document.addEventListener('pointerlockchange',()=>{ if(state==='spec') specMenu.hidden=!!locked; });
+  addEventListener('mousedown',e=>{ if(state==='spec'&&!locked&&!fallback&&specMenu.hidden) try{ requestLock(); }catch(e){} });
   /* a new run in this place (the place being started, or handed over to you) clears everyone; the war then begins again here on the next frame of play, so its fighters are never left out of the world */
   { const _rr=resetRun; resetRun=function(){ const r=_rr.apply(this,arguments); if(started&&!over){ bots.length=0; started=false; playerDownAt=-1; for(const id in peers) delete peers[id]; } return r; }; }
   baCheckExits=function(){ baAudFade(); };   /* no leaving: the war moves on when this place is won. (The place's sound is still brought up each frame: that is done here, and without it a place handed over in a war stayed silent) */
@@ -9383,7 +9391,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const standing=s=>[...bots.filter(n=>n&&n.alive&&n.side===s).map(n=>n.pos),...(s===ME&&state==='play'?[P]:[]),...Object.values(peers).filter(n=>n&&n.alive&&n.side===s).map(n=>n.pos)];
   function tick(dt){ if(!started){ if(state==='play') start(); else return; } flagTick(dt); hudTick(); { const ww=document.getElementById('warWait'); if(ww&&state==='play') ww.style.display='none'; }
     bots.forEach(n=>{ if(n&&n.inv>0) n.inv=Math.max(0,n.inv-dt); });
-    netTick(dt);
+    netTick(dt); aniTick(dt); eatTick();
     follow();
     if(over||!HOST) return;
     /* the fallen: back after ninety seconds at a fire of theirs here, if they have one */
@@ -9436,7 +9444,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   if(typeof doStabHit==='function'){ const _a=doStabHit; doStabHit=function(){ myAct('stab',0.4,0.05); return _a.apply(this,arguments); }; }
   if(typeof doKickHit==='function'){ const _a=doKickHit; doKickHit=function(){ myAct('kick',0.45,0.05); return _a.apply(this,arguments); }; }
   if(typeof throwSpear==='function'){ const _a=throwSpear; throwSpear=function(){ const r=_a.apply(this,arguments); try{ if(ON&&proj&&proj.state==='fly'){ myAct('throw',0.5,0.05); NETo.send('*',{t:'gs',o:[r2(proj.pos.x),r2(proj.pos.y),r2(proj.pos.z)],v:[r2(proj.vel.x),r2(proj.vel.y),r2(proj.vel.z)]},true); } }catch(e){} return r; }; }
-  function onNet(o){ const f=o._from; if(over&&o.t!=='go') return;
+  let onNet=function(o){ const f=o._from; if(over&&o.t!=='go') return;
     if(o.t==='gp'){ if(!MP||f===MP.me) return; const who=MP.players.find(p=>p.id===f); if(!who) return; let n=peers[f];
       if(!n||(!n.alive&&o.a)){ if(n) try{ NPCB.drop(n); }catch(e){} if(!o.a){ return; } n=peers[f]=mkPuppet(who.side,o.x,o.z); n.human=true; n.owner=f; n.heading=o.h; }
       n.tgt={x:o.x,z:o.z,h:o.h}; n.rcr=!!o.cr; n.follow={sneak:!!o.cr}; n.armed=!!o.arm; if(!o.a&&n.alive) NPCB.hurt(n,99,{x:Math.sin(n.heading),z:Math.cos(n.heading)},0,0,'net'); return; }
@@ -9459,6 +9467,42 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     if(o.t==='go'){ warOver(o.s); return; } }
   /* leaving an online war for the menu leaves the room (the others are told) */
   if(ON){ const _br=baReload; baReload=function(toMenu){ if(toMenu&&!over){ try{ NETo.leave(); BAS.del('ba_war'); }catch(e){} } return _br.apply(this,arguments); }; }
+  /* ---------- online: the animals are shared. Each one is run by the machine of the player nearest it (the host decides who, twice a second,
+     and keeps a lead of 6 m before handing one over), so it hunts, flees and spooks from that player as it would alone; everyone else sees it
+     where that machine says, eased toward each report. A blow on an animal run elsewhere is sent to that machine. Ground birds stay each machine's own ---------- */
+  const ANI=[]; { const add=(tag,arr)=>{ if(Array.isArray(arr)) arr.forEach((a,i)=>{ if(a&&a.pos) ANI.push([tag+i,a]); }); };
+    try{ add('t',typeof thyls!=='undefined'?thyls:null); }catch(e){} try{ add('l',typeof lions!=='undefined'?lions:null); }catch(e){} try{ add('w',typeof wallabies!=='undefined'?wallabies:null); }catch(e){} try{ add('d',typeof dips!=='undefined'?dips:null); }catch(e){} }
+  const AKEY=new Map(ANI.map(([k,a])=>[a,k])), ABY=Object.fromEntries(ANI), AOWN={}, ASNAP={};
+  const mineA=k=>!ON||(AOWN[k]||MP.host)===MP.me;
+  let ownT=0, aniT=0;
+  function humansAt(){ const H=[]; if(['play','paused','spec','dying'].includes(state)) H.push([MP.me,P.x,P.z]); for(const id in peers){ const n=peers[id]; if(n&&n.pos) H.push([id,n.pos.x,n.pos.z]); } return H; }
+  function aniTick(dt){ if(!ON||!ANI.length) return;
+    if(HOST){ ownT+=dt; if(ownT>=0.5){ ownT=0; const H=humansAt(); if(H.length){ const ch={};
+        for(const [k,a] of ANI){ let best=null, bd=1e9, cur=AOWN[k]||MP.host, cd=1e9; for(const [id,x,z] of H){ const d=Math.hypot(a.pos.x-x,a.pos.z-z); if(d<bd){ bd=d; best=id; } if(id===cur) cd=d; } if(best&&best!==cur&&bd<cd-6){ AOWN[k]=best; ch[k]=best; } }
+        NETo.send('*',{t:'gO',o:AOWN},false); } } }
+    aniT+=dt; if(aniT>=0.1){ aniT=0; const out=[]; for(const [k,a] of ANI) if(mineA(k)) out.push([k,r2(a.pos.x),r2(a.pos.y),r2(a.pos.z),r2(a.heading||0),a.alive?1:0,a.eaten?1:0]);
+      for(let i=0;i<out.length;i+=40) NETo.send('*',{t:'gA',a:out.slice(i,i+40)}); }
+    /* the animals run elsewhere: eased toward where they were last reported */
+    const kk=1-Math.exp(-7*dt);
+    for(const [k,a] of ANI){ if(mineA(k)) continue; const s=ASNAP[k]; if(!s) continue;
+      if(s.al&&!a.alive&&!a.eaten&&!s.eat){ a.alive=true; a.state=a.kind==='thyl'?'pack':'graze'; a.hp=Math.max(a.hp||0,1); if(a.mesh) a.mesh.visible=true; }
+      if(!s.al&&a.alive){ try{ killAnimal(a,true,{x:Math.sin(a.heading||0),z:Math.cos(a.heading||0)}); }catch(e){ a.alive=false; } }
+      if(s.eat&&!a.eaten){ a.eaten=true; if(a.mesh) a.mesh.visible=false; }
+      if(!a.alive) continue; const dx=s.x-a.pos.x, dz=s.z-a.pos.z;
+      if(dx*dx+dz*dz>64){ a.pos.x=s.x; a.pos.z=s.z; a.pos.y=s.y; } else { a.pos.x+=dx*kk; a.pos.z+=dz*kk; a.pos.y+=(s.y-a.pos.y)*kk; }
+      if(a.heading!=null) a.heading=angLerp(a.heading,s.h,kk); if(a.vel){ a.vel.x=dx*7; a.vel.z=dz*7; } if(a.mesh&&a.mesh.position){ a.mesh.position.x=a.pos.x; a.mesh.position.z=a.pos.z; } } }
+  if(ON&&typeof hitAnimal==='function'){ const _hx=hitAnimal; hitAnimal=function(a,dmg,dir,kbF,stag,noStag){ const k=AKEY.get(a);
+      if(k&&!mineA(k)&&a.alive){ NETo.send(AOWN[k]||MP.host,{t:'gX',k,dmg,dir:dir?{x:r2(dir.x||0),z:r2(dir.z||0)}:null,kb:kbF||0,st:stag||0,ns:noStag?1:0},true); try{ const [v,p2]=sPos(a.pos); A.stab(0.5*v+0.1,p2); }catch(e){} return; }   /* (struck here, taken where it is run) */
+      return _hx.apply(this,arguments); }; }
+  const _eaten={};
+  const eatTick=()=>{ if(!ON) return; for(const [k,a] of ANI){ if(a.eaten&&!_eaten[k]){ _eaten[k]=1; NETo.send('*',{t:'gE',k},true); } } };
+  const onNet0=onNet; onNet=function(o){ const f=o._from;
+    if(o.t==='gO'){ if(f!==MP.host) return; Object.assign(AOWN,o.o); return; }
+    if(o.t==='gA'){ for(const r of o.a){ const [k,x,y,z,h,al,eat]=r; if(mineA(k)) continue; ASNAP[k]={x,y,z,h,al,eat}; } return; }
+    if(o.t==='gX'){ const a=ABY[o.k]; if(a&&a.alive) _hx2(a,o.dmg,o.dir||{x:0,z:1},o.kb,o.st,!!o.ns); return; }
+    if(o.t==='gE'){ const a=ABY[o.k]; if(a&&!a.eaten){ a.eaten=true; _eaten[o.k]=1; if(a.mesh) a.mesh.visible=false; } return; }
+    return onNet0(o); };
+  const _hx2=(a,...r)=>{ const k=AKEY.get(a); const s=AOWN[k]; AOWN[k]=MP.me; try{ return hitAnimal(a,...r); }catch(e){ console.error(e); } finally{ if(s===undefined) delete AOWN[k]; else AOWN[k]=s; } };   /* (a blow sent from elsewhere, taken here as if struck here) */
   if(ON){ NETo.game=onNet; NETo.gameLeft=ids=>{ ids.forEach(id=>{ const n=peers[id]; if(n) try{ NPCB.drop(n); }catch(e){} delete peers[id]; }); MP.players=MP.players.filter(p=>!ids.includes(p.id));
       if(ids.includes(MP.host)&&!HOST){ showCard('the host has gone\nthe war is over',6); over=true; setTimeout(()=>{ try{ BAS.del('ba_war'); NETo.leave(); }catch(e){} baReload(true); },6500); } }; }
   /* ---- the predators: each pack picks one of the fighters at random (you, or any bot of either side) and hunts that one alone until it is dead.
@@ -9490,7 +9534,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
         pack.restT-=dt; if(pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } return _up(dt); }
       if(!v){ const c=[...(state==='play'?['P']:[]),...(HOST?bots.filter(n=>n&&n.alive&&!n.remote):[])];   /* (online, the animals are each machine's own: they hunt only who lives here) */ if(!c.length){ pack.restT=5; return _up(dt); } v=c[Math.floor(Math.random()*c.length)]; }
       pack.victim=v; if(v==='P') return _up(dt); return asVictim(v,()=>_up(dt)); }; }
-  return {tick,F,bots,W,peers,winPlace:s=>{ if(!HOST||endT>=0) return; const win=s; W.own[ID]=[win,win]; F.forEach(f=>f.owner=win); save(); endT=6; tell('won',win); }}; })();/*@Y*/ window.__WAR=WAR;/*@Y*/
+  return {tick,F,bots,W,peers,ani:()=>({ANI,AOWN,ASNAP}),winPlace:s=>{ if(!HOST||endT>=0) return; const win=s; W.own[ID]=[win,win]; F.forEach(f=>f.owner=win); save(); endT=6; tell('won',win); }}; })();/*@Y*/ window.__WAR=WAR;/*@Y*/
 const BA_CARRY=(()=>{ try{ const c=BAS.get('ba_carry'); BAS.del('ba_carry'); return c?JSON.parse(c):null; }catch(e){ return null; } })();/*@Y*/ let baCarryPending=null;/*@Y*/
 //@if escarpment
 const ANTS=(()=>{ const cv=document.createElement('canvas'); cv.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:6'; document.body.appendChild(cv); const g=cv.getContext('2d');
