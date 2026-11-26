@@ -6078,6 +6078,7 @@ void main(){ vec4 t=texture2D(map,vec2(vUv.x,vUv.y*uRep+uOff)); float edge=smoot
     else s+='<text x="'+x+'" y="'+(y+8)+'" text-anchor="middle" font-size="'+(big?34:24)+'" font-style="italic" fill="'+MAPINK+'" opacity=".55">not yet charted</text>';
     const L=D.pos[id]||[], lit=D.F[id]||[], k=big?1.5:1;
     if(hasMs||here) L.forEach((q,i)=>{ if(!q) return; const [fx,fy]=toT(q[0],q[1]), on=lit.includes(i);
+      { const wo=window.__mapFire&&window.__mapFire(id,i,L); if(wo){ s+='<circle cx="'+fx+'" cy="'+fy+'" r="'+14*k+'" fill="'+wo.fill+'" stroke="'+wo.stroke+'" stroke-width="'+3*k+'"/>'; return; } }   /* warfare: every fire burns; its colour is the people who hold it */
       s+=on?'<circle cx="'+fx+'" cy="'+fy+'" r="'+13*k+'" fill="#e07a2a" stroke="#7a2e0c" stroke-width="'+2.5*k+'"/><path d="M'+fx+' '+(fy-9*k)+' q'+6*k+' '+7*k+' 0 '+12*k+' q'+(-6*k)+' '+(-5*k)+' 0 '+(-12*k)+'z" fill="#ffd27a"/>':'<circle cx="'+fx+'" cy="'+fy+'" r="'+11*k+'" fill="none" stroke="'+MAPINK+'" stroke-width="'+3*k+'"/>'; });
     if(hasMs||here){ const DS=(D.net&&D.net.disc&&D.net.disc[id])||[]; DS.forEach(q=>{ const [fx,fy]=toT(q.x,q.z);
         if(q.t==='g'){ const rr=Math.max(big?24*k:9,(q.r||18)/ms.half*R); s+='<g><circle cx="'+fx+'" cy="'+fy+'" r="'+rr+'" fill="rgba(46,33,20,.08)" stroke="'+MAPINK+'" stroke-width="'+(big?4.5*k:2.6)+'" stroke-dasharray="'+(big?9*k:5)+' '+(big?6*k:4)+'"/>'+(big?'<text x="'+fx+'" y="'+(fy-rr-9*k)+'" text-anchor="middle" font-family="'+BAM_HAND+'" font-style="italic" font-size="'+30*k+'" fill="'+MAPINK+'">'+q.lab+'</text>':'')+'</g>'; }
@@ -6119,6 +6120,7 @@ void main(){ vec4 t=texture2D(map,vec2(vUv.x,vUv.y*uRep+uOff)); float edge=smoot
       const L=[]; if(id){ L.push({h:NMS[id]||'here'}); L.push({t:'light the fires here',n:here+'/2',ok:here>=2});
         const seen=new Set(); Object.values(N.links||{}).forEach(l=>{ const to=l&&l.to; if(!to||seen.has(to)||!NMS[to]) return; seen.add(to); const ok=(dc.areas||[]).includes(to)||marks.some(m=>m.t==='x'&&m.lab==='way to '+NMS[to]); L.push({t:'find the way to '+NMS[to],ok}); }); }
       L.push({gap:1}); L.push({t:'light all twelve fires',n:tot+'/12',ok:tot>=12});
+      if(window.__mapTodo){ L.length=0; L.push(...window.__mapTodo(NMS[id]||'here')); }   /* warfare has its own list */
       let s='<g font-family="'+BAM_HAND+'" fill="'+ink+'"><text x="'+x+'" y="'+y+'" font-size="34" font-weight="700">to do</text>'; let yy=y+50;
       L.forEach(o=>{ if(o.gap){ yy+=14; return; } if(o.h){ s+='<text x="'+x+'" y="'+yy+'" font-size="25" font-style="italic" opacity=".85">'+o.h+'</text>'; yy+=38; return; }
         s+='<rect x="'+x+'" y="'+(yy-19)+'" width="20" height="20" fill="none" stroke="'+ink+'" stroke-width="2.2" rx="2" transform="rotate(-2 '+(x+10)+' '+(yy-9)+')"/>'+(o.ok?'<path d="M'+(x+2)+' '+(yy-17)+' L'+(x+19)+' '+(yy+1)+' M'+(x+19)+' '+(yy-18)+' L'+(x+3)+' '+(yy)+'" stroke="#7a2e0c" stroke-width="3" stroke-linecap="round"/>':'');
@@ -6135,7 +6137,7 @@ void main(){ vec4 t=texture2D(map,vec2(vUv.x,vUv.y*uRep+uOff)); float edge=smoot
       J.forEach(([a,b])=>{ const A=Z[a], B=Z[b], dx=B[0]-A[0], dy=B[1]-A[1], d=Math.hypot(dx,dy), k=R*0.7/d; s+='<line x1="'+(A[0]+dx*k)+'" y1="'+(A[1]+dy*k)+'" x2="'+(B[0]-dx*k)+'" y2="'+(B[1]-dy*k)+'" stroke="'+ink+'" stroke-width="5" stroke-dasharray="3 11" stroke-linecap="round" opacity=".75"/>'; });   /* the way through, from sheet to sheet */
       for(const id in Z){ const [x,y,lab,sub]=Z[id]; s+=sheetSVG(D,id,x,y,R,false);
         { const sd=x<CX?-1:1; s+='<text x="'+(x+sd*R*0.9)+'" y="'+(y+7)+'" text-anchor="'+(sd<0?'end':'start')+'" font-family="'+BAM_HAND+'" font-style="italic" font-size="24" fill="'+ink+'">'+lab+'</text>'; } if(sub) s+='<text x="'+x+'" y="'+(y-R*0.86+26)+'" text-anchor="middle" font-size="21" font-style="italic" fill="'+ink+'">'+sub+'</text>'; }
-      s+='<g transform="translate('+(VX+22)+','+(VY+VH-150)+') scale(.62)" font-size="22" fill="'+ink+'"><circle cx="0" cy="0" r="12" fill="#e07a2a" stroke="#7a2e0c" stroke-width="2.5"/><text x="24" y="7">fire lit</text><circle cx="0" cy="38" r="11" fill="none" stroke="'+ink+'" stroke-width="3"/><text x="24" y="45">fire cold</text><circle cx="0" cy="78" r="11" fill="none" stroke="'+ink+'" stroke-width="2.6" stroke-dasharray="5 4"/><text x="24" y="85">grounds</text><circle cx="0" cy="116" r="10" fill="#b01e14"/><text x="24" y="123">you</text><line x1="-12" y1="156" x2="12" y2="156" stroke="'+ink+'" stroke-width="5" stroke-dasharray="3 11" stroke-linecap="round"/><text x="24" y="163">the way through</text></g>';
+      s+='<g transform="translate('+(VX+22)+','+(VY+VH-150)+') scale(.62)" font-size="22" fill="'+ink+'">'+((window.__mapWarKey&&window.__mapWarKey())||'<circle cx="0" cy="0" r="12" fill="#e07a2a" stroke="#7a2e0c" stroke-width="2.5"/><text x="24" y="7">fire lit</text><circle cx="0" cy="38" r="11" fill="none" stroke="'+ink+'" stroke-width="3"/><text x="24" y="45">fire cold</text>')+'<circle cx="0" cy="78" r="11" fill="none" stroke="'+ink+'" stroke-width="2.6" stroke-dasharray="5 4"/><text x="24" y="85">grounds</text><circle cx="0" cy="116" r="10" fill="#b01e14"/><text x="24" y="123">you</text><line x1="-12" y1="156" x2="12" y2="156" stroke="'+ink+'" stroke-width="5" stroke-dasharray="3 11" stroke-linecap="round"/><text x="24" y="163">the way through</text></g>';
       s+=todoSVG(D,VX+34,VY+64,ink);
       s+='<g transform="translate('+(VX+VW-34)+','+(VY+VH-80)+') scale(.55)" fill="'+ink+'" stroke="'+ink+'"><path d="M0 -70 L14 0 L0 -12 L-14 0 Z" stroke-width="2"/><path d="M0 70 L14 0 L0 12 L-14 0 Z" fill="none" stroke-width="2"/><text x="0" y="-80" text-anchor="middle" font-size="26" font-weight="700" stroke="none">N</text></g>';
       return s+'</svg>'; }catch(e){ return ''; } };
@@ -6147,7 +6149,7 @@ void main(){ vec4 t=texture2D(map,vec2(vUv.x,vUv.y*uRep+uOff)); float edge=smoot
       s+=sheetSVG(D,id,1220,600,600,true);
       s+='<g fill="'+ink+'"><text x="90" y="170" font-size="54" font-weight="700" letter-spacing="4">'+NM[0]+'</text>'+(NM[1]?'<text x="92" y="225" font-size="32" font-style="italic">'+NM[1]+'</text>':'')
         +(ways.length?'<text x="92" y="'+(NM[1]?300:260)+'" font-size="24" font-style="italic" opacity=".8">ways out to '+ways.join(', ')+'</text>':'')+'</g>';
-      s+='<g transform="translate(110,900)" font-size="24" fill="'+ink+'"><circle cx="0" cy="0" r="13" fill="#e07a2a" stroke="#7a2e0c" stroke-width="2.5"/><text x="26" y="8">fire lit</text><circle cx="0" cy="42" r="12" fill="none" stroke="'+ink+'" stroke-width="3"/><text x="26" y="50">fire cold (seen)</text><path d="M-10 93 L10 93 L0 75 Z" fill="'+ink+'"/><text x="26" y="92">fire pit</text><circle cx="0" cy="128" r="11" fill="#b01e14"/><text x="26" y="136">you</text></g>';
+      s+='<g transform="translate(110,900)" font-size="24" fill="'+ink+'">'+((window.__mapWarKey&&window.__mapWarKey())||'<circle cx="0" cy="0" r="13" fill="#e07a2a" stroke="#7a2e0c" stroke-width="2.5"/><text x="26" y="8">fire lit</text><circle cx="0" cy="42" r="12" fill="none" stroke="'+ink+'" stroke-width="3"/><text x="26" y="50">fire cold (seen)</text>')+'<path d="M-10 93 L10 93 L0 75 Z" fill="'+ink+'"/><text x="26" y="92">fire pit</text><circle cx="0" cy="128" r="11" fill="#b01e14"/><text x="26" y="136">you</text></g>';
       return s+'</svg>'; }catch(e){ return ''; } };
   { /* finds: arriving in a new place, a way out, the grounds where a group of prey lives. Each is drawn onto the map, and the map comes up a moment to show it */
     const NMS=@@TOBJ:places@@;
@@ -9281,6 +9283,15 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
       let want=fr.swap>0?0:1-fr.cap; if(fr.swap>0){ fr.swap-=dt; if(fr.swap<=0){ fr.fm.material.map=tex(FAC[fr.owner]); fr.fm.material.needsUpdate=true; } }
       fr.hf+=(want-fr.hf)*Math.min(1,dt*(fr.swap>0?3:1.6)); fr.fm.position.y=bot+(top-bot)*fr.hf; fr.fm.rotation.y=0.4*Math.sin(tt*0.11+fr.ph);
       const pa=fr.fg.attributes.position, gust=0.5+0.5*Math.sin(tt*0.3+fr.ph); for(let i=0;i<pa.count;i++){ const x=fr.P0[i*3], y=fr.P0[i*3+1], k=x/1.5, droop=(1-gust)*1.1*k; pa.setX(i,x*Math.cos(droop)); pa.setY(i,y-x*Math.sin(droop)); pa.setZ(i,(0.05+0.1*gust)*k*Math.sin(x*3.2-tt*(3+3*gust)+fr.ph)); } pa.needsUpdate=true; } }
+  /* ---- every fire in the place burns from the start of a war (only the fire, not your survival record of fires lit) ---- */
+  const allLit=()=>{ try{ pits.forEach(p=>{ if(p&&isFinite(p.x)) setPitLit(p,true); }); }catch(e){} }; allLit();
+  /* ---- the map: each fire in the colour of whoever holds it, here and in every other place of the war ---- */
+  const COL={bassia:{fill:'#1d1c1a',stroke:'#e2bf3b'},torresian:{fill:'#ebe0a0',stroke:'#4f4a22'},eromangan:{fill:'#cc624b',stroke:'#4e1d12'}};
+  window.__mapFire=(id,i,Lp)=>{ if(!LINE.includes(id)) return null; let side=null;
+    if(id===ID){ const f=F.find(f=>f.pi===i); side=f?f.owner:null; } else { const k=(Lp||[]).slice(0,i).filter(Boolean).length; side=k<2&&W.own[id]?W.own[id][k]:null; }
+    return side?COL[FAC[side]]:null; };
+  window.__mapTodo=h=>{ const mine=F.filter(f=>f.owner==='A').length, a=total('A'); return [{h},{t:'take and hold both fires here',n:mine+'/2',ok:mine>=2},{t:'put down the last of them here',ok:false},{gap:1},{t:'hold every fire of the war',n:a+'/'+NEED,ok:a>=NEED}]; };
+  window.__mapWarKey=()=>['A','B'].map((s,j)=>'<circle cx="0" cy="'+(j*40)+'" r="13" fill="'+COL[FAC[s]].fill+'" stroke="'+COL[FAC[s]].stroke+'" stroke-width="3"/><text x="26" y="'+(j*40+8)+'">'+PEO[FAC[s]].nm.replace(/s$/,'')+' fire'+(s==='A'?' (yours)':'')+'</text>').join('');
   /* ---- the sides ---- */
   const firesOf=s=>F.filter(f=>f.owner===s), total=s=>LINE.reduce((n,id)=>n+(id===ID?F.filter(f=>f.owner===s).length:W.own[id].filter(o=>o===s).length),0);
   const enemyFirePt=s=>{ const ef=F.filter(f=>f.owner!==s); if(!ef.length) return null; return ef; };
@@ -9315,7 +9326,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     if(k!==hudKey){ hudKey=k; hL.innerHTML=L.map(u=>u?fig(FAC.A):down()).join(''); hR.innerHTML=R.map(u=>u?fig(FAC.B):down()).join(''); }
     hud.innerHTML=cf?'<span style="display:inline-block;width:180px;height:5px;background:rgba(0,0,0,.4);vertical-align:middle"><span style="display:block;height:5px;width:'+Math.round(cf.cap*100)+'%;background:'+(cf.by==='A'?'#d9c27a':'#c0573a')+'"></span></span><br>'+(cf.by==='A'?'taking their fire':'they are taking your fire'):''; }
   /* ---- start: you and yours at your fire (or the edge, if you hold none here), theirs at theirs ---- */
-  function start(){ started=true; for(const s of ['A','B']) for(let k=(s==='A'?1:0);k<3;k++){ bots.push({side:s,slot:k}); spawnBot(s,k); }
+  function start(){ started=true; allLit(); for(const s of ['A','B']) for(let k=(s==='A'?1:0);k<3;k++){ bots.push({side:s,slot:k}); spawnBot(s,k); }
     const q=homePt('A')||entry('A'); P.set(q.x,heightAt(q.x,q.z),q.z); const e=F.find(f=>f.owner==='B')||F[1]; const ep=pits[e.pi]; yaw=Math.atan2(-(ep.x-P.x),-(ep.z-P.z)); pitch=-0.05;
     showCard(PEO[FAC.A].nm+' against '+PEO[FAC.B].nm+'\n'+NAMES[ID]+(firesOf('A').length?'':'\nyou hold no fire here: take one'),4); orders(); }
   /* ---- you go down: ninety seconds as a free eye over the place (spectator), then back at a fire your side holds here, fed. The dev can come back at once (R) ---- */
