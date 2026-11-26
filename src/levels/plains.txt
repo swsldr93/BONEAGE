@@ -36,3 +36,6 @@ preyHopHeight = 0.18
 preyHopHeightPerSpeed = 0.045
 # the flag over the old palisade fort here: Eromanga (a picture in src/levels/img/)
 fortFlag = @file img/flag-eromanga.jpg
+flagBassia = @file img/flag-bassia.jpg
+flagTorresia = @file img/flag-torresia.jpg
+flagEromanga = @file img/flag-eromanga.jpg

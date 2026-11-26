@@ -175,6 +175,7 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
     <button data-level="escarpment" data-desc="Sandstone ledges around a deep fern gully, high above a great valley. Red-necked wallabies, and a giant goanna that hunts on both ledges.">the cliffs</button>
     <button data-level="gully" data-desc="A ring canyon of tree ferns and mountain ash around a sandstone mesa. A creek, a waterfall, and thylacines.">the gully</button>
     <button data-level="plains" data-desc="Open grassland on the valley floor around a billabong. Kangaroo mobs, diprotodons at the water, and a marsupial lion in the grass.">the plains</button>
+    <button id="warL" data-desc="Two peoples, three a side: you and two of yours against three of theirs, fighting over the twelve fires of the six places. Take their fire, put down the last of them, and the place is yours.">warfare</button>
     <button id="layL">settings</button>
     <button id="quitL" style="display:none" onclick="BA_PLAT.quit()">quit</button>
   </div>
@@ -469,17 +470,21 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
     const row=()=>{ let r=document.getElementById('baDevRow'); const m=document.querySelector('#menu'); if(!m||!document.querySelector('[data-level]')||window.__BA_COMBINED) return; if(!devOn()){ if(r) r.remove(); return; } if(r) return;
       r=document.createElement('div'); r.id='baDevRow'; r.style.cssText='margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:520px;font:13px/1.3 Georgia,serif;color:#dcd4c1';
       r.innerHTML='<div style="width:100%;text-align:center;opacity:.7">test mode: start in</div>'+LINE.map(id=>'<button type="button" data-node="'+id+'" style="font:13px Georgia,serif;color:#dcd4c1;background:rgba(40,36,30,.7);border:1px solid rgba(220,212,193,.35);padding:5px 9px;cursor:pointer">'+NAMES[id].replace(/^the /,'')+'</button>').join('')+'<button type="button" data-node="G2" data-npc="fort" style="font:13px Georgia,serif;color:#f0c890;background:rgba(70,40,24,.8);border:1px solid rgba(240,200,144,.5);padding:5px 9px;cursor:pointer">lower gully: stockade village</button>';
-      r.addEventListener('click',e=>{ const b=e.target.closest('[data-node]'); if(!b) return; e.stopPropagation(); bdel('ba_arrive'); bdel('ba_carry'); if(b.dataset.npc) bset('ba_npc',b.dataset.npc); else bdel('ba_npc'); const n=netNew(); n.start=b.dataset.node; netSet(n); playNode(b.dataset.node); });
+      r.addEventListener('click',e=>{ const b=e.target.closest('[data-node]'); if(!b) return; e.stopPropagation(); bdel('ba_arrive'); bdel('ba_carry'); bdel('ba_war'); if(b.dataset.npc) bset('ba_npc',b.dataset.npc); else bdel('ba_npc'); const n=netNew(); n.start=b.dataset.node; netSet(n); playNode(b.dataset.node); });
       m.appendChild(r); };
     addEventListener('keydown',e=>{ if(e.repeat) return; buf.push(e.code); if(buf.length>CODE.length) buf.shift(); if(buf.join()===CODE.join()){ buf=[]; const on=!devOn(); try{ if(window.BA_PLAT) BA_PLAT.set('ba_devcode',on?'1':'0'); else bset('ba_devcode',on?'1':'0'); }catch(err){} row(); } });
-    setTimeout(row,300); setInterval(row,1000); } window.BA_PGCODE=PGC; window.BA_PGKEY=PGK;
+    setTimeout(row,300); setInterval(row,1000); }
+  /* warfare: a new war, two of the three peoples picked at random (yours first), starting on the high plains */
+  { const wb=document.getElementById('warL'); if(wb){ const d=document.getElementById('desc'); wb.addEventListener('mouseenter',()=>{ if(d){ d.textContent=wb.dataset.desc; d.classList.add('on'); } }); wb.addEventListener('mouseleave',()=>{ if(d) d.classList.remove('on'); });
+      wb.addEventListener('click',()=>{ const M=document.getElementById('menu'); if(M&&M.classList.contains('leaving')) return; const f=['bassia','torresian','eromangan'].sort(()=>Math.random()-0.5);
+        bset('ba_war',JSON.stringify({A:f[0],B:f[1],own:{},i:0})); bdel('ba_arrive'); bdel('ba_carry'); bdel('ba_npc'); bset('ba_skip_intro','1'); const n=netNew(); n.start='P1'; netSet(n); playNode('P1'); }); } } window.BA_PGCODE=PGC; window.BA_PGKEY=PGK;
 
   try{ if(BA_PLAT.native) document.getElementById('quitL').style.display=''; }catch(e){}
   const desc=document.getElementById('desc'); let descT=0;
   document.querySelectorAll('[data-level]').forEach(b=>{ const mp=document.querySelector('#lvmaps img[data-map="'+b.dataset.level+'"]'); const on=()=>{ clearTimeout(descT); desc.textContent=b.dataset.desc; desc.classList.add('on'); document.querySelectorAll('#lvmaps img').forEach(im=>im.classList.toggle('on',im===mp)); }, off=()=>{ desc.classList.remove('on'); if(mp) mp.classList.remove('on'); };   // a sketch map of the level fades in beside the menu
     b.addEventListener('mouseenter',on); b.addEventListener('focus',on); b.addEventListener('mouseleave',off); b.addEventListener('blur',off); });
   /* choosing an area: everything but its map fades away, then the loading screen takes over with the map in the same place */
-  document.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>{ const M=document.getElementById('menu'); if(M&&M.classList.contains('leaving')) return; try{ BAS.del('ba_arrive'); BAS.del('ba_carry'); BAS.del('ba_npc'); }catch(e){}
+  document.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>{ const M=document.getElementById('menu'); if(M&&M.classList.contains('leaving')) return; try{ BAS.del('ba_arrive'); BAS.del('ba_carry'); BAS.del('ba_npc'); BAS.del('ba_war'); }catch(e){}
     const mp=document.querySelector('#lvmaps img[data-map="'+b.dataset.level+'"]'); document.querySelectorAll('#lvmaps img').forEach(i=>i.classList.toggle('on',i===mp)); if(M) M.classList.add('leaving'); setTimeout(()=>loadLevel(b.dataset.level),950); }));
   // travelling between levels: the level we are walking into loads straight away
   let nextLv=null; try{ nextLv=BAS.get('ba_next'); BAS.del('ba_next'); }catch(e){}
