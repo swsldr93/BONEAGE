@@ -6170,7 +6170,7 @@ void main(){ vec4 t=texture2D(map,vec2(vUv.x,vUv.y*uRep+uOff)); float edge=smoot
       N.line.forEach((id,i)=>{ if(i) out.push({pb:1}); const nm=(N.names||{})[id]||id; out.push({mp:id,ttl:nm.replace(/^the /,'').replace(/^./,c=>c.toUpperCase()),t:notes[TYP[id[0]]]||''}); }); BK.maps.blocks=out; BK.maps.__line=1; } }catch(e){}
   let mapsIt=null; const own=new Map();
   window.__mapsToSpawn=()=>{ try{ if(window.__BA_MAPONLY||!BK||!BK.maps) return;
-      const drop=()=>{ if(!mapsIt) return; scene.remove(mapsIt.mesh); const i=BOOK.items.indexOf(mapsIt); if(i>=0) BOOK.items.splice(i,1); mapsIt=null; };
+      const drop=()=>{ if(!mapsIt) return; scene.remove(mapsIt.mesh); if(mapsIt.__slab&&mapsIt.__slab.mesh) scene.remove(mapsIt.__slab.mesh); const i=BOOK.items.indexOf(mapsIt); if(i>=0) BOOK.items.splice(i,1); mapsIt=null; };
       if(!__mapsHere||window.__mapsHave()){ drop(); return; } if(BOOK.held&&BOOK.held.b===BK.maps) return;
       const F=pits.filter(p=>p&&Math.abs(p.x)<1000&&Math.abs(p.z)<1000); if(!F.length) return;
       const p=F.slice().sort((a,b)=>Math.hypot(a.x-P.x,a.z-P.z)-Math.hypot(b.x-P.x,b.z-P.z))[0];   /* the fire you start by */
@@ -6181,7 +6181,7 @@ void main(){ vec4 t=texture2D(map,vec2(vUv.x,vUv.y*uRep+uOff)); float edge=smoot
         const e0=(window.__bkSlabs||[]).find(q=>q.p===p); if(e0) e0.n=0; }
       const k=e.n, q=e.r.at(k?(k>1?-0.05:0.05):0,k?0.2:0.02), f=fwdXZ(), dx=q.x-P.x, dz=q.z-P.z, dd=Math.hypot(dx,dz)||1;
       if((dx*f.x+dz*f.z)/dd>0.8&&dd<6) mapsIt=BOOK.add(BK.maps,q.x,q.z,e.s.ry+(k?0.05:0.15),e.r.y);
-      else { const gx=P.x+f.x*2.2, gz=P.z+f.z*2.2; mapsIt=BOOK.add(BK.maps,gx,gz,Math.atan2(f.x,f.z)+0.2,heightAt(gx,gz)); __bkClear2(gx,gz,1.0); }   /* always right in front of you as you start: on the slab if it lies ahead, else on the ground at your feet */
+      else { const gx=P.x+f.x*3.2, gz=P.z+f.z*3.2, ry=Math.atan2(f.x,f.z), r=SLAB.make(gx,gz,ry+Math.PI/2), q2=r.at(0,0.02); mapsIt=BOOK.add(BK.maps,q2.x,q2.z,ry+0.2,r.y); mapsIt.__slab=r; __bkClear2(gx,gz,1.4); }   /* always right in front of you as you start: on the slab if it lies ahead, else on a slab of its own three metres ahead, in plain view (on the ground at your feet it was below the bottom of the screen) */
       mapsIt.__p=p; }catch(err){ console.warn('maps',err); } };
   /* every place's page gets its map: the places not yet drawn are drawn quietly in the background a little after you arrive */
   if(!window.__BA_MAPONLY){ let have=-1; const pull=()=>{ try{ const n=net(), M=(window.__BA_MAPS=window.__BA_MAPS||{}); let c=0; if(n&&n.nodes) Object.keys(n.nodes).forEach(id=>{ const u=n.nodes[id].m; if(u){ if(M[id]!==u) M[id]=u; c++; } }); if(c!==have){ have=c; if(BK&&BK.maps) BK.maps._pk=null; } }catch(e){} };   /* every map drawn so far, wherever it was drawn, goes into the book (re-laid out next time it opens) */
@@ -8312,7 +8312,7 @@ window.__BA_TAKEOVER=(c,m,feat,o)=>{ try{ EXITS.forEach(e=>{ if((e.feat0||e.feat
   if(o&&o.vel&&o.yaw0!=null){ const d=yaw-o.yaw0, cs=Math.cos(d), sn=Math.sin(d), [vx,vz]=o.vel; pl.vel.x=vx*cs+vz*sn; pl.vel.z=vz*cs-vx*sn; }   /* your speed and heading carry on, turned into this map's directions */
   if(o&&o.sun&&m&&window.__BA_SLOTFRAME){ try{ const tc=m.t, F=window.__BA_SLOTFRAME(feat,tc); window.__BA_SUNROT=0; updateDayNight(); const wx=o.sun.a*F.f[0]+o.sun.b*F.l[0], wz=o.sun.a*F.f[1]+o.sun.b*F.l[1]; window.__BA_SUNROT=Math.atan2(wz,wx)-Math.atan2(sunTrue.z,sunTrue.x); updateDayNight(); }catch(e){} }   /* the light you were standing in, so it does not flare up from wherever this place last saw you */
   try{ cardQ.length=0; cardTimer=0; elCard.style.transition='none'; elCard.style.opacity='0'; setTimeout(()=>{ elCard.style.transition=''; },50); }catch(e){}
-  state='play'; locked=!!lockEl(); A.mute=false; if(A.ent) A.ent.pre=false; window.__BA_ACTIVE=1; baPreT=0; };/*@Y*/
+  state='play'; locked=!!lockEl(); A.mute=false; if(A.ent) A.ent.pre=false; window.__BA_ACTIVE=1; baPreT=0; try{ baAudFade(0.3); }catch(e){} };   /* its sound comes up at once, whatever runs next *//*@Y*/
 /* the place's sound (not the music) fades out down a slot canyon and back in on the far side; silent while waiting to be handed over */
 function baAudFade(tc){ if(!A.ctx||!A.master||!A.master.gain) return; let k=A.mute?0:1; if(k&&window.__BA_PASSK) try{ k=window.__BA_PASSK(P.x,P.z); }catch(e){}
   A.fk=k; const t=A.ctx.currentTime; A.master.gain.setTargetAtTime(k,t,tc||0.35); if(A.amb&&A.amb!==A.ambBus) A.amb.gain.setTargetAtTime(k,t,tc||0.35); }/*@Y*/
@@ -9296,7 +9296,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const _sd=showDeath; showDeath=function(){ if(over) return _sd.apply(this,arguments); if(playerDownAt<0) playerDownAt=tG-(typeof deathT==='number'?deathT:0); const left=15-(tG-playerDownAt);
     if(left<=0&&firesOf('A').length){ playerBack(); return; } const el=document.getElementById('warWait')||(()=>{ const d=document.createElement('div'); d.id='warWait'; d.style.cssText='position:fixed;left:0;right:0;top:74%;z-index:99;text-align:center;font:italic 22px Alegreya,Georgia,serif;color:#efe6cf;letter-spacing:.1em;pointer-events:none'; document.body.appendChild(d); return d; })();
     el.style.display='block'; el.textContent=firesOf('A').length?'back in '+Math.ceil(left):'your side holds no fire here'; };
-  const _ce=baCheckExits; baCheckExits=function(){ };   /* no leaving: the war moves on when this place is won */
+  baCheckExits=function(){ baAudFade(); };   /* no leaving: the war moves on when this place is won. (The place's sound is still brought up each frame: that is done here, and without it a place handed over in a war stayed silent) */
   /* ---- each frame ---- */
   function tick(dt){ if(!started){ if(state==='play') start(); else return; } flagTick(dt); hudTick(); { const ww=document.getElementById('warWait'); if(ww&&state==='play') ww.style.display='none'; }
     bots.forEach(n=>{ if(n&&n.inv>0) n.inv=Math.max(0,n.inv-dt); });
