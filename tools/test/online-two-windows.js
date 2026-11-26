@@ -1,0 +1,46 @@
+// node tools/test/online-two-windows.js  (serve out/web on port 8765 first): two windows, host + join by code, war, peers, hits, shared animals
+// node poi.js <level> <kinds,comma> <prefix> : start the level with those POIs forced, photograph each from two sides
+const {chromium}=require('playwright'); const fs=require('fs');
+const OUT=require('path').resolve(__dirname,'../../out/web')+'/', S=__dirname+'/shots/';
+const [lv,kinds,pre,fk]=process.argv.slice(2);
+(async()=>{ const b=await chromium.launch({args:['--disable-dev-shm-usage','--js-flags=--max-old-space-size=6000','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
+ const ctx=await b.newContext({viewport:{width:480,height:270}}); const p=await ctx.newPage(); const q=await ctx.newPage();
+ await ctx.route(/cdnjs.cloudflare.com.*three.min.js/,r=>r.fulfill({path:require('path').resolve(__dirname,'../../src/desktop/app/three.min.js'),contentType:'text/javascript',headers:{'access-control-allow-origin':'*'}}));
+ await ctx.route(/fonts.(googleapis|gstatic).com/,r=>r.fulfill({body:'',contentType:'text/css'}));
+ await ctx.route(/pg-\w+\.js/,async r=>{ const f=OUT+r.request().url().split('/').pop().split('?')[0]; const raw=fs.readFileSync(f,'utf8'); const l=f.match(/pg-(\w+)\.js/)[1];
+   global.BA_PGLV={}; global.BA_PGGEN={}; global.window=global; eval(raw); let s=BA_PGLV[l], G=BA_PGGEN[l];
+   const g0=s.indexOf('/*@@GEN0@@*/')+12, at=s.indexOf('const BODY_VIS=[];')+'const BODY_VIS=[];'.length, add=' window.__T=(s)=>eval(s);';
+   s=s.slice(0,at)+add+s.slice(at); G.ins.forEach(x=>{ if(x[0]>=at-g0) x[0]+=add.length; });
+   r.fulfill({body:'window.BA_PGLV=window.BA_PGLV||{}; BA_PGLV.'+l+'='+JSON.stringify(s).replace(/<\//g,'<\\/')+'; window.BA_PGGEN=window.BA_PGGEN||{}; BA_PGGEN.'+l+'='+JSON.stringify(G)+';',contentType:'text/javascript'}); });
+ const errs=[]; q.on('pageerror',e=>errs.push('Q '+String(e).slice(0,300))); p.on('pageerror',e=>{ const m=String(e); if(!/map only/.test(m)) errs.push(m.slice(0,300)); });
+ const log=(...a)=>console.log(new Date().toISOString().slice(11,19),...a);
+ await p.addInitScript(()=>{ window.__errs=[]; window.addEventListener('error',e=>{ if(window.__errs.length<8) window.__errs.push(String(e.message)+' @'+(e.lineno||'')+':'+(e.colno||'')); }); }); 
+ await p.addInitScript(()=>{ window.__errs=[]; window.addEventListener('error',e=>{ if(window.__errs.length<8) window.__errs.push(String(e.message)+' @'+(e.lineno||'')+' '+(e.error&&e.error.stack?e.error.stack.slice(0,300):'')); }); });
+ await q.addInitScript(()=>{ window.__errs=[]; window.addEventListener('error',e=>{ if(window.__errs.length<8) window.__errs.push(String(e.message)+' @'+(e.lineno||'')+' '+(e.error&&e.error.stack?e.error.stack.slice(0,300):'')); }); });
+ const open=async(pg)=>{ await pg.goto('http://localhost:8765/index.html'); await pg.waitForTimeout(2500); await pg.evaluate(()=>{ try{ const o=BA_PLAT.get('settings')||{}; Object.assign(o,{quality:'low',shad:0,fx:0}); BA_PLAT.set('settings',o); BA_PLAT.set('ba_tutoff','1'); BA_PLAT.set('ba_onb','1'); }catch(e){} }); await pg.mouse.click(240,135); await pg.waitForTimeout(500); await pg.keyboard.press('Space'); await pg.waitForTimeout(800); await pg.keyboard.press('Space'); await pg.waitForTimeout(2500); await pg.evaluate(()=>document.getElementById('warL').click()); await pg.waitForTimeout(500); };
+ await open(p); await open(q);
+ const clickTxt=(pg,sel,txt)=>pg.evaluate(([sel,txt])=>{ const b=[...document.querySelectorAll(sel)].find(b=>b.textContent.trim()===txt||b.textContent.includes(txt)); if(!b) return 'none:'+txt; b.click(); return 'ok'; },[sel,txt]);
+ log('host', await clickTxt(p,'#warNet button','host online'));
+ await p.evaluate(()=>document.querySelector('#warCols [data-people]').click()); await p.waitForTimeout(300);
+ log('quick', await clickTxt(p,'#warList button','quick')); await p.waitForTimeout(300);
+ log('place', await clickTxt(p,'#warList button','high plains')); await p.waitForTimeout(800);
+ const code=await p.evaluate(()=>window.__BA_NET.code); log('code',code);
+ log('join', await clickTxt(q,'#warNet button','join online')); await q.waitForTimeout(300);
+ await q.fill('#warCode',code); await q.evaluate(()=>[...document.querySelectorAll('#warList button')].find(b=>b.textContent==='join').click()); await q.waitForTimeout(2500);
+ log('lobbyQ', await q.evaluate(()=>JSON.stringify(window.__BA_NET.lobby)));
+ log('bots-', await p.evaluate(()=>{ const N=window.__BA_NET; N.setBots(2); return JSON.stringify(N.botSplit(N.lobby)); })); await p.waitForTimeout(800);
+ await p.screenshot({path:'mp_lobbyP.png'}); await q.screenshot({path:'mp_lobbyQ.png'});
+ log('start', await clickTxt(p,'#warList button','start the war'));
+ const fw=async(pg,code)=>{ for(const f of pg.frames()){ if(f===pg.mainFrame()) continue; try{ const r=await f.evaluate(c=>{ if(typeof window.__T!=='function') return null; try{ return JSON.stringify(window.__T(c)); }catch(e){ return 'ERR '+e.message; } },code); if(r!=null) return r; }catch(e){} } return 'NOFRAME'; };
+ const ST="state+'|bots='+(window.__WAR?__WAR.bots.map(n=>n.side+n.slot+(n.alive?'+':n.alive===false?'-':'?')+(n.remote?'r':'')).join(','):'nowar')+'|live='+NPCB.list.filter(n=>n.alive).length+'|E='+JSON.stringify(window.__errs)";
+ for(let i=0;i<60;i++){ await p.waitForTimeout(4000); const a=await fw(p,ST), c=await fw(q,ST); log('P',a.slice(0,300)); log('Q',c.slice(0,300)); if(/^"play/.test(a)&&/^"play/.test(c)&&i>2) break; }
+ await p.waitForTimeout(4000);
+ const PEER="JSON.stringify({me:[Math.round(P.x),Math.round(P.z)],peers:NPCB.list.filter(n=>n.remote&&n.owner).map(n=>[n.owner.slice(0,5),Math.round(n.pos.x),Math.round(n.pos.z),n.alive]),hp:pl.hp,E:window.__errs})";
+ await p.waitForTimeout(3000);
+ const AN="(()=>{ const X=__WAR.ani(); const own={}; for(const k in X.AOWN){ own[X.AOWN[k].slice(0,4)]=(own[X.AOWN[k].slice(0,4)]||0)+1; } const w=X.ANI.filter(([k])=>k[0]==='w').slice(0,7).map(([k,a])=>[k,Math.round(a.pos.x),Math.round(a.pos.z),a.alive]); return JSON.stringify({n:X.ANI.length,own,w,snaps:Object.keys(X.ASNAP).length,me:__WAR.W.mp.me.slice(0,4)}); })()";
+ log('P ani', await fw(p,AN)); log('Q ani', await fw(q,AN));
+ log('Q kills w0', await fw(q,"(()=>{ const X=__WAR.ani(); const e=X.ANI.find(([k,a])=>k[0]==='w'&&a.alive&&(X.AOWN[k]||__WAR.W.mp.host)!==__WAR.W.mp.me); if(!e) return 'none'; hitAnimal(e[1],99,{x:1,z:0},0,0); return e[0]; })()"));
+ await p.waitForTimeout(3000);
+ log('P ani2', await fw(p,AN)); log('Q ani2', await fw(q,AN));
+ log('E', await fw(p,"JSON.stringify(window.__errs)")); log('EQ', await fw(q,"JSON.stringify(window.__errs)"));
+ log('errors',JSON.stringify(errs.slice(0,8))); await b.close(); })();
