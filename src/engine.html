@@ -7907,6 +7907,8 @@ function updateAudio(dt){
   if(!A.ctx) return;
   let target=0; for(const m of lions){ if(!m.alive) continue; const d=dist2(m.pos,P);
     if(packOf(m).state==='hunt') target=Math.max(target,(TUNE.updateAudio_1+TUNE.updateAudio_2*c01(1-(d-2)/TUNE.updateAudio_3))*c01(1-(d-TUNE.updateAudio_4)/TUNE.updateAudio_5)); else target=Math.max(target,TUNE.updateAudio_6*Math.pow(c01(1-d/TUNE.stalkHear),TUNE.stalkPow)); }
+  if(window.__NPCB) for(const n of window.__NPCB.list){ if(!n.alive||(n.team||'H')===(window.__WARTEAM||'P')) continue; const d=dist2(n.pos,P);   /* people of the other side: the same dread as a predator, hunting or not */
+    if(n.band.state==='engage') target=Math.max(target,(TUNE.updateAudio_1+TUNE.updateAudio_2*c01(1-(d-2)/TUNE.updateAudio_3))*c01(1-(d-TUNE.updateAudio_4)/TUNE.updateAudio_5)); else target=Math.max(target,TUNE.updateAudio_6*Math.pow(c01(1-d/TUNE.stalkHear),TUNE.stalkPow)); }
   if(pl.hp<=1) target=Math.max(target,0.4);
   
   if(state!=='play') target=0;
