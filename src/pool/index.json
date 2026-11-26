@@ -20,7 +20,8 @@
   "17-chunk.txt",
   "18-chunk.txt",
   "19-chunk.txt",
-  "20-chunk.txt"
+  "20-chunk.txt",
+  "21-people.txt"
  ],
  "assign": [
   null,
@@ -155,6 +156,12 @@
   null,
   null,
   null,
-  null
+  null,
+  [
+   [
+    "window.__HUMANS",
+    0
+   ]
+  ]
  ]
 }

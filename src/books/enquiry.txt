@@ -178,11 +178,11 @@ The largest monitor lizard on the continent, found in the arid interior. It is a
 @json ["liz:3"]
 == pb
 == h3
-Komodo Dragon
+Blue-Tongue
 == lat
-Varanus komodoensis
+Tiliqua scincoides
 == t
-An Indonesian monitor and for centuries the largest lizard in existence. A heavy ambush predator covered in mud-brown, osteoderm-plated armour. It relies on a venomous bite that induces shock and rapid blood loss to bring down large prey.
+Found across eastern and northern coastal regions, woodlands, and open scrub. The largest member of the skink family, they are slow-moving, diurnal omnivores with heavy, broad bodies and short legs. They forage during the day for snails, insects, native fruits, and flowers, using their massive jaw muscles to crush hard shells. Because they lack the speed to outrun predators, they rely on bluff displays when cornered—flattening their bodies to appear larger, hissing loudly, and opening their mouths wide to flash their bright cobalt-blue tongues.
 == pb
 == pbl
 == cpl
@@ -263,10 +263,10 @@ One of the largest skink species, found in rainforests and wet sclerophyll gulli
 == pb
 == pbl
 == cpl
-@json ["liz:11", "liz:12"]
+@json ["liz:11"]
 == pb
 == h3
-King of the Bush I
+King of the Bush
 == lat
 Varanus priscus chimera
 == t

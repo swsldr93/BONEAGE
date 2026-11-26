@@ -207,6 +207,7 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
 <script>@@P2@@</script>
 <script>@@P3@@</script>
 <script>@@P4@@</script>
+<script>@@P21@@</script>
 //@if plains
 <script>@@P10@@</script><script>@@P6@@</script><script>@@P7@@</script>
 //@end
@@ -6273,7 +6274,7 @@ setInterval(()=>{ if(DEV.on&&DEV.hud) devHud(); },400);/*@Y*/
 function devHud(){ if(!DEV.hud){ const d=document.createElement('div'); d.style.cssText='position:fixed;left:12px;bottom:12px;z-index:60;font:12px/1.55 monospace;color:#f2e6c8;background:rgba(0,0,0,.6);padding:8px 11px;border-radius:4px;pointer-events:none;white-space:pre'; document.body.appendChild(d); DEV.hud=d; }
   DEV.hud.style.display=DEV.on?'block':'none'; const __dg=(()=>{ const D=window.__DIAG||(window.__DIAG=(()=>{ const o={w:0,n:0,since:performance.now()}; try{ new PerformanceObserver(l=>l.getEntries().forEach(e=>{ o.n++; o.w=Math.max(o.w,e.duration); })).observe({type:'longtask'}); }catch(e){} return o; })()), n=performance.now(); if(n-D.since>5000){ D.since=n; D.lw=D.w; D.ln=D.n; D.w=0; D.n=0; } let pre='-'; try{ const T=window.__BA_TOPWIN||window; pre=T.__BA_PRE?(T.__BA_PRE.ready?'ready':'building '+(T.__BA_PRE.slices||0)):'none'; }catch(e){} const f=x=>(typeof x==='number'?x.toFixed(2):String(x));
     return '\nDIAG  sun '+f(sun.intensity)+'  hemi '+f(hemi.intensity)+'  amb '+f(window.__gradeAmb&&window.__gradeAmb.intensity)+'  fog '+f(scene.fog&&scene.fog.density)+'  pass '+f(window.__psK)+(window.__psCave?' cave':'')+'  day '+f(window.__dayK)+'\n      programs '+((renderer.info.programs||[]).length)+'  textures '+renderer.info.memory.textures+'  longest stall '+Math.round(D.lw??D.w)+'ms  stalls '+(D.ln??D.n)+' per 5s  next place: '+pre; })();
-  DEV.hud.textContent='TEST MODE   ( ` to hide )   '+((window.__BA_NODE&&window.__BA_NODE.id)||'')+(DEV.fly&&DEV.fp?'   FREE CAMERA at x '+DEV.fp.x.toFixed(1)+'  y '+DEV.fp.y.toFixed(1)+'  z '+DEV.fp.z.toFixed(1)+'   (you are at x '+P.x.toFixed(1)+'  z '+P.z.toFixed(1)+')':'   x '+P.x.toFixed(1)+'  y '+P.y.toFixed(1)+'  z '+P.z.toFixed(1))   /* flying, the readout is where the camera is, not where the player was left standing */+__dg+'\nV  free camera (WASD, E up, Q down, Shift fast)\nX  unlock everything\n4  megalania\n5  thylacoleo\n6  thylacines\n7  diprotodon charge (plains)\nN  next in the rotation (far side)\nK  kill all predators\nG  no damage: '+(DEV.god?'ON':'off')+'\nH  full health, not hungry\nT  jump ahead a quarter day\nB  drop a test book\nL  drop a test letter\nY  change the weather\nJ  desktop graphics (reload)\nO  effects on/off\nZ  light the twelfth fire (the ending)\nP  go to this place\'s point of interest\nF  light the spear\nU  ghost (unseen): '+(DEV.ghost?'ON':'off'); }/*@Y*/
+  DEV.hud.textContent='TEST MODE   ( ` to hide )   '+((window.__BA_NODE&&window.__BA_NODE.id)||'')+(DEV.fly&&DEV.fp?'   FREE CAMERA at x '+DEV.fp.x.toFixed(1)+'  y '+DEV.fp.y.toFixed(1)+'  z '+DEV.fp.z.toFixed(1)+'   (you are at x '+P.x.toFixed(1)+'  z '+P.z.toFixed(1)+')':'   x '+P.x.toFixed(1)+'  y '+P.y.toFixed(1)+'  z '+P.z.toFixed(1))   /* flying, the readout is where the camera is, not where the player was left standing */+__dg+'\nV  free camera (WASD, E up, Q down, Shift fast)\nX  unlock everything\n4  megalania\n5  thylacoleo\n6  thylacines\n7  diprotodon charge (plains)\n8  a Bassian   9  a Torresian   0  an Eromangan (one at a time)\nN  next in the rotation (far side)\nK  kill all predators\nG  no damage: '+(DEV.god?'ON':'off')+'\nH  full health, not hungry\nT  jump ahead a quarter day\nB  drop a test book\nL  drop a test letter\nY  change the weather\nJ  desktop graphics (reload)\nO  effects on/off\nZ  light the twelfth fire (the ending)\nP  go to this place\'s point of interest\nF  light the spear\nU  ghost (unseen): '+(DEV.ghost?'ON':'off'); }/*@Y*/
 function devSpawn(kind){ const L=lions, K=PRED_KINDS[kind]; L.forEach(m=>{ if(m.alive){ m.alive=false; m.eaten=true; m.mesh.visible=false; } }); pack.clearT=0;   // clear the stage: only the test animal is about
   const f={x:-Math.sin(yaw),z:-Math.cos(yaw)}, hd=Math.atan2(-f.x,-f.z), c=Math.cos(hd), s=Math.sin(hd);
   for(let i=0;i<K.n;i++){ const m=makePred(kind,i); L.push(m); const [ox,oz]=formation[i]; m.pos.set(P.x+f.x*16+ox*c+oz*s,0,P.z+f.z*16-ox*s+oz*c); clampValley(m.pos,3); m.pos.y=heightAt(m.pos.x,m.pos.z); m.heading=hd; m.mesh.position.copy(m.pos); m.mesh.rotation.set(0,hd,0); m.mesh.visible=true; }
@@ -6281,7 +6282,7 @@ function devSpawn(kind){ const L=lions, K=PRED_KINDS[kind]; L.forEach(m=>{ if(m.
 const DEVCODE='KeyB,KeyO,KeyN,KeyE,KeyD,KeyE,KeyV'.split(',');/*@Y*/ let devBuf=[];/*@Y*/ try{ DEV.unlocked=BA_PLAT.get('ba_devcode')==='1'; }catch(e){}/*@Y*/
 function devKey(e){ if(!e.repeat){ devBuf.push(e.code); if(devBuf.length>DEVCODE.length) devBuf.shift(); if(devBuf.join()===DEVCODE.join()){ DEV.unlocked=!DEV.unlocked; try{ BA_PLAT.set('ba_devcode',DEV.unlocked?'1':'0'); }catch(e2){} if(!DEV.unlocked){ DEV.on=false; devHud(); } showCard(DEV.unlocked?'test mode available\npress ` to open':'test mode off',3); return; } }
   if(!BA_PLAT.dev&&!DEV.unlocked) return; if(e.code==='Backquote'&&!e.repeat){ DEV.on=!DEV.on; devHud(); return; } if(!DEV.on||state!=='play'||e.repeat) return;
-  if(e.code==='Digit4') devSpawn('mega'); else if(e.code==='Digit5') devSpawn('lion'); else if(e.code==='Digit6') devSpawn('thy'); else if(e.code==='Digit7'){ if(typeof dips!=='undefined'&&dips.length){ let d=dips.find(x=>x.alive)||dips[0]; if(!d.alive&&typeof resetDip==='function') resetDip(d); const fw=new V3(); camera.getWorldDirection(fw); fw.y=0; fw.normalize(); d.pos.set(P.x+fw.x*11,0,P.z+fw.z*11); d.pos.y=heightAt(d.pos.x,d.pos.z); d.heading=Math.atan2(P.x-d.pos.x,P.z-d.pos.z); d.repelCd=0; d.state='charge'; d.t=0; showCard('test: diprotodon charging',2); } else showCard('test: no diprotodons in this place',2); }
+  if(e.code==='Digit8'||e.code==='Digit9'||e.code==='Digit0'){ const fac={Digit8:'bassia',Digit9:'torresian',Digit0:'eromangan'}[e.code]; if(NPCB&&window.__HUMANS){ NPCB.callUp(fac); showCard('test: a '+({bassia:'Bassian',torresian:'Torresian',eromangan:'Eromangan'})[fac]+' with a spear',2.5); } else showCard('test: no people in this place',2); } else if(e.code==='Digit4') devSpawn('mega'); else if(e.code==='Digit5') devSpawn('lion'); else if(e.code==='Digit6') devSpawn('thy'); else if(e.code==='Digit7'){ if(typeof dips!=='undefined'&&dips.length){ let d=dips.find(x=>x.alive)||dips[0]; if(!d.alive&&typeof resetDip==='function') resetDip(d); const fw=new V3(); camera.getWorldDirection(fw); fw.y=0; fw.normalize(); d.pos.set(P.x+fw.x*11,0,P.z+fw.z*11); d.pos.y=heightAt(d.pos.x,d.pos.z); d.heading=Math.atan2(P.x-d.pos.x,P.z-d.pos.z); d.repelCd=0; d.state='charge'; d.t=0; showCard('test: diprotodon charging',2); } else showCard('test: no diprotodons in this place',2); }
   else if(e.code==='KeyN'){ lions.forEach(m=>{ if(m.alive){ m.alive=false; m.eaten=true; m.mesh.visible=false; } }); spawnReplacement(); showCard('test: next arrival',2); }
   else if(e.code==='KeyB') BOOK.devSpawn('book'); else if(e.code==='KeyL') BOOK.devSpawn('letter'); 
   else if(e.code==='KeyK'){ usePack(0); lions.forEach(m=>{ if(m.alive) killAnimal(m,true,{x:0,z:1}); }); showCard('test: predators killed',2); }
@@ -7755,7 +7756,7 @@ const FT=(()=>{ let done={}; try{ done=JSON.parse(BA_PLAT.get('ba_firetut')||'{}
 })();/*@Y*/ window.__FT=FT;/*@Y*/
 
 /* ---------- predator coats: which coats are unlocked (each by an achievement) and which may turn up in each place ---------- */
-window.__COATS={"thy": {"nm": "Thylacine", "o": [0, 8, 10, 9, 4, 3, 7, 2, 1, 5, 6], "c": [["Default", null, ""], ["Grasslands", "C_HERD", "Wipe out the diprotodon herd in one life"], ["Numbat", "C_BOOKS", "Read every book in the game"], ["Tasmanian devil", "C_NG10", "Survive seven nights in the gully in one life"], ["Black-flanked wallaby", "C_NP10", "Survive seven nights in the plains in one life"], ["Eastern quoll", "C_SWTHY", "Kill ten swamp wallabies and five thylacines in total"], ["Tiger quoll", "C_RKMEG", "Kill ten red-necked wallabies and five megalania in total"], ["Whiptail wallaby", "C_ROOLEO", "Kill ten kangaroos and five thylacoleo in total"], ["Brushtail possum", "C_FIRES9", "Light all nine fires in one life"], ["Leadbeater's possum", "C_NE10", "Survive seven nights in the cliffs in one life"], ["Ringtail possum", "C_N20", "Survive fourteen nights in one life"]]}, "lion": {"nm": "Thylacoleo", "o": [0, 8, 10, 9, 4, 3, 7, 2, 1, 5, 6], "c": [["Default", null, ""], ["Grasslands", "C_HERD", "Wipe out the diprotodon herd in one life"], ["Numbat", "C_BOOKS", "Read every book in the game"], ["Tasmanian devil", "C_NG10", "Survive seven nights in the gully in one life"], ["Black-flanked wallaby", "C_NP10", "Survive seven nights in the plains in one life"], ["Eastern quoll", "C_SWTHY", "Kill ten swamp wallabies and five thylacines in total"], ["Tiger quoll", "C_RKMEG", "Kill ten red-necked wallabies and five megalania in total"], ["Whiptail wallaby", "C_ROOLEO", "Kill ten kangaroos and five thylacoleo in total"], ["Brushtail possum", "C_FIRES9", "Light all nine fires in one life"], ["Leadbeater's possum", "C_NE10", "Survive seven nights in the cliffs in one life"], ["Ringtail possum", "C_N20", "Survive fourteen nights in one life"]]}, "liz": {"nm": "Megalania", "o": [0, 1, 6, 10, 2, 5, 4, 7, 3, 8, 9, 11, 12], "c": [["Lace monitor I", null, ""], ["Lace monitor II", "C_FIRES9", "Light all nine fires in one life"], ["Perentie", "C_NP10", "Survive seven nights in the plains in one life"], ["Komodo dragon", "C_HERD", "Wipe out the diprotodon herd in one life"], ["Bearded dragon", "C_ROOLEO", "Kill ten kangaroos and five thylacoleo in total"], ["Gilbert's dragon", "C_NG10", "Survive seven nights in the gully in one life"], ["Water dragon", "C_N20", "Survive fourteen nights in one life"], ["Ctenotus skink", "C_BOOKS", "Read every book in the game"], ["Robust velvet gecko", "C_SWTHY", "Kill ten swamp wallabies and five thylacines in total"], ["Golden-tailed gecko", "C_RKMEG", "Kill ten red-necked wallabies and five megalania in total"], ["Land mullet", "C_NE10", "Survive seven nights in the cliffs in one life"], ["King of the Bush I", "C_BIRDS", "Carry Birds of the North Bassian Range through all three areas"], ["King of the Bush II", "C_ALL", "Discover every predator variation"]]}};/*@Y*/
+window.__COATS={"thy": {"nm": "Thylacine", "o": [0, 8, 10, 9, 4, 3, 7, 2, 1, 5, 6], "c": [["Default", null, ""], ["Grasslands", "C_HERD", "Wipe out the diprotodon herd in one life"], ["Numbat", "C_BOOKS", "Read every book in the game"], ["Tasmanian devil", "C_NG10", "Survive seven nights in the gully in one life"], ["Black-flanked wallaby", "C_NP10", "Survive seven nights in the plains in one life"], ["Eastern quoll", "C_SWTHY", "Kill ten swamp wallabies and five thylacines in total"], ["Tiger quoll", "C_RKMEG", "Kill ten red-necked wallabies and five megalania in total"], ["Whiptail wallaby", "C_ROOLEO", "Kill ten kangaroos and five thylacoleo in total"], ["Brushtail possum", "C_FIRES9", "Light all nine fires in one life"], ["Leadbeater's possum", "C_NE10", "Survive seven nights in the cliffs in one life"], ["Ringtail possum", "C_N20", "Survive fourteen nights in one life"]]}, "lion": {"nm": "Thylacoleo", "o": [0, 8, 10, 9, 4, 3, 7, 2, 1, 5, 6], "c": [["Default", null, ""], ["Grasslands", "C_HERD", "Wipe out the diprotodon herd in one life"], ["Numbat", "C_BOOKS", "Read every book in the game"], ["Tasmanian devil", "C_NG10", "Survive seven nights in the gully in one life"], ["Black-flanked wallaby", "C_NP10", "Survive seven nights in the plains in one life"], ["Eastern quoll", "C_SWTHY", "Kill ten swamp wallabies and five thylacines in total"], ["Tiger quoll", "C_RKMEG", "Kill ten red-necked wallabies and five megalania in total"], ["Whiptail wallaby", "C_ROOLEO", "Kill ten kangaroos and five thylacoleo in total"], ["Brushtail possum", "C_FIRES9", "Light all nine fires in one life"], ["Leadbeater's possum", "C_NE10", "Survive seven nights in the cliffs in one life"], ["Ringtail possum", "C_N20", "Survive fourteen nights in one life"]]}, "liz": {"nm": "Megalania", "o": [0, 1, 6, 10, 2, 5, 4, 7, 3, 8, 9, 11], "c": [["Lace monitor I", null, ""], ["Lace monitor II", "C_FIRES9", "Light all nine fires in one life"], ["Perentie", "C_NP10", "Survive seven nights in the plains in one life"], ["Blue-tongue", "C_HERD", "Wipe out the diprotodon herd in one life"], ["Bearded dragon", "C_ROOLEO", "Kill ten kangaroos and five thylacoleo in total"], ["Gilbert's dragon", "C_NG10", "Survive seven nights in the gully in one life"], ["Water dragon", "C_N20", "Survive fourteen nights in one life"], ["Ctenotus skink", "C_BOOKS", "Read every book in the game"], ["Robust velvet gecko", "C_SWTHY", "Kill ten swamp wallabies and five thylacines in total"], ["Golden-tailed gecko", "C_RKMEG", "Kill ten red-necked wallabies and five megalania in total"], ["Land mullet", "C_NE10", "Survive seven nights in the cliffs in one life"], ["King of the Bush", "C_BIRDS", "Carry Birds of the North Bassian Range through all three areas"]]}};/*@Y*/
 (()=>{ const KEY='boneage_coats', LVS=[['gully','gully'],['escarpment','cliffs'],['plains','plains']];
   const load=()=>{ try{ return JSON.parse(BA_PLAT.get(KEY)||'{}')||{}; }catch(e){ return {}; } }, save=o=>{ try{ BA_PLAT.set(KEY,JSON.stringify(o)); }catch(e){} };
   const unlocked=(k,i)=>{ const c=window.__COATS[k].c[i]; return !!c&&(!c[1]||(c[1].startsWith('C_')?!!(window.__CU&&window.__CU[c[1]]):(typeof ACH!=='undefined'&&ACH.has(c[1])))); };
@@ -7765,8 +7766,7 @@ window.__COATS={"thy": {"nm": "Thylacine", "o": [0, 8, 10, 9, 4, 3, 7, 2, 1, 5, 
   const TEST={C_FIRES9:()=>A('ACH_PROMETHEUS'),
     C_NG10:()=>(L().nl.gully||0)>=7,C_NE10:()=>(L().nl.escarpment||0)>=7,C_NP10:()=>(L().nl.plains||0)>=7,C_HERD:()=>A('ACH_RE_EXTINCTION'),
     C_BOOKS:()=>A('ACH_EDUCATED'),C_BIRDS:()=>A('ACH_TWITCHER'),
-    C_N20:()=>NI()>=14,C_ROOLEO:()=>K('Eastern Kangaroo')>=10&&K('Thylacoleo')>=5,C_SWTHY:()=>K('Swamp Wallaby')>=10&&K('Thylacine')>=5,C_RKMEG:()=>(K('Red-necked Wallaby')+K('Rock Wallaby'))>=10&&K('Megalania')>=5,
-    C_ALL:()=>{ for(const k in window.__COATS) for(const c of window.__COATS[k].c) if(c[1]&&c[1]!=='C_ALL'&&!CU[c[1]]) return false; return true; }};
+    C_N20:()=>NI()>=14,C_ROOLEO:()=>K('Eastern Kangaroo')>=10&&K('Thylacoleo')>=5,C_SWTHY:()=>K('Swamp Wallaby')>=10&&K('Thylacine')>=5,C_RKMEG:()=>(K('Red-necked Wallaby')+K('Rock Wallaby'))>=10&&K('Megalania')>=5};
   setInterval(()=>{ if(typeof state==='undefined'||state!=='play'||typeof pl==='undefined') return;
     if(pl.life){ const dn=dayNum(); if(pl.__dn==null) pl.__dn=dn; if(dn>pl.__dn){ pl.life.nl[BA_LVK]=(pl.life.nl[BA_LVK]||0)+(dn-pl.__dn); pl.__dn=dn; } }
     { let pu=null; try{ pu=BA_PLAT.get('ba_predunlock'); }catch(e){} if(!pu&&!(typeof DEV!=='undefined'&&DEV.on)) return; }
@@ -8907,13 +8907,15 @@ const GB=(()=>{ const D=window.__GBM; if(!D||typeof MODELS==='undefined') return
 //@end
 //@if gully
   const dead=(sp,x,z,h,dt)=>{ const d=D[sp]; if(!d) return null; const g=new THREE.Group(); scene.add(g); const b={kind:'gbird',sp,nm:NM[sp],mesh:g,pos:new THREE.Vector3(x,heightAt(x,z),z),home:{x,z},home0:{x,z},vel:new THREE.Vector3(),kb:new THREE.Vector3(),heading:h||0,speed:0,alive:false,eaten:false,state:'dead',t:0,tgt:null,hy:HY[sp],deadT:dt||0,hp:0}; MODELS.attach(b,'gb_'+sp,d,d.tex,{type:'bird',basis:d.basis,scale:d.scale}); g.position.copy(b.pos); g.rotation.y=b.heading; L.push(b); return b; };   /* a kill remembered from earlier, or carried in */
-  return {tick,list:L,spawn,dead,inB,scare:(pos,r)=>{ for(const b of L){ if(!b.alive||b.state==='flee') continue; if(Math.hypot(b.pos.x-pos.x,b.pos.z-pos.z)<Math.max(r*2,22)){ b.state='flee'; b.t=0; b.ref=null; b.fs={x:pos.x,z:pos.z}; } } },_m:(dt,t)=>MODELS.tick(dt,t)}; })();/*@Y*/ window.__GB=GB;/*@Y*/ /* the stockade village (lower gully test): guards on the wall, and groups of three people with spears patrolling the place's beat. Each has what the player has:
+  return {tick,list:L,spawn,dead,inB,scare:(pos,r)=>{ for(const b of L){ if(!b.alive||b.state==='flee') continue; if(Math.hypot(b.pos.x-pos.x,b.pos.z-pos.z)<Math.max(r*2,22)){ b.state='flee'; b.t=0; b.ref=null; b.fs={x:pos.x,z:pos.z}; } } },_m:(dt,t)=>MODELS.tick(dt,t)}; })();/*@Y*/ window.__GB=GB;/*@Y*/
+//@end
+/* the stockade village (lower gully test): guards on the wall, and groups of three people with spears patrolling the place's beat. Each has what the player has:
    a thrust (1), a thrown spear (lodges, can be picked up again by anyone), a knife stab when the spear is gone, a kick that shoves,
-   four lives, a sidestep from a spear in flight, and a sprint that tires. Only on in the stockade village test (ba_npc=fort). */
-const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_MAPONLY&&!!(window.__BA_FORT||(typeof BAS!=='undefined'&&BAS.get&&BAS.get('ba_npc')==='fort'))&&(!N||!N.id||N.id==='G2'); }catch(e){}
-  if(!on||typeof patrol==='undefined'||!patrol.length) return null;
+   four lives, a sidestep from a spear in flight, and a sprint that tires. The village and its bands are only on in the stockade village test (ba_npc=fort);
+   anywhere else people come only when called up in test mode (8, 9, 0: one of each people at a time), as the three peoples' own figures */
+const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return null; let FORTMODE=false; try{ const N=window.__BA_NODE; FORTMODE=!!(window.__BA_FORT||(typeof BAS!=='undefined'&&BAS.get&&BAS.get('ba_npc')==='fort'))&&(!N||!N.id||N.id==='G2')&&patrol.length>0; }catch(e){}
   const T=Object.assign({hp:4,toP:{thrust:1,stab:1,thr:2},sight:42,sightN:16,walk:1.7,jog:3.1,run:6.2,thrMin:7,thrMax:24,spS:32,grav:8,bands:2,respawn:45},window.__NPCT||{});
-  const FZ=(typeof fortQ==='function')?(f=>f&&f.fort?f:null)(fortQ()):null;
+  const FZ=FORTMODE&&(typeof fortQ==='function')?(f=>f&&f.fort?f:null)(fortQ()):null;
   const UP=new V3(0,1,0), DOWN=new V3(0,-1,0), _v=new V3(), _w=new V3(), _q=new THREE.Quaternion();
   const ang=(a,b)=>Math.atan2(Math.sin(b-a),Math.cos(b-a)), dP=n=>Math.hypot(P.x-n.pos.x,P.z-n.pos.z), ghost=()=>typeof DEV!=='undefined'&&DEV&&DEV.ghost;
   const OCH=new THREE.MeshLambertMaterial({color:0xa8552c}), CLAY=new THREE.MeshLambertMaterial({color:0xc9c0ae});
@@ -8936,6 +8938,70 @@ const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_M
   function reach(sh,x,y,z,px,py,pz){ const a=0.3,b=0.29; _v.set(x-sh.position.x,y-sh.position.y,z-sh.position.z); let L=_v.length(); if(L<1e-4) return; _v.multiplyScalar(1/L); L=clamp(L,0.12,a+b-0.003);
     const A=Math.acos(clamp((a*a+L*L-b*b)/(2*a*L),-1,1)); _w.set(px,py,pz).cross(_v).negate(); if(_w.lengthSq()<1e-6) _w.set(1,0,0); _w.normalize();
     const ud=_v.clone().applyAxisAngle(_w,A); sh.quaternion.setFromUnitVectors(DOWN,ud); const fd=_v.clone().multiplyScalar(L).addScaledVector(ud,-a).normalize(); _q.copy(sh.quaternion).invert(); fd.applyQuaternion(_q); sh.userData.el.quaternion.setFromUnitVectors(DOWN,fd); }
+  /* ---------- the three peoples' own figures (Bassian, Torresian, Eromangan): skinned, with their own walk, run, idle, sneak, thrust and throw.
+     A kick and a flinch are laid over them by hand; when one dies it drops loose, a ragdoll of fifteen points kept apart by sticks */
+  const HUM={FAC:{bassia:{nm:'Bassian'},torresian:{nm:'Torresian'},eromangan:{nm:'Eromangan'}},
+    AX:{bassia:[0.11,0.06,-0.99],torresian:[-0.17,-0.23,-0.96],eromangan:[-0.14,0.02,-0.99]},   /* the line of the haft through each one's right fist */
+    buf:{}, get(f){ if(!this.buf[f]){ const s=(window.__HUMANS||{})[f]; if(!s) return null; const bin=atob(s), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); this.buf[f]=u.buffer; } return this.buf[f]; } };
+  const HB=['Hips','Spine','Spine1','Spine2','Neck','Head','LeftArm','LeftForeArm','LeftHand','RightArm','RightForeArm','RightHand','LeftUpLeg','LeftLeg','LeftFoot','RightUpLeg','RightLeg','RightFoot','LeftShoulder','RightShoulder'];
+  function humanBody(fac){ const root=new THREE.Group(); scene.add(root); const sp=buildSpear(2.2).g; scene.add(sp); const m={root,glb:true,fac,ready:false,sp,B:{},W:{},act:null,ax:new V3(...HUM.AX[fac]).normalize()};
+    const buf=HUM.get(fac); if(buf&&THREE.GLTFLoader) new THREE.GLTFLoader().parse(buf.slice(0),'',g=>{ const o=g.scene; o.scale.setScalar(1.75); root.add(o); o.traverse(x=>{ if(x.isMesh){ x.castShadow=true; x.frustumCulled=false; if(x.material&&x.material.map){ const mm=new THREE.MeshLambertMaterial({map:x.material.map,skinning:true}); x.material=mm; } } const nm=String(x.name||'').replace(/^mixamorig:?/,''); if(x.isBone&&HB.includes(nm)) m.B[nm]=x; });
+      m.mix=new THREE.AnimationMixer(o); m.A={}; for(const c of g.animations){ const k=/thrust/.test(c.name)?'thrust':/throw/.test(c.name)?'throw':/crouch|sneak/.test(c.name)?'sneak':c.name; const a=m.mix.clipAction(c); a.play(); a.setEffectiveWeight(0); m.A[k]=a; m.W[k]=0; }
+      if(m.A.thrust){ m.A.thrust.timeScale=0; } if(m.A.throw){ m.A.throw.timeScale=0; } m.ready=true; },e=>{ window.__humErr=String(e&&e.message||e); });
+    return m; }
+  const _q1=new THREE.Quaternion(), _q2=new THREE.Quaternion(), _p1=new V3(), _p2=new V3(), _m4=new THREE.Matrix4();
+  function rotW(bone,axis,a){ if(!bone||!a) return; bone.parent.getWorldQuaternion(_q1); _q2.setFromAxisAngle(axis,a); const inv=_q1.clone().invert(); bone.quaternion.premultiply(inv.multiply(_q2).multiply(_q1)); }   /* turn a bone about a world axis */
+  function poseGLB(n,dt){ const m=n.m, dp=dP(n); m.root.visible=dp<170; m.sp.visible=m.root.visible&&n.armed&&m.ready; if(!m.root.visible) return;
+    if(!n.alive){ if(m.rag) ragTick(n,dt); return; }
+    m.root.position.copy(n.pos); m.root.rotation.set(0,n.heading,0); if(!m.ready) return;
+    const sp=Math.hypot(n.vel.x,n.vel.z), a=n.act, st=n.band.state, sneak=n.armed&&!a&&(st==='search'||st==='alert')&&sp<2.4&&sp>0.2;
+    const want={idle:0,walk:0,run:0,sneak:0,thrust:0,throw:0}; let lead=null;
+    if(a&&(a.k==='thrust'||a.k==='stab')){ want.thrust=1; lead='thrust'; m.A.thrust.time=0.75+Math.min(a.t,a.dur)*((1.37-0.75)/a.at); }
+    else if(a&&a.k==='throw'){ want.throw=1; lead='throw'; m.A.throw.time=1.0+Math.min(a.t,a.dur)*((2.11-1.0)/a.at); }
+    else if(sneak) want.sneak=1; else if(sp<0.25) want.idle=1; else if(sp<3.4) want.walk=1; else want.run=1;
+    for(const k in m.A){ const tw=want[k]||0, r=lead&&k===lead?30:(lead?14:6); m.W[k]+=(tw-m.W[k])*Math.min(1,dt*r); m.A[k].setEffectiveWeight(m.W[k]); }
+    if(m.A.walk) m.A.walk.timeScale=clamp(sp/1.1,0.6,1.7); if(m.A.run) m.A.run.timeScale=clamp(sp/4.0,0.7,1.5); if(m.A.sneak) m.A.sneak.timeScale=clamp(sp/0.67,0.6,2.2);
+    m.mix.update(dt);
+    const h=n.heading, RA=_p1.set(-Math.cos(h),0,Math.sin(h)).clone();   /* the figure's own left-to-right line: a turn about it swings a leg forward or tips the body back */
+    if(a&&a.k==='kick'){ const w=Math.sin(Math.min(1,a.t/a.dur)*Math.PI); rotW(m.B.RightUpLeg,RA,1.3*w); rotW(m.B.RightLeg,RA,-0.4*w); rotW(m.B.Spine,RA,0.25*w); }
+    if(n.flinch>0){ n.flinch=Math.max(0,n.flinch-dt*3.2); const f=Math.sin(n.flinch*Math.PI)*0.5; rotW(m.B.Spine,RA,0.6*f); rotW(m.B.Head,RA,0.5*f); }
+    if(n.stag>0) rotW(m.B.Spine1,RA,0.25*Math.min(1,n.stag));
+    /* the spear in the right fist: along the haft line in a thrust, raised and aimed when throwing, carried upright at rest and trailed when on the move */
+    const hd=m.B.RightHand; if(hd&&n.armed){ hd.getWorldPosition(_p2); m.sp.position.copy(_p2); const f=_v.set(Math.sin(h),0,Math.cos(h)), D=new V3();
+      if(lead==='thrust') { hd.getWorldQuaternion(_q1); D.copy(m.ax).applyQuaternion(_q1); D.lerp(f,0.25); }
+      else if(lead==='throw'){ const tp=_w.set(P.x-n.pos.x,0,P.z-n.pos.z).normalize(); D.copy(tp).multiplyScalar(0.93).add(_v.set(0,0.36,0)); }
+      else { const mv=c01(sp/2.5); D.set(f.x*(0.25+0.7*mv),0.97-0.75*mv,f.z*(0.25+0.7*mv)); }
+      m.sp.quaternion.setFromUnitVectors(UP,D.normalize()); } }
+  /* ---------- going limp: points at the joints, sticks between them, gravity and the ground; the bones follow the points ---------- */
+  const RP=['Hips','Spine2','Head','LeftArm','LeftForeArm','LeftHand','RightArm','RightForeArm','RightHand','LeftUpLeg','LeftLeg','LeftFoot','RightUpLeg','RightLeg','RightFoot'];
+  const RS=[[0,1],[1,2],[1,3],[1,6],[3,6],[3,4],[4,5],[6,7],[7,8],[0,9],[0,12],[9,12],[9,10],[10,11],[12,13],[13,14],[3,0],[6,0],[9,1],[12,1],[2,3],[2,6],[3,12],[6,9]];
+  const DRIVE=[['Hips',1,[12,9]],['Spine2',2,[6,3]],['LeftArm',4],['LeftForeArm',5],['RightArm',7],['RightForeArm',8],['LeftUpLeg',10],['LeftLeg',11],['RightUpLeg',13],['RightLeg',14]];   /* bone, the point it aims at, and (for the trunk) the line across it */
+  function ragStart(n,dir){ const m=n.m; if(!m.ready){ m.rag=null; return; } try{ m.mix.stopAllAction(); }catch(e){} m.root.updateMatrixWorld(true);
+    const ix={}; RP.forEach((k,i)=>ix[k]=i); const pts=RP.map(k=>{ const b=m.B[k], p=new V3(); b.getWorldPosition(p); return p; });
+    const kick=new V3(dir.x*3.2+n.vel.x*0.6+n.kb.x*0.25,1.2,dir.z*3.2+n.vel.z*0.6+n.kb.z*0.25), dtv=1/60;
+    const prev=pts.map((p,i)=>{ const up=i===2||i===1?1.25:(i===0?0.9:0.7); return p.clone().addScaledVector(kick,-dtv*up*rand(0.85,1.15)); });
+    const L0=RS.map(([a,b])=>pts[a].distanceTo(pts[b]));
+    const rest=DRIVE.map(([k,ci,sd])=>{ const b=m.B[k], q=new THREE.Quaternion(); b.getWorldQuaternion(q); const bi=RP.indexOf(k), a0=pts[ci].clone().sub(pts[bi]).normalize(); const s0=sd?pts[sd[1]].clone().sub(pts[sd[0]]):null; return {b,bi,ci,sd,q,a0,s0}; });
+    m.rag={pts,prev,L0,rest,t:0,still:0}; }
+  function basis(a,s){ const y=a.clone().normalize(), x=s.clone().addScaledVector(y,-s.dot(y)).normalize(), z=new V3().crossVectors(x,y); return new THREE.Matrix4().makeBasis(x,y,z); }
+  function ragTick(n,dt){ const R=n.m.rag, P_=R.pts, Q=R.prev; R.t+=dt; if(R.still>1.5) return; const h=Math.min(dt,1/30);
+    let mv=0; for(let i=0;i<P_.length;i++){ const p=P_[i], q=Q[i], vx=(p.x-q.x)*0.985, vy=(p.y-q.y)*0.985, vz=(p.z-q.z)*0.985; q.copy(p); p.x+=vx; p.y+=vy-9.8*h*h; p.z+=vz; mv+=Math.abs(vx)+Math.abs(vy)+Math.abs(vz); }
+    for(let it=0;it<10;it++){ for(let k=0;k<RS.length;k++){ const [a,b]=RS[k], pa=P_[a], pb=P_[b], dx=pb.x-pa.x, dy=pb.y-pa.y, dz=pb.z-pa.z, d=Math.hypot(dx,dy,dz)||1e-6, f=(d-R.L0[k])/d*0.5; pa.x+=dx*f; pa.y+=dy*f; pa.z+=dz*f; pb.x-=dx*f; pb.y-=dy*f; pb.z-=dz*f; }
+      for(let i=0;i<P_.length;i++){ const p=P_[i], r=i===0?0.11:(i===2?0.1:0.06), g=heightAt(p.x,p.z)+r; if(p.y<g){ p.y=g; const q=Q[i]; q.x=lerp(q.x,p.x,0.55); q.z=lerp(q.z,p.z,0.55); } } }
+    R.still=mv<0.004*P_.length?R.still+dt:0;
+    /* the bones after the points: hips placed, then each bone turned from how it lay at the moment of death to where its points are now */
+    const m=n.m, hip=m.B.Hips; hip.parent.updateMatrixWorld(true); const hp=hip.parent.worldToLocal(P_[0].clone()); hip.position.copy(hp);
+    for(const d of R.rest){ const a=P_[d.ci].clone().sub(P_[d.bi]).normalize(); let rq;
+      if(d.sd){ const s=P_[d.sd[1]].clone().sub(P_[d.sd[0]]); rq=new THREE.Quaternion().setFromRotationMatrix(basis(a,s).multiply(basis(d.a0,d.s0).invert())); }
+      else rq=new THREE.Quaternion().setFromUnitVectors(d.a0,a);
+      const wq=rq.multiply(d.q); d.b.parent.updateMatrixWorld(true); d.b.parent.getWorldQuaternion(_q1); d.b.quaternion.copy(_q1.invert().multiply(wq)); d.b.updateMatrixWorld(true); } }
+  /* ---------- called up in test mode: one of a people, spoiling for a fight, about 16 m in front of you ---------- */
+  function callUp(fac){ for(let i=B.length-1;i>=0;i--){ const b=B[i]; if(!b.dev) continue; b.m.forEach(n=>{ scene.remove(n.mesh); if(n.m.glb) scene.remove(n.m.sp); const j=L.indexOf(n); if(j>=0) L.splice(j,1); if(n.spear&&n.spear.state==='carried'){ scene.remove(n.spear.g); n.spear.state='gone'; } }); B.splice(i,1); }
+    const f={x:-Math.sin(yaw),z:-Math.cos(yaw)}, q={x:P.x+f.x*16,z:P.z+f.z*16}; clampValley(q,2.5);
+    const ring=[]; for(let k=0;k<8;k++){ const a=k/8*6.283, r={x:q.x+Math.cos(a)*14,z:q.z+Math.sin(a)*14}; clampValley(r,2.5); ring.push(new V3(r.x,0,r.z)); }
+    const b={id:B.length,m:[],state:'patrol',wp:0,dir:1,restT:0,sus:0,seenT:99,last:null,throwCd:0,searchT:0,lookT:0,dev:true,ring,
+      alive(){ return this.m.some(n=>n.alive); }, lead(){ return this.m.find(n=>n.alive)||this.m[0]; }};
+    const n=mkNpc(b,0,q.x,q.z,fac); n.pos.y=heightAt(q.x,q.z); n.heading=Math.atan2(P.x-q.x,P.z-q.z); n.throws=1; b.m.push(n); B.push(b); engage(b,'called'); return n; }
   /* ---------- spears: carried, in flight, lodged, or lying about ---------- */
   const SP=[]; function spearItem(){ const g=new THREE.Group(), s=buildSpear(2.2); s.g.rotation.x=Math.PI/2; g.add(s.g); g.visible=false; scene.add(g); const it={g,state:'carried',pos:new V3(),vel:new V3(),owner:null,host:null}; SP.push(it); return it; }
   function lay(it,x,z,yaw){ const q={x,z}; clampValley(q,2.5); it.state='ground'; it.host=null; it.pos.set(q.x,heightAt(q.x,q.z)+0.06,q.z); it.g.position.copy(it.pos); it.g.rotation.set(0,yaw==null?rand(0,6.28):yaw,0); it.g.rotateX(-0.02); it.g.visible=true; }
@@ -8951,19 +9017,20 @@ const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_M
       if(it.state==='ground'&&state==='play'&&pl.armed!=='spear'&&!pl.stowed&&Math.hypot(it.pos.x-P.x,it.pos.z-P.z)<1.7&&Math.abs(it.pos.y-P.y)<3){ it.state='gone'; it.g.visible=false; pl.armed='spear'; pl.spearLit=0; A.pickup(); } } }   /* yours to take */
   /* ---------- people ---------- */
   const L=[], B=[]; let respT=-1, last=null;
-  function mkNpc(band,i,x,z){ const n={kind:'npc',nm:'hunter',band,i,pos:new V3(x,heightAt(x,z),z),vel:new V3(),kb:new V3(),heading:0,hp:T.hp,alive:true,act:null,cd:rand(0.5,1.5),stag:0,ph:rand(0,6),stam:1,see:false,seeT:0,deadT:0,fall:0,throws:i===1?0:1,dodgeCd:0,cr:0.45,hy:1.1,hr:0.55};
-    n.m=body(); n.mesh=n.m.root; n.spear=spearItem(); n.spear.owner=n; n.armed=true; L.push(n); return n; }
+  function mkNpc(band,i,x,z,fac){ const n={kind:'npc',nm:fac?HUM.FAC[fac].nm:'hunter',fac:fac||null,band,i,pos:new V3(x,heightAt(x,z),z),vel:new V3(),kb:new V3(),heading:0,hp:T.hp,alive:true,act:null,cd:rand(0.5,1.5),stag:0,ph:rand(0,6),stam:1,see:false,seeT:0,deadT:0,fall:0,throws:i===1?0:1,dodgeCd:0,cr:0.45,hy:1.1,hr:0.55};
+    n.m=fac?humanBody(fac):body(); n.mesh=n.m.root; n.spear=spearItem(); n.spear.owner=n; n.armed=true; L.push(n); return n; }
   function spawnBand(far){ let best=-1, bs=-1; const ob=B.find(b=>b.alive()); if(ob){ best=(ob.wp+Math.round(patrol.length/2))%patrol.length; } else for(let k=0;k<30;k++){ const i=Math.floor(Math.random()*patrol.length), q=patrol[i], d=Math.hypot(q.x-P.x,q.z-P.z)-(B.some(b=>b.alive()&&Math.hypot(b.lead().pos.x-q.x,b.lead().pos.z-q.z)<40)?60:0); if(d>bs){ bs=d; best=i; } } if(best<0) return;
     const q=patrol[best], b={id:B.length,m:[],state:'patrol',wp:best,dir:ob?-ob.dir:(Math.random()<0.5?1:-1),restT:0,sus:0,seenT:99,last:null,throwCd:0,searchT:0,lookT:0,
       alive(){ return this.m.some(n=>n.alive); }, lead(){ return this.m.find(n=>n.alive)||this.m[0]; }};
     for(let i=0;i<3;i++){ const a=i*2.1, r=i?1.6:0; const n=mkNpc(b,i,q.x+Math.cos(a)*r,q.z+Math.sin(a)*r); clampValley(n.pos,2); n.pos.y=heightAt(n.pos.x,n.pos.z); b.m.push(n); } b.wp=(b.wp+b.dir+patrol.length)%patrol.length; B.push(b); }
+  function route(b){ return b.ring||patrol; }   /* one called up in test mode walks a round of its own about where it came */
   function engage(b,why){ if(b.state!=='engage'){ b.state='engage'; b.throwCd=rand(0.6,1.5); const n=b.lead(); if(n&&n.alive) voice(n,'call'); } b.seenT=0; b.last={x:P.x,z:P.z}; }
-  function voice(n,k){ try{ if(!A.ctx) return; const [v,pan]=sPos(n.pos); if(v<0.005) return; const t=A.ctx.currentTime, hurt=k==='hurt', o=A.out(0.5*v+0.04,pan,0.15), b0=hurt?200:(140+n.i*18);
+  function voice(n,k){ try{ if(!A.ctx) return; const [v,pan]=sPos(n.pos); if(v<0.005) return; if(k==='hurt'&&A._sb){ const i=Math.floor(Math.random()*8); if(A._sb['grunt'+i]){ A.smp('grunt',0.65*v+0.08,pan,{i,far:0.4*(1-v)}); return; } }   /* a hurt one cries out like you do */ const t=A.ctx.currentTime, hurt=k==='hurt', o=A.out(0.5*v+0.04,pan,0.15), b0=hurt?200:(140+n.i*18);
       const os=A.osc('sawtooth',b0,hurt?110:b0*1.4,t,hurt?0.28:0.42), f1=A.biq('bandpass',hurt?650:560,3.5), f2=A.biq('bandpass',hurt?1300:1050,6); os.connect(f1); os.connect(f2); f1.connect(o); f2.connect(o); A.env(o,t,0.03,hurt?0.25:0.4);
       if(k==='call'){ const t2=t+0.48, o2=A.out(0.45*v+0.04,pan,0.15), os2=A.osc('sawtooth',b0*1.3,b0*0.9,t2,0.35), f3=A.biq('bandpass',720,3.5); os2.connect(f3); f3.connect(o2); A.env(o2,t2,0.03,0.33); } }catch(e){} }
   function hurtNpc(n,dmg,dir,kbF,stag,src){ if(!n.alive) return; const b=n.band; n.hp-=dmg; n.kb.set(dir.x*kbF*0.5,0,dir.z*kbF*0.5); engage(b,src);
-    if(n.hp<=0){ die(n,dir); return; } if(dmg>0){ gore(n,false,dir); voice(n,'hurt'); } n.act=null; n.stag=Math.max(n.stag,stag>0?stag*0.8:0.3); }
-  function die(n,dir){ n.alive=false; n.act=null; n.deadT=0; n.vel.set(0,0,0); n.fallDir=(dir.x*Math.sin(n.heading)+dir.z*Math.cos(n.heading))>0?1:-1; gore(n,true,dir); voice(n,'hurt'); if(pl.kills) pl.kills.hunter=(pl.kills.hunter||0)+1;
+    if(n.hp<=0){ die(n,dir); return; } if(dmg>0){ gore(n,false,dir); voice(n,'hurt'); n.flinch=1; } n.act=null; n.stag=Math.max(n.stag,stag>0?stag*0.8:0.3); }
+  function die(n,dir){ n.alive=false; n.act=null; n.deadT=0; if(n.m&&n.m.glb) ragStart(n,dir); n.vel.set(0,0,0); n.fallDir=(dir.x*Math.sin(n.heading)+dir.z*Math.cos(n.heading))>0?1:-1; gore(n,true,dir); voice(n,'hurt'); if(pl.kills) pl.kills.hunter=(pl.kills.hunter||0)+1;
     if(n.armed&&n.spear){ n.armed=false; n.m.sp.visible=false; lay(n.spear,n.pos.x+Math.cos(n.heading)*0.8,n.pos.z-Math.sin(n.heading)*0.8,n.heading+1.2); }
     if(proj&&proj.state==='lodged'&&proj.host===n) proj.lt=99; addNoise(n.pos,18,4); }
   /* ---------- the player's blows reach them too ---------- */
@@ -8982,7 +9049,7 @@ const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_M
         break; } }
     return _upj(dt); };
   resetRun=function(){ const r=_rr.apply(this,arguments); try{ reset(); }catch(e){} return r; };
-  function reset(){ L.forEach(n=>{ scene.remove(n.mesh); }); SP.forEach(it=>scene.remove(it.g)); L.length=0; B.length=0; SP.length=0; GU.length=0; respT=-1; if(fortDone&&FZ){ /* guards again */ fortDone=false; HUTS.length=0; scene.children.filter(o=>o.userData&&o.userData.fort).forEach(o=>scene.remove(o)); } }
+  function reset(){ L.forEach(n=>{ scene.remove(n.mesh); if(n.m&&n.m.glb) scene.remove(n.m.sp); }); SP.forEach(it=>scene.remove(it.g)); L.length=0; B.length=0; SP.length=0; GU.length=0; respT=-1; if(fortDone&&FZ){ /* guards again */ fortDone=false; HUTS.length=0; scene.children.filter(o=>o.userData&&o.userData.fort).forEach(o=>scene.remove(o)); } }
   /* ---------- moving ---------- */
   function goTo(n,tx,tz,spd,dt){ let t={x:tx,z:tz}; clampValley(t,2); t=navPre(n,t,spd,dt); const dx=t.x-n.pos.x, dz=t.z-n.pos.z, d=Math.hypot(dx,dz); let vx=0,vz=0; if(d>0.12){ const s=Math.min(spd,d*2.2); vx=dx/d*s; vz=dz/d*s; } const k=1-Math.exp(-7*dt); n.vel.x+=(vx-n.vel.x)*k; n.vel.z+=(vz-n.vel.z)*k; navPost(n); }
   const runSpd=(n,dt,want)=>{ if(want>T.jog&&n.stam>0.12){ n.stam=Math.max(0,n.stam-dt/7); return want; } n.stam=Math.min(1,n.stam+dt/4); return Math.min(want,T.jog); };
@@ -9007,8 +9074,8 @@ const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_M
     else if(seen){ const d=dmin; if(b.state==='engage'||d<12) engage(b); else { b.sus+=dt*(1.6-d/T.sight)*(pl.sprinting?2:1); if(b.sus>1) engage(b); else if(b.sus>0.3&&b.state==='patrol'){ b.state='alert'; b.lookT=0; } } b.last={x:P.x,z:P.z}; }
     else { b.sus=Math.max(0,b.sus-dt*0.12); if(b.state==='alert'&&b.sus<0.2) b.state='patrol'; if(b.state==='engage'&&(b.seenT>9&&dmin>6)){ b.state='search'; b.searchT=0; } }
     if(b.state==='engage'&&dmin<6&&state==='play'&&!ghost()){ b.seenT=Math.min(b.seenT,1); b.last={x:P.x,z:P.z}; }   /* close by, they know where you are without looking */
-    if(b.state==='search'){ b.searchT+=dt; if(b.searchT>22){ b.state='patrol'; let bi=0,bd=1e9; patrol.forEach((q,i)=>{ const d=Math.hypot(q.x-al[0].pos.x,q.z-al[0].pos.z); if(d<bd){ bd=d; bi=i; } }); b.wp=bi; } }
-    if(b.state==='patrol'){ const ld=al[0], q=patrol[b.wp]; b.wpT=(b.wpT||0)+dt; if(b.restT>0){ b.restT-=dt; } else if(Math.hypot(q.x-ld.pos.x,q.z-ld.pos.z)<3||b.wpT>20){ b.wpT=0; b.wp=(b.wp+b.dir+patrol.length)%patrol.length; if(Math.random()<0.18) b.restT=rand(3,8); if(Math.random()<0.04) b.dir=-b.dir; } }
+    if(b.state==='search'){ b.searchT+=dt; if(b.searchT>22){ b.state='patrol'; let bi=0,bd=1e9; route(b).forEach((q,i)=>{ const d=Math.hypot(q.x-al[0].pos.x,q.z-al[0].pos.z); if(d<bd){ bd=d; bi=i; } }); b.wp=bi; } }
+    if(b.state==='patrol'){ const RT=route(b), ld=al[0], q=RT[b.wp%RT.length]; b.wpT=(b.wpT||0)+dt; if(b.restT>0){ b.restT-=dt; } else if(Math.hypot(q.x-ld.pos.x,q.z-ld.pos.z)<3||b.wpT>20){ b.wpT=0; b.wp=(b.wp+b.dir+RT.length)%RT.length; if(Math.random()<0.18) b.restT=rand(3,8); if(Math.random()<0.04) b.dir=-b.dir; } }
     const cx=al.reduce((s,n)=>s+n.pos.x,0)/al.length, cz=al.reduce((s,n)=>s+n.pos.z,0)/al.length, base=Math.atan2(cx-P.x,cz-P.z);
     al.forEach((n,k)=>npcTick(n,b,al,k,base,dt)); }
   function npcTick(n,b,al,k,base,dt){ n.cd=Math.max(0,n.cd-dt); n.dodgeCd=Math.max(0,n.dodgeCd-dt); n.seeT-=dt; if(n.seeT<=0){ n.seeT=0.25+Math.random()*0.1; n.see=seeP(n); }
@@ -9028,7 +9095,7 @@ const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_M
       if(aiming&&aimT>0.25&&d<26&&frontDot(n.pos)>0.97){ const sd=(n.i%2?1:-1); tx+=Math.cos(toP)*sd*3; tz-=Math.sin(toP)*sd*3; spd=Math.max(spd,T.jog); } }   /* weave when you aim at them */
     else if(b.state==='search'){ const q=b.last||n.pos; tx=q.x+Math.sin(n.i*2.1+b.searchT*0.3)*5; tz=q.z+Math.cos(n.i*2.1+b.searchT*0.3)*5; spd=T.jog*0.8; if(!n.armed){ const it=freeSpear(n,30); if(it&&it!=='P'){ tx=it.pos.x; tz=it.pos.z; if(Math.hypot(tx-n.pos.x,tz-n.pos.z)<1.1) take(n,it); } } }
     else if(b.state==='alert'){ face=toP; spd=0; if(n===al[0]){ tx=n.pos.x+Math.sin(toP)*2; tz=n.pos.z+Math.cos(toP)*2; spd=0.8; } }
-    else { const ld=al[0]; if(n===ld){ const q=patrol[b.wp]; if(b.restT<=0){ tx=q.x; tz=q.z; spd=T.walk; } } else { const h=ld.heading, sd=(k%2?1:-1); tx=ld.pos.x-Math.sin(h)*1.9*k+Math.cos(h)*sd*1.1; tz=ld.pos.z-Math.cos(h)*1.9*k-Math.sin(h)*sd*1.1; const gp=Math.hypot(tx-n.pos.x,tz-n.pos.z); spd=gp<0.6?0:(gp>4?T.jog:T.walk*1.15); }
+    else { const ld=al[0]; if(n===ld){ const RT=route(b), q=RT[b.wp%RT.length]; if(b.restT<=0){ tx=q.x; tz=q.z; spd=T.walk; } } else { const h=ld.heading, sd=(k%2?1:-1); tx=ld.pos.x-Math.sin(h)*1.9*k+Math.cos(h)*sd*1.1; tz=ld.pos.z-Math.cos(h)*1.9*k-Math.sin(h)*sd*1.1; const gp=Math.hypot(tx-n.pos.x,tz-n.pos.z); spd=gp<0.6?0:(gp>4?T.jog:T.walk*1.15); }
       if(!n.armed){ const it=freeSpear(n,30); if(it&&it!=='P'){ tx=it.pos.x; tz=it.pos.z; spd=T.jog; if(Math.hypot(tx-n.pos.x,tz-n.pos.z)<1.1) take(n,it); } } }
     fin(n,face,dt,tx,tz,spd); }
   function fin(n,face,dt,tx,tz,spd){ if(spd>0) goTo(n,tx,tz,spd,dt); else n.vel.multiplyScalar(Math.exp(-6*dt));
@@ -9085,7 +9152,7 @@ const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_M
     for(const o of GU){ if(o!==n&&o.alive){ const da=ang(o.wall.a,W.a)*RG; if(Math.abs(da)<0.9){ W.a+=Math.sign(da||1)*0.02; if(W.rest<=0) W.dir=Math.sign(da||1); } } }
     n.pos.set(Math.cos(W.a)*RG,HG,Math.sin(W.a)*RG); n.vel.set(-Math.sin(W.a)*W.dir*sp,0,Math.cos(W.a)*W.dir*sp); }
   /* ---------- the figure ---------- */
-  function pose(n,dt){ const m=n.m, dp=dP(n); m.root.visible=dp<170; if(!m.root.visible) return; m.root.position.copy(n.pos); m.root.rotation.set(0,n.heading,0); m.sp.visible=n.armed;
+  function pose(n,dt){ if(n.m.glb) return poseGLB(n,dt); const m=n.m, dp=dP(n); m.root.visible=dp<170; if(!m.root.visible) return; m.root.position.copy(n.pos); m.root.rotation.set(0,n.heading,0); m.sp.visible=n.armed;
     if(!n.alive){ n.fall=Math.min(1,n.fall+dt*2.2); const e=n.fall*n.fall; m.root.rotation.set(0,n.heading,0); m.root.rotateX(n.fallDir*e*Math.PI*0.48); m.hip.position.y=0.95-e*0.05; m.torso.rotation.x=0; [m.lL,m.lR].forEach(l=>{ l.rotation.x=0; l.userData.kn.rotation.x=0.2*e; }); reach(m.aR,-0.42,0.15,0.1,-1,0,0); reach(m.aL,0.42,0.15,0.1,1,0,0); m.root.position.y=n.pos.y+0.05; return; }
     if(dp>110) return;
     const sp=Math.hypot(n.vel.x,n.vel.z), run=c01((sp-3.2)/3); n.ph+=dt*(sp*2.3+0.01); const amp=c01(sp/2.6)*(0.55+0.25*run), s=Math.sin(n.ph), c=Math.cos(n.ph);
@@ -9103,15 +9170,14 @@ const NPCB=(()=>{ let on=false; try{ const N=window.__BA_NODE; on=!window.__BA_M
     m.torso.rotation.x=lean-(n.stag>0?0.45*c01(n.stag/0.5):0); m.head.rotation.x=-lean*0.8;
     const sw=0.24*amp*s; if(RH) reach(m.aR,RH[0],RH[1],RH[2],-0.5,-0.2,-1); else reach(m.aR,-0.27,0.02,sw,-0.3,0,-1);
     if(LH) reach(m.aL,LH[0],LH[1],LH[2],0.5,-0.2,-1); else reach(m.aL,0.27,0.02,-sw,0.3,0,-1); }
-  function tick(dt){ if(!fortDone&&FZ) buildFort(); if(!L.some(n=>!n.wall)&&respT<0){ for(let i=0;i<T.bands;i++) spawnBand(); }
+  function tick(dt){ if(!fortDone&&FZ) buildFort(); if(FORTMODE&&!L.some(n=>!n.wall)&&respT<0){ for(let i=0;i<T.bands;i++) spawnBand(); }
     for(const g of GU) guardTick(g,dt);   /* built on the first frame of play, when the hands' skin is ready */
     spearTick(dt);
     for(const b of B) if(state==='play'||state==='dying') bandTick(b,dt);
     for(const n of L){ if(!n.alive){ n.deadT+=dt; n.kb.multiplyScalar(Math.exp(-5*dt)); } pose(n,dt); }
-    if(!B.some(b=>b.alive())){ if(respT<0) respT=T.respawn; respT-=dt; if(respT<=0){ respT=-1; B.forEach(b=>b.m.forEach(n=>{ scene.remove(n.mesh); n.gone=1; })); for(let i=L.length-1;i>=0;i--) if(L[i].gone) L.splice(i,1); B.length=0; for(let i=0;i<T.bands;i++) spawnBand(); } }
+    if(FORTMODE&&!B.some(b=>b.alive())){ if(respT<0) respT=T.respawn; respT-=dt; if(respT<=0){ respT=-1; B.forEach(b=>b.m.forEach(n=>{ scene.remove(n.mesh); n.gone=1; })); for(let i=L.length-1;i>=0;i--) if(L[i].gone) L.splice(i,1); B.length=0; for(let i=0;i<T.bands;i++) spawnBand(); } }
     window.__NPCST=B.map(b=>b.state+':'+b.m.filter(n=>n.alive).length).join(' '); }
-  return {tick,list:L,bands:B,spears:SP,reset,hurt:hurtNpc,spawnBand}; })();/*@Y*/ window.__NPCB=NPCB;/*@Y*/
-//@end
+  return {tick,list:L,bands:B,spears:SP,reset,hurt:hurtNpc,spawnBand,callUp}; })();/*@Y*/ window.__NPCB=NPCB;/*@Y*/
 const BA_CARRY=(()=>{ try{ const c=BAS.get('ba_carry'); BAS.del('ba_carry'); return c?JSON.parse(c):null; }catch(e){ return null; } })();/*@Y*/ let baCarryPending=null;/*@Y*/
 //@if escarpment
 const ANTS=(()=>{ const cv=document.createElement('canvas'); cv.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:6'; document.body.appendChild(cv); const g=cv.getContext('2d');
@@ -9142,13 +9208,13 @@ window.__BA_FRAME0=()=>{ const n=performance.now(); last=n-16.7; frame(n,true); 
 function frame(now,once){ if(!once) requestAnimationFrame(frame);   /* once: a single frame drawn on demand (the first picture after a handover), without starting a second loop */
    if(now-last<12.5&&now>last) return; /*fps60*/ let dt=(now-last)/1000; last=now; if(dt>0.05) dt=0.05; if(dt<=0) return; tG+=dt;
 //@if plains
-  if(state==='play'){ updatePlayer(dt); TUT.tick(dt); baCheckExits(dt); baDayTick(); if(window.__FT) window.__FT.tick(dt); BIRDS.update(dt); MODELS.tick(dt,performance.now()/1000); if(window.__GB) window.__GB.tick(dt); SPEARBEAM.tick(dt); AMB.tick('day_plains'); if(state==='play'){ updateProj(dt); updateAllPacks(dt); updateWallabies(dt); updateDips(dt); } }
+  if(state==='play'){ updatePlayer(dt); TUT.tick(dt); baCheckExits(dt); baDayTick(); if(window.__FT) window.__FT.tick(dt); BIRDS.update(dt); MODELS.tick(dt,performance.now()/1000); if(window.__GB) window.__GB.tick(dt); SPEARBEAM.tick(dt); AMB.tick('day_plains'); if(state==='play'){ updateProj(dt); updateAllPacks(dt); updateWallabies(dt); updateDips(dt); if(NPCB) NPCB.tick(dt); } }
 //@end
 //@if escarpment
-  if(state==='play'){ updatePlayer(dt); TUT.tick(dt); baCheckExits(dt); baDayTick(); if(window.__FT) window.__FT.tick(dt); BIRDS.update(dt); if(window.__WD) window.__WD.tick(dt); MODELS.tick(dt,performance.now()/1000); if(window.__GB) window.__GB.tick(dt); SPEARBEAM.tick(dt); AMB.tick('day_cliffs'); if(state==='play'){ updateProj(dt); updatePack(dt); updateWallabies(dt); keepAnimalsIn(); } ANTS.tick(dt); }
+  if(state==='play'){ updatePlayer(dt); TUT.tick(dt); baCheckExits(dt); baDayTick(); if(window.__FT) window.__FT.tick(dt); BIRDS.update(dt); if(window.__WD) window.__WD.tick(dt); MODELS.tick(dt,performance.now()/1000); if(window.__GB) window.__GB.tick(dt); SPEARBEAM.tick(dt); AMB.tick('day_cliffs'); if(state==='play'){ updateProj(dt); updatePack(dt); updateWallabies(dt); keepAnimalsIn(); if(NPCB) NPCB.tick(dt); } ANTS.tick(dt); }
 //@end
 //@if plains escarpment
-  else if(state==='dying'){ deathT+=dt; roll=lerp(roll,1.2,1-Math.exp(-3*dt)); pl.eyeH=lerp(pl.eyeH,0.35,1-Math.exp(-4*dt)); pitch=lerp(pitch,0.2,1-Math.exp(-2*dt));
+  else if(state==='dying'){ deathT+=dt; if(NPCB) NPCB.tick(dt); roll=lerp(roll,1.2,1-Math.exp(-3*dt)); pl.eyeH=lerp(pl.eyeH,0.35,1-Math.exp(-4*dt)); pitch=lerp(pitch,0.2,1-Math.exp(-2*dt));
 //@end
 //@if plains
     if(deathBy){ deathMaul(dt,updateAllPacks); } else { deadShow(deathT>0.05); elFade.style.opacity=c01((deathT-2.4)/0.8).toFixed(2); updateAllPacks(dt); if(deathT>3.3) showDeath(); } }
