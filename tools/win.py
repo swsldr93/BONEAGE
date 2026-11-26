@@ -43,6 +43,7 @@ def build(page_html, out):
     for d in ('osx', 'linux64'):   # only Windows' own files go in
         shutil.rmtree(src + '/node_modules/steamworks.js/dist/' + d, ignore_errors=True)
     open(src + '/app/index.html', 'w').write(page_html)
+    shutil.copy(src + '/node_modules/steamworks.js/dist/win64/steam_api64.dll', app + '/steam_api64.dll')   # beside the exe too: Windows finds it there whatever the search order
     subprocess.run(['node', ROOT + '/tools/node/asar.js', 'pack', src, app + '/resources/app.asar'], check=True, capture_output=True)
     z = out + '/BoneAge-Windows-x64.zip'
     if os.path.exists(z): os.remove(z)
