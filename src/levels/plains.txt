@@ -34,3 +34,5 @@ preyHopHeightMax = 0.75
 preyHopHeight = 0.18
 # ... extra hop height per unit of speed
 preyHopHeightPerSpeed = 0.045
+# the flag over the old palisade fort here: Eromanga (a picture in src/levels/img/)
+fortFlag = @file img/flag-eromanga.jpg

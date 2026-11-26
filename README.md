@@ -6,6 +6,7 @@ A first-person survival game set in far-future Australia. © 2026 Matthew Treace
 
     python3 tools/build.py                 web build into out/web (index.html, pool.js, pg-*.js)
     python3 tools/build.py --mac           also the Mac (Apple Silicon) app: out/BoneAge-Mac-AppleSilicon.zip
+    python3 tools/build.py --win           also the Windows (x64) app: out/BoneAge-Windows-x64.zip
     python3 tools/build.py --check DIR     also compare with a published build in DIR ("IDENTICAL GAME" or not)
 
 The Mac build needs `node`, `npm install` in `tools/node`, `rcodesign` (set `RCODESIGN=/path/to/rcodesign` if it
@@ -18,7 +19,7 @@ library are used. See `tools/mac.py`.
 |---|---|
 | `src/launcher.html` | the menu and level loader (the web build's index.html); `@@VER@@` is the build's version mark |
 | `src/engine.html` | the game: every level's page in one file. Code between `//@if plains gully` and `//@end` goes only into the levels named; everything else is shared |
-| `src/levels/*.txt` | each level's values for shared code (`@@S:name@@` in engine.html): name, predator, ground texture, prey hop… (`escarpment` = the cliffs) |
+| `src/levels/*.txt` | each level's values for shared code (`@@S:name@@` in engine.html): name, predator, ground texture, prey hop, the fort's flag… (`escarpment` = the cliffs). A value `@file img/x.jpg` is a picture in `src/levels/img/` |
 | `src/books/*.txt` | every book, letter, scroll and map, as text. Pictures in `src/books/img/`. Format: top of `tools/books.py` |
 | `src/text/*.txt` | tutorial pages and place names (`@@T:file:name@@` / `@@TOBJ:file@@` in engine.html). Format: top of `tools/text.py` |
 | `src/pool/` | shared chunks (code, models, sounds) the levels load as `@@Pn@@`; `index.json` lists them |

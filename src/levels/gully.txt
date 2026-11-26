@@ -34,3 +34,5 @@ preyHopHeightMax = 0.45
 preyHopHeight = 0.12
 # ... extra hop height per unit of speed
 preyHopHeightPerSpeed = 0.05
+# the flag over the old palisade fort here: the Bassian Hierocrate (a picture in src/levels/img/)
+fortFlag = @file img/flag-bassia.jpg

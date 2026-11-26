@@ -3,6 +3,7 @@
 python3 tools/build.py            build
 python3 tools/build.py --check D  also compare against a published build in folder D
 python3 tools/build.py --mac      also make the Mac app zip in out/ (see tools/mac.py)
+python3 tools/build.py --win      also make the Windows app zip in out/ (see tools/win.py)
 
 Source layout
   src/launcher.html      the menu / loader page (index.html of the web build)
@@ -54,6 +55,10 @@ def settings(s, path):
         if not L.strip() or L.startswith('#'): continue
         k, v = L.split(' = ', 1)
         if v.startswith('⟦') and v.endswith('⟧'): v = v[1:-1]
+        if v.startswith('@file '):   # a picture beside the sheet (src/levels/img/...), written in as a data URI
+            import base64
+            fn = os.path.join(os.path.dirname(path), v[6:].strip()); ext = fn.rsplit('.', 1)[1].lower()
+            v = 'data:image/%s;base64,' % ('jpeg' if ext in ('jpg', 'jpeg') else ext) + base64.b64encode(open(fn, 'rb').read()).decode()
         vals[k.strip()] = v
     def rep(m):
         if m.group(1) not in vals: raise SystemExit('%s has no value "%s"' % (os.path.basename(path), m.group(1)))
@@ -144,4 +149,7 @@ if __name__ == '__main__':
         import mac
         rc = os.environ.get('RCODESIGN', 'rcodesign')
         print('built', mac.build(files, levels, jdump, ROOT + '/out', rcodesign=rc))
+    if '--win' in sys.argv:
+        import mac, win
+        print('built', win.build(mac.page(files, levels, jdump), ROOT + '/out'))
     if '--check' in sys.argv: sys.exit(0 if check(files, levels, sys.argv[sys.argv.index('--check') + 1]) else 1)

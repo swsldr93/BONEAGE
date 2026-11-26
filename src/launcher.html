@@ -286,7 +286,7 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
     dispatchEvent(new KeyboardEvent('keydown',{code:'Escape',key:'Escape',bubbles:true,cancelable:true})); }
   addEventListener('mousemove',()=>{ if(cur){ cur.classList.remove('gpF'); cur=null; } });
   let lt=performance.now();
-  function tick(now){ if(window.__gpNavGen!==gen) return; requestAnimationFrame(tick); const dt=Math.min(0.1,Math.max(0,(now-lt)/1000)); lt=now;
+  function tick(now){ if(window.__gpNavGen!==gen) return; window.__gpNavLast=performance.now(); requestAnimationFrame(tick); const dt=Math.min(0.1,Math.max(0,(now-lt)/1000)); lt=now;
     let g=null; try{ for(const p of (navigator.getGamepads?navigator.getGamepads():[])) if(p&&p.connected){ g=p; break; } }catch(e){} if(!g) return;
     const B=g.buttons.map(b=>!!b.pressed), was=prev; prev=B; if(!live()){ if(cur){ cur.classList.remove('gpF'); cur=null; } return; }
     if(cur&&!cur.isConnected){ const m=cands().find(e=>sameKey(e,curKey)); cur=null; if(m) setCur(m); }   /* the menu redrew (a new tab): stay on the same control */
@@ -299,7 +299,10 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
     if(fire){ if((dir==='l'||dir==='r')&&adjust(dir==='l'?-1:1)) return; if(!cur){ if(C.length) setCur(pickDefault(C)); return; } move(dir==='l'?-1:dir==='r'?1:0,dir==='u'?-1:dir==='d'?1:0,C); }
     if(dn(0)){ if(cur) click(cur); else if(C.length===0){ const t=document.elementFromPoint(innerWidth/2,innerHeight/2); if(t) click(t); } else setCur(pickDefault(C)); }
     if(dn(1)) back(C); }
-  requestAnimationFrame(tick); })();
+  requestAnimationFrame(tick);
+  /* a place in play stops this page's frame loop; back on the menu it is started again, so the controller works without first touching the mouse */
+  window.__gpNavKick=()=>{ if(window.__gpNavGen===gen&&performance.now()-(window.__gpNavLast||0)>250){ lt=performance.now(); requestAnimationFrame(tick); } };
+  addEventListener('focus',()=>window.__gpNavKick()); })();
   // the way through: a line of six places (two of each kind), each a layout of its own: the highest cliffs down to the gully, the gully down to the farthest plains.
   // a new game rolls a new line; Retry and walking back keep it. Each place's layout is checked (and rolled again if broken) the first time you go there.
   const PGC={gully:'G',escarpment:'C',plains:'P'}, PGK={G:'gully',C:'escarpment',P:'plains'}, LVK=['gully','escarpment','plains'];
@@ -415,14 +418,14 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
       const iv=setInterval(()=>{ let live=false; try{ live=!!w.__BA_LIVE; }catch(e){} if(!live) return; clearInterval(iv); setTimeout(()=>{ hold=true; pre.ready=true; },1200); },250);
       pre.go=(c,m,feat,o)=>{ pre.ready=false; window.requestAnimationFrame=()=>0; fr.style.pointerEvents='auto';
         try{ const n=netGet(); n.cur=id; netSet(n); }catch(e){}
-        const prevFr=window.__BA_ACTIVEFR||null; window.__BA_ACTIVEW=w; window.__BA_ACTIVEFR=fr; window.__BA_PRE=null; baFwd();   /* the mouse and keys now go to this place */
+        const prevFr=window.__BA_ACTIVEFR||null; try{ const pw=prevFr&&prevFr.contentWindow; if(pw&&pw.__BA_FADEOUT) pw.__BA_FADEOUT(0.9); }catch(e){}   /* the place you leave fades out under the one you enter */ window.__BA_ACTIVEW=w; window.__BA_ACTIVEFR=fr; window.__BA_PRE=null; baFwd();   /* the mouse and keys now go to this place */
         try{ if(prevFr&&prevFr.contentWindow){ const ae=prevFr.contentWindow.document.activeElement; if(ae&&ae.blur) ae.blur(); } }catch(e){} try{ window.focus(); }catch(e){}   /* keys go through this page from here on, so letting go of a key reaches the new place (a key held over the join no longer sticks) */
         const h0=performance.now(); try{ w.__BA_TAKEOVER(c,m,feat,o); }catch(e){ console.error(e); } window.__BA_HOT=performance.now()-h0;
         /* its first frame is drawn right here, from exactly where you are, and shown in the same moment: no gap in which either place moves on unseen */
         try{ w.__BA_FRAME0(); }catch(e){} fr.style.opacity='1'; try{ document.getElementById('game').style.visibility='hidden'; }catch(e){}
         hold=false; held.splice(0).forEach(cb=>raf(cb));
         /* the place you left is let go: a frame is removed outright; the first place (this page itself) has its drawing freed */
-        setTimeout(()=>{ if(prevFr){ try{ prevFr.remove(); }catch(e){} } else { try{ window.__BA_DISPOSE&&window.__BA_DISPOSE(); }catch(e){} } },1500); };
+        setTimeout(()=>{ if(prevFr){ try{ const pw=prevFr.contentWindow; if(pw&&pw.__BA_QUIET) pw.__BA_QUIET(); }catch(e){} try{ prevFr.remove(); }catch(e){} } else { try{ window.__BA_DISPOSE&&window.__BA_DISPOSE(); }catch(e){} } },1500); };
     }).catch(()=>{ window.__BA_PRE=null; }); };
   /* a place is always built in a frame over this page and handed the play, the same way as walking into the next one; this page (the menu) stays
      underneath, so the main menu and loading another place never need the page reloaded (a reload is not allowed everywhere the game runs) */
@@ -437,7 +440,9 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
   window.BA_RESTART=()=>{ let nx=null; try{ nx=BAS.get('ba_next'); BAS.del('ba_next'); }catch(e){}   /* the main menu, or the next place after a way out that could not be walked through */
     try{ if(document.pointerLockElement) document.exitPointerLock(); }catch(e){}
     const fr=[...document.querySelectorAll('iframe[name^="next-"]')]; fr.forEach(f=>{ try{ const w=f.contentWindow; if(w&&w.__BA_QUIET) w.__BA_QUIET(); }catch(e){} });
-    window.__BA_PRE=null; window.__BA_ACTIVEW=null; window.__BA_ACTIVEFR=null; fr.forEach(f=>{ try{ f.remove(); }catch(e){} }); try{ const B=window.__BA_AMBBUS; if(B){ B.gain.value=0; B.disconnect(); } window.__BA_AMBBUS=null; }catch(e){}   /* the places' ambience goes with them */ if(window.__BA_TOPRAF) window.requestAnimationFrame=window.__BA_TOPRAF;
+    window.__BA_PRE=null; window.__BA_ACTIVEW=null; window.__BA_ACTIVEFR=null; fr.forEach(f=>{ try{ f.remove(); }catch(e){} }); try{ const B=window.__BA_AMBBUS; if(B){ B.gain.value=0; B.disconnect(); } window.__BA_AMBBUS=null; }catch(e){}   /* the places' ambience goes with them */
+    try{ const L=window.__BA_LVGS||[]; L.forEach(o=>{ try{ o.lv.gain.value=0; o.amb.gain.value=0; o.lv.disconnect(); o.amb.disconnect(); }catch(e){} }); L.length=0; }catch(e){}   /* every place's own sound: cut */
+    if(window.__BA_TOPRAF) window.requestAnimationFrame=window.__BA_TOPRAF; try{ window.__gpNavKick&&window.__gpNavKick(); }catch(e){}   /* the menu's own loops run again (the controller among them) */
     if(nx&&(LVK.includes(nx)||/^node:/.test(nx))){ loadLevel(nx); return; }
     const ov=document.getElementById('baLoad'); if(ov) ov.remove(); const it=document.getElementById('intro'); if(it) it.classList.add('gone');
     const M=document.getElementById('menu'); if(M){ M.style.visibility=''; M.classList.add('nofade','intro-logo','intro-menu'); setTimeout(()=>M.classList.remove('nofade'),50); }
