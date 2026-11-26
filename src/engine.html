@@ -9246,7 +9246,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   function tick(dt){ if(!fortDone&&FZ) buildFort(); if(FORTMODE&&!L.some(n=>!n.wall)&&respT<0){ for(let i=0;i<T.bands;i++) spawnBand(); }
     for(const g of GU) guardTick(g,dt);   /* built on the first frame of play, when the hands' skin is ready */
     spearTick(dt);
-    for(const b of B) if(state==='play'||state==='dying') bandTick(b,dt);
+    for(const b of B) if(state==='play'||state==='dying'||state==='spec') bandTick(b,dt);   /* (in warfare the fighting goes on while you watch) */
     for(const n of L){ if(!n.alive){ n.deadT+=dt; n.kb.multiplyScalar(Math.exp(-5*dt)); } pose(n,dt); }
     if(FORTMODE&&!B.some(b=>b.alive())){ if(respT<0) respT=T.respawn; respT-=dt; if(respT<=0){ respT=-1; B.forEach(b=>b.m.forEach(n=>{ scene.remove(n.mesh); n.gone=1; })); for(let i=L.length-1;i>=0;i--) if(L[i].gone) L.splice(i,1); B.length=0; for(let i=0;i<T.bands;i++) spawnBand(); } }
     window.__NPCST=B.map(b=>b.state+':'+b.m.filter(n=>n.alive).length).join(' '); if(window.__WAR) window.__WAR.tick(dt); }
