@@ -9106,7 +9106,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
     const cx=al.reduce((s,n)=>s+n.pos.x,0)/al.length, cz=al.reduce((s,n)=>s+n.pos.z,0)/al.length, base=Math.atan2(cx-TG.p.x,cz-TG.p.z);
     al.forEach((n,k)=>npcTick(n,b,al,k,base,dt)); }
   function npcTick(n,b,al,k,base,dt){ if(b.war){ n.hunger=(n.hunger??rand(0.05,0.35))+dt/420; if(n.hunger>=1){ hurtNpc(n,99,{x:Math.sin(n.heading),z:Math.cos(n.heading)},0,0,'starve'); return; } if(!n.hunt&&n.hunger>0.45&&b.state!=='engage'){ const a=nearestPrey(n); if(a) n.hunt={ph:'stalk',a,t:0}; } }   /* they get hungry as you do, and starve as you do */
-    n.cd=Math.max(0,n.cd-dt); n.dodgeCd=Math.max(0,n.dodgeCd-dt); n.seeT-=dt; if(n.seeT<=0){ n.seeT=0.25+Math.random()*0.1; n.see=seeP(n); }
+    n.cd=Math.max(0,n.cd-dt); if(n.predFoe&&!n.act&&n.stag<=0&&predFight(n,b,dt)) return; n.dodgeCd=Math.max(0,n.dodgeCd-dt); n.seeT-=dt; if(n.seeT<=0){ n.seeT=0.25+Math.random()*0.1; n.see=seeP(n); }
     const d=dT(n), toP=Math.atan2(TG.p.x-n.pos.x,TG.p.z-n.pos.z); let face=null, spd=0, tx=n.pos.x, tz=n.pos.z;
     if(n.stag>0){ n.stag-=dt; n.vel.multiplyScalar(Math.exp(-6*dt)); }
     else if(n.act){ const a=n.act, was=a.t; a.t+=dt; if(was<a.at&&a.t>=a.at) strike(n); if(a.t>=a.dur){ n.act=null; n.cd=a.k==='throw'?0.6:rand(0.8,1.6); } face=a.prey?Math.atan2(a.prey.pos.x-n.pos.x,a.prey.pos.z-n.pos.z):toP; n.vel.multiplyScalar(Math.exp(-5*dt)); }
@@ -9131,6 +9131,14 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
      kneels at the kill to cut meat, carries it to a lit fire its side holds and cooks and eats it there. What is left of the kill stays where it fell ---------- */
   function nearestPrey(n){ let best=null, bd=130; for(const a of [...(typeof wallabies!=='undefined'?wallabies:[]),...((window.__GB&&window.__GB.list)||[])]){ if(!a.alive||a.hidden||a.carried) continue; const d=Math.hypot(a.pos.x-n.pos.x,a.pos.z-n.pos.z); if(d<bd){ bd=d; best=a; } } return best; }
   function fireFor(n){ const W_=window.__WAR; let c=pits.filter(p=>p&&isFinite(p.x)&&p.lit!==false); if(W_) c=W_.F.filter(f=>f.owner===n.team).map(f=>pits[f.pi]).filter(p=>p&&p.lit!==false); let best=null, bd=1e9; for(const p of c){ const d=Math.hypot(p.x-n.pos.x,p.z-n.pos.z); if(d<bd){ bd=d; best=p; } } return best; }
+  /* bitten: it turns on the animal and fights it, spear to the face, until it is dead, gone, or it has been left alone a while */
+  function predFight(n,b,dt){ const m=n.predFoe; if(!m||!m.alive||tG-n.predT>10||Math.hypot(m.pos.x-n.pos.x,m.pos.z-n.pos.z)>25){ n.predFoe=null; return false; }
+    const d=Math.hypot(m.pos.x-n.pos.x,m.pos.z-n.pos.z), face=Math.atan2(m.pos.x-n.pos.x,m.pos.z-n.pos.z);
+    if(n.armed&&n.cd<=0){ TG={isP:false,n:null,prey:m,p:m.pos,v:m.vel||{x:0,z:0},e:(m.hy||0.6)/0.62,cr:false,sp:false,ok:true};
+      if(d<3.0){ startAct(n,'thrust',0.55,0.3); n.act.prey=m; fin(n,face,dt); return true; }
+      if(d>5&&d<14&&n.throws>0&&Math.random()<dt*1.5){ startAct(n,'throw',1.0,0.74); n.act.prey=m; fin(n,face,dt); return true; } }
+    if(!n.armed&&d<2.2&&n.cd<=0){ startAct(n,'stab',0.42,0.2); n.act.prey=m; fin(n,face,dt); return true; }
+    const want=n.armed?2.4:1.6; fin(n,face,dt,m.pos.x-Math.sin(face)*want,m.pos.z-Math.cos(face)*want,d>want+1?runSpd(n,dt,T.jog):1.2); return true; }
   function huntTick(n,b,dt){ const H=n.hunt, a=H.a;
     if(!n.armed&&H.ph==='stalk'){ const it=freeSpear(n,40); if(it&&it!=='P'){ if(Math.hypot(it.pos.x-n.pos.x,it.pos.z-n.pos.z)<1.1) take(n,it); fin(n,null,dt,it.pos.x,it.pos.z,runSpd(n,dt,T.jog)); return true; } }
     if(H.ph==='stalk'){ if(!a||a.eaten||a.carried){ n.hunt=null; return false; } if(!a.alive){ H.ph='cut'; H.t=0; }
@@ -9307,11 +9315,11 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   function asVictim(n,fn){ const sp=P.clone(), sv={}; VK.forEach(k=>sv[k]=pl[k]); const ss=state, hp_=hurtPlayer, di_=die, sh=shake, hf=hurtFlash;
     P.set(n.pos.x,n.pos.y,n.pos.z); Object.assign(pl,{vel:n.vel,kb:n.kb,elev:0,inShelter:false,spearLit:0,fireNear:false,dodgeOk:-9,dodgeAt:-9,speedNow:Math.hypot(n.vel.x,n.vel.z),invuln:n.inv||0,hp:n.hp,crouch:false,sprinting:false,armed:n.armed?'spear':'none',inCover:false,burrow:false,eyeH:1.62,air:false,charging:false,stowed:false,carry:null});
     state='play';
-    hurtPlayer=function(m,dmg){ if((n.inv||0)>0||!n.alive) return; n.inv=1.1; const dx=m&&m.pos?n.pos.x-m.pos.x:0, dz=m&&m.pos?n.pos.z-m.pos.z:1, l=Math.hypot(dx,dz)||1; NPCB.hurt(n,dmg||1,{x:dx/l,z:dz/l},5,0.8,'pred'); try{ const [v,p]=sPos(n.pos); A.stab(0.6*v+0.1,p); }catch(e){} };
+    hurtPlayer=function(m,dmg){ if((n.inv||0)>0||!n.alive) return; n.inv=1.1; if(m&&m.pos&&m.alive){ n.predFoe=m; n.predT=tG; } const dx=m&&m.pos?n.pos.x-m.pos.x:0, dz=m&&m.pos?n.pos.z-m.pos.z:1, l=Math.hypot(dx,dz)||1; NPCB.hurt(n,dmg||1,{x:dx/l,z:dz/l},5,0.8,'pred'); try{ const [v,p]=sPos(n.pos); A.stab(0.6*v+0.1,p); }catch(e){} };
     die=function(){ if(n.alive) NPCB.hurt(n,99,{x:0,z:1},0,0,'pred'); };
     try{ fn(); } finally { P.copy(sp); VK.forEach(k=>pl[k]=sv[k]); state=ss; hurtPlayer=hp_; die=di_; shake=sh; hurtFlash=hf; } }
   if(typeof updatePack==='function'){ const _up=updatePack; updatePack=function(dt){ if(typeof pack==='undefined'||!pack) return _up(dt);
-      let v=pack.victim; if(v&&v!=='P'&&!v.alive) v=null; if(v==='P'&&state!=='play') v=null;
+      let v=pack.victim; if(v&&v!=='P'&&!v.alive) v=null; if(v==='P'&&state!=='play'&&!(state==='dying'&&deathT<8)) v=null;   /* (they finish mauling you first) */
       if(!v){ const c=[...(state==='play'?['P']:[]),...bots.filter(n=>n&&n.alive)]; v=c.length?c[Math.floor(Math.random()*c.length)]:'P'; if(pack.victim&&pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } }   /* its quarry is gone: another, picked at random */
       pack.victim=v; if(v==='P') return _up(dt); return asVictim(v,()=>_up(dt)); }; }
   return {tick,F,bots,W}; })();/*@Y*/ window.__WAR=WAR;/*@Y*/
