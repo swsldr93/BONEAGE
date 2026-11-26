@@ -113,7 +113,10 @@ def build(out):
         files['pg-%s.js' % lv] = ('window.BA_PGLV=window.BA_PGLV||{}; BA_PGLV.%s=' % lv + jdump(s) +
                                   '; window.BA_PGGEN=window.BA_PGGEN||{}; BA_PGGEN.%s=' % lv + json.dumps({'ins': ins}, separators=(',', ':')) + ';')
     ver = hashlib.sha1(''.join(files[k] for k in sorted(files)).encode()).hexdigest()[:10]
-    files['index.html'] = open(src + '/launcher.html').read().replace('@@VER@@', ver)   # a new build: maps and layouts drawn by an older one are redrawn
+    def img(m):   # @@IMG:path@@ in the launcher: a picture from src/, written in as a data URI
+        import base64; fn = os.path.join(src, m.group(1)); ext = fn.rsplit('.', 1)[1].lower()
+        return 'data:image/%s;base64,' % ('jpeg' if ext in ('jpg', 'jpeg') else ext) + base64.b64encode(open(fn, 'rb').read()).decode()
+    files['index.html'] = re.sub(r'@@IMG:([\w./-]+)@@', img, open(src + '/launcher.html').read().replace('@@VER@@', ver))   # a new build: maps and layouts drawn by an older one are redrawn
     for k, v in files.items(): open(os.path.join(out, k), 'w').write(v)
     return files, levels
 

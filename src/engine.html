@@ -6877,6 +6877,7 @@ function updateProj(dt){ projOnce(); (window.__spares||[]).forEach(sp=>{ if(!sp.
     else { const h=a.heading, c=Math.cos(h), s=Math.sin(h), mp=a.mesh.position; proj.pos.set(mp.x+proj.lx*c+proj.lz*s,mp.y+proj.ly,mp.z-proj.lx*s+proj.lz*c); worldSpear.position.copy(proj.pos); worldSpear.lookAt(proj.pos.x+proj.dx*c+proj.dz*s,proj.pos.y+proj.dy,proj.pos.z-proj.dx*s+proj.dz*c); }
   } else if(dist2(proj.pos,P)<1.7&&Math.abs(proj.pos.y-P.y)<3){ proj=null; worldSpear.visible=false; pl.armed='spear'; A.pickup(); }
 }/*@Y*/
+function lookTgt(m){ try{ if(window.__WAR&&m&&m.kind==='thyl'&&typeof packOf==='function'){ const v=packOf(m).victim; if(v&&v!=='P'&&v.alive) return v.pos; } }catch(e){} return P; }/*@Y*/   /* who a predator's head turns to: you, or in warfare the one its pack is after */
 function hurtPlayerA(m){ if(m&&m.kind==='dip') ACH.got('ACH_COMBAT_WOMBAT'); }/*@Y*/
 function hurtPlayer(m,dmg=1,cause){ if(pl.burrow) return; hurtPlayerA(m); pl.hp-=dmg; if(stabT>=0){ stabT=-1; hitDone=true; } pl.invuln=1.1; hurtFlash=1; shake=0.55; const d=dirTo(m); pl.kb.set(-d.x*4.5,0,-d.z*4.5); if(pl.hp>0) A.pgrunt(); const [v,p]=sPos(m.pos); if(m&&m.kind==='thyl') A.smp(m.lizard?'mbite':(m.big?'lbite':'tbite'),0.75*v+0.35,p,{far:0});
   if(pl.eating){ pl.eating=null; pl.eatT=0; } if(pl.hp<=0){ deathBy=(m&&m.kind==='thyl')?m:null; die(cause||(m&&m.cause)||LV.deathCause); } }/*@Y*/
@@ -8568,7 +8569,7 @@ const MODELS=(()=>{
         a.pk=lerp(a.pk||0,m.state==='peck'?Math.max(0,Math.sin((m.t||0)*4.5))*0.9:0,Math.min(1,dt*10)); const bob=Math.sin(ph*2)*0.14*kk;
         rot(r,r.pelvis,0.04*kk); rot(r,r.neck,bob+a.pk); rot(r,r.head,-bob*0.6+0.3*a.pk); r.tail.forEach((b,i)=>rot(r,b,0.04*Math.sin(tNow*1.1+i)*(1-kk),0.03*Math.sin(ph+i)*kk));
         a.holder.position.y=(s.yOff||0)+Math.abs(Math.sin(ph))*r.H*0.02*kk; }
-      else if(s.type==='mega'){ const st=m.state, tS=m.t||0, dx=P.x-m.mesh.position.x, dz=P.z-m.mesh.position.z, dist=Math.hypot(dx,dz);
+      else if(s.type==='mega'){ const st=m.state, tS=m.t||0, LT=lookTgt(m), dx=LT.x-m.mesh.position.x, dz=LT.z-m.mesh.position.z, dist=Math.hypot(dx,dz);
         // stride timed to ground speed so the planted feet don't skate
         const A=clamp(0.28+sp*0.06,0.28,0.7); a.mv=lerp(a.mv||0,smooth(0.12,0.9,sp),Math.min(1,dt*5)); const k=a.mv;
         a.ph+=dt*(a.bk>0.5?-1:1)*Math.min(7,0.42*sp*Math.PI/(2*r.reach*Math.sin(A))+(1-k)*0.3); const ph=a.ph;
@@ -8598,7 +8599,7 @@ const MODELS=(()=>{
         if(a.tgF!==undefined){ a.tgF+=dt; const per=0.32, i=Math.floor(a.tgF/per), f=(a.tgF%per)/per; if(i>=a.tgN){ a.tgF=undefined; a.tgT=dist<30?rand(1.2,3):rand(3,7); r.tongue.visible=false; }
           else { const e=Math.sin(Math.PI*f); r.tongue.visible=e>0.03; r.tongue.scale.set(1,1,Math.max(0.01,e)); r.tongue.rotation.x=Math.sin(f*Math.PI*6)*0.18+0.08; } }
       }
-      else if(s.type==='cat'){ const st=m.state, tS=m.t||0, dx=P.x-m.mesh.position.x, dz=P.z-m.mesh.position.z, dist=Math.hypot(dx,dz), TAU=Math.PI*2;
+      else if(s.type==='cat'){ const st=m.state, tS=m.t||0, LT=lookTgt(m), dx=LT.x-m.mesh.position.x, dz=LT.z-m.mesh.position.z, dist=Math.hypot(dx,dz), TAU=Math.PI*2;
         const pk=(typeof packs!=='undefined'&&m.lobe!==undefined)?packs[m.lobe]:(typeof pack!=='undefined'?pack:null), feeding=!!(pk&&pk.state==='feed'&&sp<0.8&&st==='pack');
         /* the thylacoleo moves like a leopard (leo): a long low stride with the paws placed, shoulders rolling, the spine snaking and bending into turns,
            the head carried low and held steady, the tail hanging in a curve; at speed the back folds and opens.
@@ -8657,7 +8658,7 @@ const MODELS=(()=>{
           like a buffalo; forelegs strike together, hind legs drive together, and the whole body rocks fore and aft over them.
           The stride is timed to the ground covered, so the planted feet do not slide. */
         /* this model is fitted facing backwards and turned round (yawOff), which reverses nodding and rolling on every bone: rq puts them the right way */
-        const XS=s.yawOff?-1:1, rq=(b,x,y,z)=>rot(r,b,XS*(x||0),y||0,XS*(z||0)); const st=m.state==='eng'?({gap:'flee',turn:'alert',warn:'warn',run:'charge'})[m.ph]||'alert':m.state, tS=m.t||0, TAU=Math.PI*2, dx=P.x-m.mesh.position.x, dz=P.z-m.mesh.position.z, dist=Math.hypot(dx,dz), E6=Math.min(1,dt*6), E3=Math.min(1,dt*3);
+        const XS=s.yawOff?-1:1, rq=(b,x,y,z)=>rot(r,b,XS*(x||0),y||0,XS*(z||0)); const st=m.state==='eng'?({gap:'flee',turn:'alert',warn:'warn',run:'charge'})[m.ph]||'alert':m.state, tS=m.t||0, TAU=Math.PI*2, LT=lookTgt(m), dx=LT.x-m.mesh.position.x, dz=LT.z-m.mesh.position.z, dist=Math.hypot(dx,dz), E6=Math.min(1,dt*6), E3=Math.min(1,dt*3);
         a.mv=lerp(a.mv||0,smooth(0.1,0.7,sp),Math.min(1,dt*5)); const k=a.mv; a.ch=lerp(a.ch||0,st==='charge'?1:0,Math.min(1,dt*(st==='charge'?7:3))); const ch=a.ch;
         a.tr=lerp(a.tr||0,smooth(2.4,4.2,sp)*(1-ch),E3); const tr=a.tr;   /* 0 amble, 1 trot */
         const stride=1.9+0.42*sp, A=clamp(0.15+0.05*sp,0.15,0.5); a.ph+=dt*(TAU*sp/stride*k+(1-k)*0.0); const ph=a.ph/TAU;
@@ -8691,7 +8692,7 @@ const MODELS=(()=>{
           if(lizard){ rot(r,L.hip,-sw*0.6,side*sw*1.1,side*lift*0.5); rot(r,L.knee,lift*0.4); } else { rot(r,L.hip,-sw); rot(r,L.knee,(front?-1:1)*lift*0.9); rot(r,L.foot,(front?0.5:-0.4)*lift); } }
         if(lizard){ const wv=Math.sin(ph)*amp*0.5; rot(r,r.pelvis,0,wv*0.6); rot(r,r.spine,0,-wv*0.8); rot(r,r.chest,0,wv*0.6); r.tail.forEach((b,i)=>rot(r,b,0,Math.sin(ph-1.2-i*0.7)*(0.12+amp*0.25)*(1+i*0.3)));
           // hold the head straight against the body's swing, and turn it toward the player when close
-          const dx=P.x-m.mesh.position.x, dz=P.z-m.mesh.position.z, dist=Math.hypot(dx,dz); let look=Math.atan2(dx,dz)-m.mesh.rotation.y; look=Math.atan2(Math.sin(look),Math.cos(look)); look=clamp(look,-0.8,0.8)*(1-smooth(12,24,dist));
+          const LT=lookTgt(m), dx=LT.x-m.mesh.position.x, dz=LT.z-m.mesh.position.z, dist=Math.hypot(dx,dz); let look=Math.atan2(dx,dz)-m.mesh.rotation.y; look=Math.atan2(Math.sin(look),Math.cos(look)); look=clamp(look,-0.8,0.8)*(1-smooth(12,24,dist));
           a.look=lerp(a.look||0,look,Math.min(1,dt*4)); const cancel=-(wv*0.6-wv*0.8+wv*0.6); rot(r,r.neck,0,cancel); rot(r,r.head,-0.05,0);
           const attack=m.state==='lunge'||m.state==='tell'||(m.state==='recover'&&m.t<0.4), open=attack?(m.state==='lunge'?0.8*Math.max(0,Math.sin(tNow*16)):0.6):(dist<8?0.12+0.08*Math.sin(tNow*2):0.03); a.jawA=lerp(a.jawA||0,open,Math.min(1,dt*14)); rot(r,r.jaw,a.jawA); }
         else { rot(r,r.spine,gallop?Math.sin(ph*2)*0.06:0); r.tail.forEach((b,i)=>rot(r,b,0.05*(i+1)*(sp>1?1:0.3),Math.sin(tNow*1.6+a.ph+i*0.5)*(0.06+Math.min(0.1,sp*0.01)))); rot(r,r.neck,(m.state==='tell'||m.state==='stalk'||m.crouch)?0.3:0.05*Math.sin(tNow*0.6+a.ph)); rot(r,r.head,(m.state==='tell'||m.state==='lunge')?-0.12:0,0);
@@ -9289,9 +9290,11 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   /* ---- you go down: fifteen seconds, then back at a fire your side holds here ---- */
   function playerBack(){ const q=homePt('A'); if(!q) return false; try{ deadShow(false); if(window.__bloodFill) window.__bloodFill.style.opacity='0'; elFade.style.opacity='0'; }catch(e){} deathBy=null;
     P.set(q.x,heightAt(q.x,q.z),q.z); pl.vel.set(0,0,0); pl.kb.set(0,0,0); Object.assign(pl,{air:false,vy:0,elev:0,hp:4,armed:'spear',stowed:false,spearLit:0,charging:false,chargeHold:0,invuln:2,eatT:0,eating:null,eyeH:1.62,carry:null,spearMeat:null,cooking:false});
-    try{ if(proj){ proj=null; worldSpear.visible=false; } }catch(e){} roll=0; pitch=-0.05; state='play'; playerDownAt=-1; showCard('back at your fire',2); return true; }
+    try{ if(proj){ proj=null; worldSpear.visible=false; } }catch(e){} roll=0; pitch=-0.05;
+    try{ (typeof packs!=='undefined'?packs:[pack]).forEach(pk=>{ if(!pk) return; if(pk.state==='feed'&&!(pk.prey&&pk.prey.pos)){ pk.state='patrol'; pk.prey=null; } pk.lunger=null; }); [...(typeof thyls!=='undefined'?thyls:[]),...(typeof lions!=='undefined'?lions:[])].forEach(m=>{ if(m&&m.alive&&(m.state==='pack'||m.state==='maul')){ m.state='orbit'; m.t=0; } }); }catch(e){}   /* the ones that killed you were left feeding on you */
+    state='play'; playerDownAt=-1; showCard('back at your fire',2); return true; }
   const _sd=showDeath; showDeath=function(){ if(over) return _sd.apply(this,arguments); if(playerDownAt<0) playerDownAt=tG-(typeof deathT==='number'?deathT:0); const left=15-(tG-playerDownAt);
-    if(left<=0&&firesOf('A').length){ playerBack(); return; } const el=document.getElementById('warWait')||(()=>{ const d=document.createElement('div'); d.id='warWait'; d.style.cssText='position:fixed;left:0;right:0;top:44%;z-index:41;text-align:center;font:italic 22px Alegreya,Georgia,serif;color:#efe6cf;letter-spacing:.1em;pointer-events:none'; document.body.appendChild(d); return d; })();
+    if(left<=0&&firesOf('A').length){ playerBack(); return; } const el=document.getElementById('warWait')||(()=>{ const d=document.createElement('div'); d.id='warWait'; d.style.cssText='position:fixed;left:0;right:0;top:74%;z-index:99;text-align:center;font:italic 22px Alegreya,Georgia,serif;color:#efe6cf;letter-spacing:.1em;pointer-events:none'; document.body.appendChild(d); return d; })();
     el.style.display='block'; el.textContent=firesOf('A').length?'back in '+Math.ceil(left):'your side holds no fire here'; };
   const _ce=baCheckExits; baCheckExits=function(){ };   /* no leaving: the war moves on when this place is won */
   /* ---- each frame ---- */
@@ -9299,7 +9302,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
     bots.forEach(n=>{ if(n&&n.inv>0) n.inv=Math.max(0,n.inv-dt); });
     if(over) return;
     /* the fallen: back after fifteen seconds at a fire of theirs here, if they have one */
-    bots.forEach((n,i)=>{ if(!n||n.alive) return; n.downT=(n.downT||0)+dt; if(n.downT>=15&&firesOf(n.side).length){ const s=n.side, k=n.slot; setTimeout(()=>{ try{ NPCB.drop(n); }catch(e){} },20000); spawnBot(s,k); } });
+    bots.forEach((n,i)=>{ if(!n||n.alive) return; n.downT=(n.downT||0)+dt; if(n.downT>=15&&firesOf(n.side).length){ const s=n.side, k=n.slot; try{ NPCB.drop(n); }catch(e){} spawnBot(s,k); }   /* (its body goes as it comes back: never more than three a side) */ });
     /* who stands at each fire */
     const inA=s=>[...bots.filter(n=>n&&n.alive&&n.side===s).map(n=>n.pos),...(s==='A'&&state==='play'?[P]:[])];
     for(const fr of F){ const p=pits[fr.pi], near=s=>inA(s).filter(q=>Math.hypot(q.x-p.x,q.z-p.z)<5).length, att=other(fr.owner), na=near(att), nd=near(fr.owner);

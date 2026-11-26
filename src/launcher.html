@@ -476,8 +476,20 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
     setTimeout(row,300); setInterval(row,1000); }
   /* warfare: a new war, two of the three peoples picked at random (yours first), starting on the high plains */
   { const wb=document.getElementById('warL'); if(wb){ const d=document.getElementById('desc'); wb.addEventListener('mouseenter',()=>{ if(d){ d.textContent=wb.dataset.desc; d.classList.add('on'); } }); wb.addEventListener('mouseleave',()=>{ if(d) d.classList.remove('on'); });
-      wb.addEventListener('click',()=>{ const M=document.getElementById('menu'); if(M&&M.classList.contains('leaving')) return; const f=['bassia','torresian','eromangan'].sort(()=>Math.random()-0.5);
-        bset('ba_war',JSON.stringify({A:f[0],B:f[1],own:{},i:0})); bdel('ba_arrive'); bdel('ba_carry'); bdel('ba_npc'); bset('ba_skip_intro','1'); const n=netNew(); n.start='P1'; netSet(n); playNode('P1'); }); } } window.BA_PGCODE=PGC; window.BA_PGKEY=PGK;
+      /* choosing a side: the three peoples' flags over their figures, on black. Theirs is one of the other two, at random. The war always opens in the upper gully, the middle of the six */
+      const PEO=[['bassia','Bassians','@@IMG:levels/img/flag-bassia.jpg@@','@@IMG:people/img/bassia.webp@@'],['torresian','Torresians','@@IMG:levels/img/flag-torresia.jpg@@','@@IMG:people/img/torresian.webp@@'],['eromangan','Eromangans','@@IMG:levels/img/flag-eromanga.jpg@@','@@IMG:people/img/eromangan.webp@@']];
+      const pick=()=>{ let o=document.getElementById('warPick'); if(o){ o.style.display='flex'; return; } o=document.createElement('div'); o.id='warPick';
+        o.style.cssText='position:fixed;inset:0;z-index:2147483100;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3vh;font:16px/1.4 Alegreya,Georgia,serif;color:#e9e1cc';
+        o.innerHTML='<div style="font-style:italic;letter-spacing:.14em;font-size:20px;opacity:.85">choose your people</div><div id="warCols" style="display:flex;gap:3vw;align-items:flex-start;justify-content:center;max-width:94vw"></div><button type="button" id="warBack" style="background:none;border:0;color:#e9e1cc;font:15px Alegreya,Georgia,serif;letter-spacing:.12em;cursor:pointer;opacity:.75">back</button>';
+        document.body.appendChild(o); const cols=o.querySelector('#warCols');
+        PEO.forEach(([k,nm,flag,fig])=>{ const c=document.createElement('button'); c.type='button'; c.dataset.people=k; c.style.cssText='background:none;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1.6vh;color:#e9e1cc;font:inherit;width:min(26vw,300px);transition:transform .15s ease,opacity .15s ease;opacity:.86';
+          c.innerHTML='<img src="'+flag+'" alt="" style="width:100%;aspect-ratio:1.75;object-fit:cover;border:3px solid #111;box-shadow:0 0 0 2px #e9e1cc33"><div style="width:100%;aspect-ratio:0.62;background:#efede6;display:flex;align-items:center;justify-content:center"><img src="'+fig+'" alt="" style="height:88%;width:auto"></div><div style="letter-spacing:.12em">'+nm+'</div>';
+          c.addEventListener('mouseenter',()=>{ c.style.opacity='1'; c.style.transform='translateY(-4px)'; }); c.addEventListener('mouseleave',()=>{ c.style.opacity='.86'; c.style.transform='none'; });
+          c.addEventListener('click',()=>{ const others=PEO.map(p=>p[0]).filter(x=>x!==k), B=others[Math.floor(Math.random()*others.length)]; o.style.display='none';
+            bset('ba_war',JSON.stringify({A:k,B,own:{},i:0})); bdel('ba_arrive'); bdel('ba_carry'); bdel('ba_npc'); bset('ba_skip_intro','1'); const n=netNew(); n.start='G1'; netSet(n); playNode('G1'); });
+          cols.appendChild(c); });
+        o.querySelector('#warBack').addEventListener('click',()=>{ o.style.display='none'; }); addEventListener('keydown',e=>{ if(e.key==='Escape'&&o.style.display!=='none') o.style.display='none'; }); };
+      wb.addEventListener('click',()=>{ const M=document.getElementById('menu'); if(M&&M.classList.contains('leaving')) return; pick(); }); } } window.BA_PGCODE=PGC; window.BA_PGKEY=PGK;
 
   try{ if(BA_PLAT.native) document.getElementById('quitL').style.display=''; }catch(e){}
   const desc=document.getElementById('desc'); let descT=0;
