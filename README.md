@@ -13,6 +13,11 @@ The Mac build needs `node`, `npm install` in `tools/node`, `rcodesign` (set `RCO
 is not on the path) and a Mac shell zip: any earlier Bone Age Mac zip. Only its Electron framework and Steam
 library are used. See `tools/mac.py`.
 
+## Branches
+
+- `survival`: Bone Age Survival, for test players. No warfare.
+- `main`: Bone Age X, the game with warfare, where work goes on. Fixes to the shared game are made on `main` and brought into `survival` (git cherry-pick), leaving warfare out.
+
 ## Where things are
 
 | Path | What |

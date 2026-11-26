@@ -36,6 +36,3 @@ preyHopHeight = 0.12
 preyHopHeightPerSpeed = 0.05
 # the flag over the old palisade fort here: the Torresian Confederacy (a picture in src/levels/img/)
 fortFlag = @file img/flag-torresia.jpg
-flagBassia = @file img/flag-bassia.jpg
-flagTorresia = @file img/flag-torresia.jpg
-flagEromanga = @file img/flag-eromanga.jpg
