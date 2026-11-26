@@ -4681,7 +4681,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     windmill:{lv:['plains'],w:0.2,r:5.2,flat:0.9,lab:'windmill',cap:'a windmill and its tank'},
     fence:{lv:['plains','escarpment'],r:3,flat:2.0,lab:'fence line',cap:'an old fence line'},
     barkhut:{lv:['gully','escarpment'],r:4.2,flat:0.8,lab:'bark hut',cap:'a bark hut'},
-    log:{lv:['gully','escarpment'],r:8.5,flat:1.6,lab:'hollow log',cap:'a great hollow log'},
+    log:{lv:['gully'],r:8.5,flat:1.6,lab:'hollow log',cap:'a great hollow log'},
     telegraph:{lv:['plains'],r:3,flat:2.5,lab:'telegraph line',cap:'an old telegraph line'},
     camp:{lv:['gully','escarpment'],r:3.8,flat:0.7,lab:'old camp',cap:'an old camp under a boulder'} };
   const fin=q=>q&&isFinite(q.x)&&Math.abs(q.x)<1000&&Math.abs(q.z)<1000;
@@ -4710,7 +4710,8 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
   /* a spot for K: valid ones are scored and the best of the first few kept (score: farther from what it should be away from is better) */
   const find=(K,away,score,want=1)=>{ let best=null,bs=-1e9,got=0; const why={c:0,a:0,l:0,f:0,r:0}; for(let t=0;t<(LVk==="escarpment"?6000:1600)&&got<want;t++){ const q=cand(K); if(!fin(q)){ why.c++; continue; } if(away.some(a=>Math.hypot(a[0]-q.x,a[1]-q.z)<a[2])){ why.a++; continue; } if(!okLv(q.x,q.z,K.r)){ why.l++; continue; } if(flat(q.x,q.z,K.r)>K.flat){ why.f++; continue; } if(bigRock(q.x,q.z,K.r)){ why.r++; continue; } got++; const sc=score?score(q):0; if(sc>bs){ bs=sc; best=q; } } window.__poiWhy=why; return best; };
   const AK=LVk==='escarpment'?0.5:1;   /* the cliffs' shelf is small: fires and grounds would otherwise leave no room at all */
-  const awayBase=()=>[...pits.filter(fin).map(p=>[p.x,p.z,26*AK]),...(typeof clearings!=='undefined'?clearings:[]).filter(fin).map(c=>[c.x,c.z,24*AK]),...(typeof ROO_G!=='undefined'?ROO_G:[]).filter(fin).map(c=>[c.x,c.z,20*AK]),...placed.map(q=>[q.x,q.z,q.r+30*AK])];
+  const GAP=LVk==='escarpment'?20:28;   /* the least open ground between one old structure and the next, or a fire (in a cave or not): edge to edge, in metres */
+  const awayBase=(K)=>[...pits.filter(fin).map(p=>[p.x,p.z,K.r+GAP]),...(typeof shelters!=='undefined'?shelters:[]).filter(fin).map(s=>[s.x,s.z,K.r+(s.hl||3)+GAP*0.6]),...(typeof CAVES!=='undefined'?CAVES:[]).filter(fin).map(c=>[c.x,c.z,K.r+GAP*0.6]),...(typeof clearings!=='undefined'?clearings:[]).filter(fin).map(c=>[c.x,c.z,24*AK]),...(typeof ROO_G!=='undefined'?ROO_G:[]).filter(fin).map(c=>[c.x,c.z,20*AK]),...placed.map(q=>[q.x,q.z,q.r+K.r+GAP])];
   const wpick=L=>{ const W=L.map(k=>{ const K=KINDS[k]; if(!K) return 1; if(K.wl&&K.wl[LVk]!=null) return K.wl[LVk]; return K.w!=null?K.w:1; }), T=W.reduce((a,b)=>a+b,0); let r=rng()*T; for(let i=0;i<L.length;i++){ r-=W[i]; if(r<=0) return L[i]; } return L[L.length-1]; };   /* some kinds are rarer than others */
   let force=null; try{ force=BAS.get('ba_poiforce'); }catch(e){}   /* test: always this kind */
   /* clear the ground: whatever grew or lay there goes, solid parts and all (keep: things to leave alone) */
@@ -4973,13 +4974,13 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     const mBk=new THREE.MeshLambertMaterial({map:tBk,side:THREE.DoubleSide}), mSl=new THREE.MeshLambertMaterial({map:tPole,color:0x9a8a76});
     const hAt=v=>HE+(HR-HE)*Math.max(0,1-Math.abs(v)/hd);
     const FPW=big?0.95:0.6, FPH=big?1.35:1.1;   /* the fireplace opening: wider and higher in the hut that has its fire in it */
-    const slabs=(along,fixed,len,hf,door,fp)=>{ for(let s=-len/2;s<len/2-0.05;){ const w=Math.min(U(0.2,0.32),len/2-s), m=s+w/2; if(door!=null&&Math.abs(m-door)<(big?0.6:0.5)){ s+=w; continue; }   /* (a doorway at 0 is still a doorway) */ const top=hf(m), bot=fp&&Math.abs(m)<FPW?FPH:0; if(top-bot>0.2){ const ms=new THREE.Mesh(new THREE.BoxGeometry(w-0.02,top-bot+0.1,0.07),mSl); const u=along?m:fixed, v=along?fixed:m; ms.position.set(u,bot+(top-bot)/2,v); ms.rotation.set(U(-0.02,0.02),along?0:Math.PI/2,U(-0.02,0.02)); G.add(ms); if(!(fp&&Math.abs(m)<FPW)) col(u,v,0.2); } s+=w; } };
+    const slabs=(along,fixed,len,hf,door,fp)=>{ for(let s=-len/2;s<len/2-0.05;){ const w=Math.min(U(0.2,0.32),len/2-s), m=s+w/2; if(door!=null&&Math.abs(m-door)<(big?0.6:0.5)){ s+=w; continue; }   /* (a doorway at 0 is still a doorway) */ const top=hf(m), bot=fp&&Math.abs(m)<FPW?FPH:0; if(!fp&&U(0,1)<0.13){ const u=along?m:fixed, v=along?fixed:m, Lf=top*U(0.5,0.95), o=(Lf/2+U(0.05,0.3))*Math.sign(fixed), fl=new THREE.Mesh(new THREE.BoxGeometry(w-0.02,0.07,Lf),mSl); fl.position.set(along?u+U(-0.2,0.2):u+o,0.05,along?v+o:v+U(-0.2,0.2)); fl.rotation.set(U(-0.04,0.04),(along?0:Math.PI/2)+U(-0.35,0.35),U(-0.05,0.05)); G.add(fl); s+=w; continue; }   /* a slab gone: rotted at its foot and fallen out */ if(top-bot>0.2){ const ms=new THREE.Mesh(new THREE.BoxGeometry(w-0.02,top-bot+0.1,0.07),mSl); const u=along?m:fixed, v=along?fixed:m; ms.position.set(u,bot+(top-bot)/2,v); ms.rotation.set(U(-0.02,0.02),along?0:Math.PI/2,U(-0.02,0.02)); G.add(ms); if(!(fp&&Math.abs(m)<FPW)) col(u,v,0.2); } s+=w; } };
     bare(Math.max(W,D)/2+0.8); slabs(true,hd,W,()=>HE,big?0:-hw+1.2); slabs(true,-hd,W,()=>HE); slabs(false,hw,D,hAt); slabs(false,-hw,D,hAt,null,true);
     for(const [u,v] of [[-hw,-hd],[hw,-hd],[-hw,hd],[hw,hd]]) pole(0.08,0.07,[u,-0.2,v],[u,HE+0.05,v]);
     for(const v of [-hd,hd]) pole(0.06,0.06,[-hw-0.2,HE,v],[hw+0.2,HE,v]); pole(0.07,0.07,[-hw-0.3,HR,0],[hw+0.3,HR,0]);
     for(let u=-hw;u<=hw+0.01;u+=W/4) for(const sd of [-1,1]) pole(0.045,0.045,[u,HE-0.1,sd*(hd+0.35)],[u,HR+0.05,0]);
     /* the bark, overlapping sheets, curled; held down by poles laid over it */
-    for(const sd of [-1,1]) for(let u=-hw-0.3;u<hw+0.2;u+=0.82){ if(!big&&U(0,1)<0.07) continue; const g=new THREE.PlaneGeometry(0.95,sl+0.45,4,3), p=g.attributes.position; for(let i=0;i<p.count;i++) p.setZ(i,0.035*Math.cos(p.getX(i)/0.95*Math.PI)+U(-0.02,0.02)); g.computeVertexNormals(); const t=g.attributes.uv, o2=U(0,1); for(let i=0;i<t.count;i++) t.setXY(i,o2+t.getX(i)*0.9,t.getY(i)*1.0);
+    for(const sd of [-1,1]) for(let u=-hw-0.3;u<hw+0.2;u+=0.82){ if(U(0,1)<0.16) continue;   /* sheets of bark gone from the roof */ const g=new THREE.PlaneGeometry(0.95,sl+0.45,4,3), p=g.attributes.position; for(let i=0;i<p.count;i++) p.setZ(i,0.035*Math.cos(p.getX(i)/0.95*Math.PI)+U(-0.02,0.02)); g.computeVertexNormals(); const t=g.attributes.uv, o2=U(0,1); for(let i=0;i<t.count;i++) t.setXY(i,o2+t.getX(i)*0.9,t.getY(i)*1.0);
       const ms=new THREE.Mesh(g,mBk); ms.rotation.set(-Math.PI/2+sd*a,0,U(-0.04,0.04)); ms.position.set(u+0.45,(HE+HR)/2+0.1+U(0,0.03),sd*(hd/2+(big?0.18:0.05))); G.add(ms); }
     for(const sd of [-1,1]) for(const f of [0.3,0.72]) pole(0.055,0.055,[-hw-0.15,HE+(HR-HE)*f+0.16,sd*hd*(1-f)],[hw+0.15,HE+(HR-HE)*f+0.16,sd*hd*(1-f)]);
     for(const u of [-hw+0.4,hw-0.4]) for(const sd of [-1,1]) pole(0.045,0.045,[u,HR+0.2,sd*0.1],[u,HE+0.16,sd*(hd+0.1)]);
@@ -4987,7 +4988,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     { const cu=-hw-(big?0.55:0.42), kl=big?6:5; for(let k=0;k<15;k++){ const y=k*0.26, ht=HR+0.7; if(y>ht) break; const ow=k<kl?(big?2.2:1.3):0.8, od=k<kl?(big?1.1:0.8):0.6; for(const [du,dv,sx,sz] of [[0,-ow/2+0.15,od,0.3],[0,ow/2-0.15,od,0.3],[-od/2+0.15,0,0.3,ow-0.6]]) blk(cu+du,y+0.13,dv,sx,0.26,sz,0,U(-0.02,0.02),0,k>11?mul(tone(),0.55):tone());
         if(y>FPH) blk(cu+od/2-0.15,y+0.13,0,0.3,0.26,ow-0.6,0,0,0,k>11?mul(tone(),0.55):tone()); }
       const ow0=big?2.2:1.3, od0=big?1.1:0.8; for(const sd of [-1,1]) col(cu,sd*(ow0/2-0.15),0.3); col(cu-od0/2+0.15,0,0.3);   /* the stack's sides and back, not its mouth, so the fire in it can be reached */
-      box(big?1.0:0.6,0.02,big?1.7:1.0,mSoot,-hw+0.1,0.02,0); box(0.04,FPH,ow0-0.62,mSoot,cu-od0/2+0.32,FPH/2,0); }
+    }
     /* inside: a bunk of poles and bark; outside: a woodheap */
     { const bu=hw-0.65; for(const [du,dv] of [[-0.9,-0.3],[0.9,-0.3],[-0.9,0.3],[0.9,0.3]]) pole(0.04,0.04,[bu+du*0.0+0,0,-hd+0.45+dv],[bu,0.5,-hd+0.45+dv]); box(0.7,0.04,1.9,mBk,bu,0.52,-hd+1.2,Math.PI/2); col(bu,-hd+0.8,0.35); }
     for(let i=0;i<9;i++){ const r=U(0.07,0.12), lg=new THREE.Mesh(new THREE.CylinderGeometry(r,r,U(0.9,1.2),7),mP); lg.rotation.set(0,U(-0.1,0.1),Math.PI/2); lg.position.set((big?hw-1.3:0)+U(-0.5,0.5),0.1+Math.floor(i/4)*0.18,hd+0.7+(i%4)*0.2); G.add(lg); } col(big?hw-1.3:0,hd+1.0,0.5); }   /* the woodheap: off to the side of a centred door */
@@ -4998,7 +4999,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     /* it rests on the ground, never through it: wherever the ground rises above its underside (along it and to either side) the whole trunk is lifted to sit on that */
     { let lift=-1e9; for(let u=-L/2;u<=L/2+0.01;u+=0.75) for(const k of [-0.85,-0.5,0,0.5,0.85]){ const R=Rr(u), s=k*R, q=W2(u,s), g=heightAt(q.x,q.z)-y0, bot=yc+u*sT+cT*(cy-Math.sqrt(R*R-s*s)); lift=Math.max(lift,g-(bot+0.03)); } yc+=lift; }
     const LG=new THREE.Group(); LG.position.y=yc; LG.rotation.z=tilt; G.add(LG);
-    { const u=-1.5, fl=yc+u*sT+cT*(cy-(Rr(u)-TH)); SPOT=[u,fl+0.11,0,Math.PI/2+0.2,0,'slab']; }   /* inside, on a flat stone laid on the rotted floor (not down in the ground under it) */
+    /* nothing is left in the log: no papers here */   /* inside, on a flat stone laid on the rotted floor (not down in the ground under it) */
     for(let u=-L/2;u<=L/2+0.01;u+=3.2){ const q=W2(u,0); clearArea(q.x,q.z,2.4,null); clears.push([q.x,q.z,2.4]); }   /* nothing growing up through it along its length */
     /* the stocking: dark fibrous bark, its upper edge ragged where it gives way to the smooth bark */
     const tSt=ctex(128,512,(g,w,h)=>{ for(let x=0;x<w;x+=2){ const s=0.62+0.6*Math.random(); g.fillStyle='rgb('+Math.round(51*s)+','+Math.round(33*s)+','+Math.round(20*s)+')'; g.fillRect(x,0,2,h); }
@@ -5051,7 +5052,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     /* the steps up to it, against the wall on the left of the gate as you come in */
     { const a0=1.15, NS=6, run=0.48, rise=DK/NS;   /* straight in from the walkway's inner edge toward the middle, rising to it */
       for(let i=0;i<NS;i++){ const top=(i+1)*rise, [u,v]=at(a0,rIn-0.24-(NS-1-i)*run); box(DW-0.2,top,run,mB,u,top/2,v,a0); for(const s of [-0.28,0.28]){ const c=Math.cos(a0), sn=Math.sin(a0); colTop(u+c*s,v-sn*s,0.3,top,0.42); } } }
-    flagOn(...at(0.34,RF+2.6),0,6.4,mLog);   /* the flag out in front, faded and torn */
+    flagOn(...at(0.55,rIn-0.7),0,6.4,mLog);   /* the flag inside the walls, just in from the gate, faded and torn */
     /* what was left inside: crates, a drum, barrel staves, boards and iron, a cart wheel against the wall, stones from a fallen hearth, rags */
     { const clr=big?2.4:0.6, ok=(u,v)=>Math.hypot(u,v)>clr&&Math.hypot(u,v)<rIn-0.4&&!(Math.abs(u)<1.3&&v>1.5);   /* the way in and (with a fire) round it kept clear */
       const pick=()=>{ for(let k=0;k<30;k++){ const a=U(0,6.283), r=U(0,rIn-0.5), u=Math.sin(a)*r, v=Math.cos(a)*r; if(ok(u,v)) return [u,v]; } return null; };
@@ -5124,10 +5125,9 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     box(0.62,0.4,0.48,mB,hw-0.5,0.2,vb+0.45,0.2); col(hw-0.5,vb+0.45,0.35); SPOT=[hw-0.5,0.41,vb+0.45,0.2,1];   /* on the crate */
     { const mK=new THREE.MeshLambertMaterial({color:0x2a2622}); const ov=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.17,0.2,14),mK); ov.position.set(0.55,0.1,vb+0.9); G.add(ov); const ld=new THREE.Mesh(new THREE.CylinderGeometry(0.21,0.21,0.03,14),mK); ld.position.set(0.62,0.21,vb+0.92); ld.rotation.z=0.25; G.add(ld);
       for(let i=0;i<4;i++){ const tn=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.12,10),mI); tn.position.set(U(-hw+0.3,hw-0.3),0.05,U(vb+0.2,vf+0.8)); tn.rotation.set(U(0,1)<0.6?Math.PI/2:0,U(0,6),0); G.add(tn); } }
-    /* out front: the ring of stones (with a fire, the fire's own), a tripod, the billy */
-    if(!big){ for(let i=0;i<9;i++){ const an=i/9*6.283, s2=new THREE.Mesh(new THREE.DodecahedronGeometry(U(0.1,0.15),0),new THREE.MeshLambertMaterial({color:0x7d776e})); s2.position.set(Math.cos(an)*0.5,0.05,fz+Math.sin(an)*0.5); s2.rotation.set(U(0,3),U(0,3),0); G.add(s2); } const ash=new THREE.Mesh(new THREE.CircleGeometry(0.42,14),new THREE.MeshLambertMaterial({color:0x4a4641})); ash.rotation.x=-Math.PI/2; ash.position.set(0,0.03,fz); G.add(ash); }
-    for(let k=0;k<3;k++){ const an=k/3*6.283+0.3; pole(0.03,0.025,[Math.cos(an)*0.75,-0.05,fz+Math.sin(an)*0.75],[0,1.35,fz]); }
-    { const bl=new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.07,0.16,12),new THREE.MeshLambertMaterial({color:0x5d5a55})); bl.position.set(0,0.82,fz); G.add(bl); pole(0.006,0.006,[0,0.92,fz],[0,1.33,fz],new THREE.MeshLambertMaterial({color:0x3a3632})); }
+    /* out front, over the fire: a tripod, the billy (a camp with no fire has neither) */
+    if(big){ for(let k=0;k<3;k++){ const an=k/3*6.283+0.3; pole(0.03,0.025,[Math.cos(an)*0.75,-0.05,fz+Math.sin(an)*0.75],[0,1.35,fz]); }
+    { const bl=new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.07,0.16,12),new THREE.MeshLambertMaterial({color:0x5d5a55})); bl.position.set(0,0.82,fz); G.add(bl); pole(0.006,0.006,[0,0.92,fz],[0,1.33,fz],new THREE.MeshLambertMaterial({color:0x3a3632})); } }
     bare(2.8); }
   /* the stones, if any: instanced, one mesh per face of the texture */
   if(BL.length){ const {mS,mSL}=SKit(); const m4=new THREE.Matrix4(), qt=new THREE.Quaternion(), e=new THREE.Euler(), P3=new THREE.Vector3(), S3=new THREE.Vector3(), cc=new THREE.Color();
@@ -5145,13 +5145,13 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     SPOT[1]=top; G.updateMatrixWorld(true); G.traverse(o=>{ o.userData.keep=1; keepAll.add(o); }); }
   let spot=null; if(SPOT){ const w=G.localToWorld(new THREE.Vector3(SPOT[0],SPOT[1]==null?0:SPOT[1],SPOT[2])); spot={x:w.x,z:w.z,y:SPOT[1]==null?null:w.y,ry:rot+SPOT[3],stack:!!SPOT[4]}; }
   return {G,x,z,y0,rot,W2,spot}; };
-  const NID=String((window.__BA_NODE||{}).id||''), FV=(LVk==='gully'?['shack','tower','barkhut','log','camp','fort']:LVk==='plains'?['ruins','woolshed','fort']:(NID==='C2'?['shack','tower','barkhut','log','camp','fort']:['shack','fort']));
+  const NID=String((window.__BA_NODE||{}).id||''), FV=(LVk==='gully'?['shack','tower','barkhut','camp','fort']:LVk==='plains'?['ruins','woolshed','fort']:(NID==='C2'?['shack','tower','barkhut','camp','fort']:['shack','fort']));   /* (the hollow log never has a fire) */
   (()=>{ let fk=null; try{ fk=BAS.get('ba_fireforce'); }catch(e){} if(!fk&&rng()>=0.25) return;   /* rare: most places keep both fires in caves */ const kind=fk&&FV.includes(fk)?fk:wpick(FV); let K=KINDS[kind]; if(!K) return;
     const idx=pits.map((p,i)=>i).filter(i=>{ const p=pits[i]; return fin(p)&&!p.alc&&!p.at; }); if(pits.filter(fin).length<2||!idx.length) return; const mi=idx[idx.length-1], other=pits.filter((p,i)=>fin(p)&&i!==mi);
     const away=[...other.map(p=>[p.x,p.z,32]),...(typeof clearings!=='undefined'?clearings:[]).filter(fin).map(c=>[c.x,c.z,24]),...(typeof ROO_G!=='undefined'?ROO_G:[]).filter(fin).map(c=>[c.x,c.z,20])];
     K=Object.assign({},K,{r:kind==='tower'?6.6:kind==='shack'?5.8:kind==='barkhut'?5.0:kind==='camp'?4.6:K.r});   /* (the fort keeps its own size: the fire goes in the middle of it) */
     let at=find(K,away,q=>Math.min(...other.map(p=>Math.hypot(p.x-q.x,p.z-q.z))),24); if(!at) at=find(K,away.map(a=>[a[0],a[1],Math.min(a[2],26)]),q=>Math.min(...other.map(p=>Math.hypot(p.x-q.x,p.z-q.z))),12); if(!at) return;
-    const S=make(kind,at,K,{fire:true}), p=pits[mi], loc=({tower:[0,7.6,0],ruins:[-2.95,0,0.3],woolshed:[1.0,0,0.9],barkhut:[-3.5,0,0],log:[2.5,0,3.7],camp:[0,0,2.25],fort:[0,0,0]})[kind]||[0.3,0,0.15], wv=kind==='lookout'?LK.wv:S.G.localToWorld(new THREE.Vector3(loc[0],loc[1],loc[2]));
+    const S=make(kind,at,K,{fire:true}), p=pits[mi], loc=({tower:[0,7.6,0],ruins:[-2.95,0,0.3],woolshed:[1.0,0,0.9],barkhut:[-3.62,0,0],camp:[0,0,2.25],fort:[0,0,0]})[kind]||[0.3,0,0.15], wv=kind==='lookout'?LK.wv:S.G.localToWorld(new THREE.Vector3(loc[0],loc[1],loc[2]));
     /* everything that makes up the fire goes with it: flames, logs, stones, light, coals, and their solid parts */
     const oh=p.y!=null?p.y:heightAt(p.x,p.z), dx=wv.x-p.x, dz=wv.z-p.z, dy=(kind==='tower'?wv.y+0.03:heightAt(wv.x,wv.z))-heightAt(p.x,p.z), v=new THREE.Vector3(), mv=[];
     scene.traverse(o=>{ if(o===scene||o.isInstancedMesh||S.G===o||o.parent!==scene) return; o.getWorldPosition(v); if(Math.hypot(v.x-p.x,v.z-p.z)>1.5||Math.abs(v.y-oh)>1.5) return; if(o.isMesh&&o.geometry){ if(!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const bs=o.geometry.boundingSphere; if(bs&&bs.radius*o.matrixWorld.getMaxScaleOnAxis()>1.0) return; if(o.material&&o.material.alphaTest>0) return; } mv.push(o); });   /* the ring of stones, the logs and the ash: small, solid, close in; not the plants or trees round about */
@@ -5164,7 +5164,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
   /* ---- something old to find: up to two in a place (a fifth of places have none, the rest one or two, even odds), never two of a kind nor the same as the fire's */
   (()=>{ const r0=rng(), FL=String(force||'').split(',').filter(k=>KINDS[k]), n=FL.length||(r0<0.2?0:r0<0.6?1:2);   /* test: a list of kinds to put in */
     for(let i=0;i<n;i++){ const used=placed.map(q=>q.kind), pool=Object.keys(KINDS).filter(k=>KINDS[k].lv.includes(LVk)&&!KINDS[k].fire&&!used.includes(k)); if(!pool.length&&!FL[i]) return;
-      const kind=FL[i]&&!used.includes(FL[i])?FL[i]:wpick(pool), K=KINDS[kind]; const at=find(K,awayBase()); if(!at) continue; const S=make(kind,at,K);
+      const kind=FL[i]&&!used.includes(FL[i])?FL[i]:wpick(pool), K=KINDS[kind]; const at=find(K,awayBase(K)); if(!at) continue;   /* no room far enough from the rest: one fewer here */ const S=make(kind,at,K);
       placed.push({key:'p'+i,kind,x:S.x,z:S.z,r:K.r,lab:K.lab,cap:K.cap,G:S.G,spot:S.spot||null}); } })();
   if(placed.length){ const PC=[]; for(const arr of grid.values()) for(const c of arr) if(c.__poi&&!c.nb&&!PC.includes(c)) PC.push(c); const bx=placed.map(q=>[q.x,q.z,(q.r||5)+14]);
     const prevK=keepOutOfShelters; keepOutOfShelters=function(a){ const r=prevK.apply(this,arguments); try{ if(a&&a.pos&&bx.some(b=>Math.abs(a.pos.x-b[0])<b[2]&&Math.abs(a.pos.z-b[1])<b[2])){ const ar=a.lizard?1.1:(a.big?0.75:0.5); for(const c of PC){ const dx=a.pos.x-c.x, dz=a.pos.z-c.z, rr=c.r+ar, q=dx*dx+dz*dz; if(q<rr*rr&&q>1e-8){ const d=Math.sqrt(q); a.pos.x=c.x+dx/d*rr; a.pos.z=c.z+dz/d*rr; } } } }catch(e){} return r; }; }   /* animals keep out of the old buildings: walls, legs, stairs and ledges */
@@ -6773,10 +6773,13 @@ function killAnimal(a,silent,dir){ if(!silent&&pl.kills){ const kn=killName(a); 
   if(a.kind==='dip'){ const [v,p]=sPos(a.pos); A.smp('ddeath',0.9*v+0.15,p); }
   if(!silent) addNoise(a.pos,18,4); }/*@Y*/
 function hitAnimal(a,dmg,dir,kbF,stag,noStag){ if(!a.alive) return; if(a.kind==='gbird'){ killAnimal(a,false,dir); return; } if(dmg>0&&!noStag&&(baFires[__BAFK]||[]).length>=3&&(pl.spearLit>0||(typeof proj!=='undefined'&&proj&&proj.lit))){ if(a.kind==='wall'){ killAnimal(a,false,dir); return; } dmg*=1.25; } if(a.kind==='thyl') usePack(a.lobe);
-  if(a.kind==='dip'){ a.hp-=dmg; a.kb.set(dir.x*kbF*0.15,0,dir.z*kbF*0.15); if(a.hp<=0){ killAnimal(a,false,dir); return; } if(dmg>0) gore(a,false,dir);
-    if(a.state==='charge'&&dist2(a.pos,P)<4.2){ repelDip(a); return; }
-    if(dmg>0){ a.wounded=true; if(a.state!=='stun'){ a.state='flee'; a.t=0; } } else if(a.state!=='stun'){ a.state='charge'; a.t=0; } const [v,p]=sPos(a.pos); A.smp('datt',0.85*v+0.2,p,{rate:dmg>0?1.08:1});
-    if(dmg>0){ let gk=0; dips.forEach(o=>{ if(o!==a&&o.alive&&dist2(o.pos,a.pos)<45){ o.state='guard'; o.t=0; o.gSlot=gk++; o.gFor=a; o.gPos=null; } }); dips.forEach(o=>{ if(o.gFor===a) o.gN=gk; }); } else dips.forEach(o=>{ if(o!==a&&o.alive&&dist2(o.pos,a.pos)<45){ o.state='alert'; o.t=0; } }); scareWallabies(a.pos,40); return; } if(a.kind==='wall'){ a.hp=(a.hp===undefined?4:a.hp)-dmg; if(a.hp<=0){ killAnimal(a,false,dir); return; } a.wounded=true; gore(a,false,dir); a.state='flee'; a.t=0; a.threat.copy(P); if(a.hidden!==undefined){ a.hidden=false; a.mesh.visible=true; } a.kb.set(dir.x*kbF*0.3,0,dir.z*kbF*0.3); scareWallabies(a.pos,TUNE.woundScareR); if(typeof dips!=='undefined') dips.forEach(o=>{ if(o.alive&&dist2(o.pos,a.pos)<30&&o.state==='graze'){ o.state='alert'; o.t=0; } }); const [v,p]=sPos(a.pos); A.yelp(0.4*v+0.1,p); return; }   // prey have health: a spear wounds, a second blow kills
+  if(a.kind==='dip'){ /* three tonnes: a blow to the head or the rump does little; the side, behind the front leg, is where a spear goes in. Every wound bleeds on after */
+    if(dmg>0){ const fx=Math.sin(a.heading), fz=Math.cos(a.heading), side=Math.abs(dir.x*fz-dir.z*fx); dmg*=0.35+1.15*side*side; a.bleed=(a.bleed||0)+dmg*0.6; }
+    a.hp-=dmg; a.kb.set(dir.x*kbF*0.15,0,dir.z*kbF*0.15); if(a.hp<=0){ killAnimal(a,false,dir); return; } if(dmg>0) gore(a,false,dir);
+    if((a.state==='charge'||(a.state==='eng'&&a.ph==='run'))&&dist2(a.pos,P)<4.2){ repelDip(a); return; }
+    if(dmg>0) a.wounded=true; const [v,p]=sPos(a.pos); A.smp('datt',0.85*v+0.2,p,{rate:dmg>0?1.08:1});
+    if(a.state!=='stun'&&!(a.state==='eng'&&a.ph==='run')){ a.state='eng'; a.ph='gap'; a.t=0; a.gapD=rand(20,28); }   /* the one you hurt turns on you */
+    dipStampede(a); scareWallabies(a.pos,40); return; } if(a.kind==='wall'){ a.hp=(a.hp===undefined?4:a.hp)-dmg; if(a.hp<=0){ killAnimal(a,false,dir); return; } a.wounded=true; gore(a,false,dir); a.state='flee'; a.t=0; a.threat.copy(P); if(a.hidden!==undefined){ a.hidden=false; a.mesh.visible=true; } a.kb.set(dir.x*kbF*0.3,0,dir.z*kbF*0.3); scareWallabies(a.pos,TUNE.woundScareR); if(typeof dips!=='undefined') dips.forEach(o=>{ if(o.alive&&dist2(o.pos,a.pos)<30&&o.state==='graze'){ o.state='alert'; o.t=0; } }); const [v,p]=sPos(a.pos); A.yelp(0.4*v+0.1,p); return; }   // prey have health: a spear wounds, a second blow kills
   if(a.hp0===undefined) a.hp0=a.hp; if(a.lizard&&dmg>0&&dmg<1.5) dmg*=0.4; a.hp-=dmg; const kbk=a.lizard?0.12:(a.big?0.6:1); a.kb.set(dir.x*kbF*kbk,0,dir.z*kbF*kbk); if(a.hp<=0){ killAnimal(a,false,dir); return; }  if(dmg>0) gore(a,false,dir); if(noStag){ if(pack.state!=='hunt'&&(pack.state!=='flee'||pack.disengaged)) startHunt(); return; } if(a.big) stag*=(stag>=1.6?0.85:0.45); if(!a.lizard&&(dmg===1||dmg===0)){ a.recDur=a.big?2.4:2.0; a.recFar=1; }
   a.state='stagger'; a.t=0; a.staggerDur=(a.lizard&&dmg>=1.5&&dmg<=3)?2.6:stag; if(a.lizard&&dmg>=1.5&&dmg<=3) pack.lungeCd=rand(3.4,4.6); if(pack.lunger===a) pack.lunger=null; if(a.lizard&&!(dmg>=1.5&&dmg<=3)){ a.staggerDur=0.35; a.counter=1; a.recFar=0; }
   else if((dmg===1||dmg===3.2)&&a.kind==='thyl'){ a.state='recover'; a.t=0; a.recDur=a.lizard?1.6:(a.big?2.2:1.8); a.recFar=1; } if(a.big&&a.hp<=a.hp0*0.45){ startFlee(); return; }
@@ -7248,6 +7251,7 @@ function dipPathR(a){ const P=updateDips.path||(updateDips.path=(()=>{ const N=9
     sm.cA=cA; sm.lo=lo; sm.hi=hi; return sm; })());
   const N=P.length, f=((a/6.2832)%1+1)%1*N, i=Math.floor(f), t=f-i; return P[i%N]*(1-t)+P[(i+1)%N]*t; }/*@Y*/
 function inDipCanyon(x,z,m){ const ci=chanInfo(x,z); return ci.i===STEEP_CH&&ci.d<(m||12); }/*@Y*/
+function dipStampede(src){ for(const o of dips){ if(o===src||!o.alive||o.state==='eng'||dist2(o.pos,src.pos)>60) continue; o.state='stamp'; o.t=0; const fx=o.pos.x-P.x, fz=o.pos.z-P.z, fl=Math.hypot(fx,fz)||1; o.sdir={x:fx/fl,z:fz/fl}; if(o.herd) o.herd.spookT=90; } }/*@Y*/   /* one hurt: every other one near it bolts, away from you, and the herd stays jumpy a good while after */
 function updateDips(dt){
   dipHerds.forEach((h,hi)=>{ if(h.ang===undefined){ h.ang=Math.atan2(h.z,h.x); h.rad=Math.hypot(h.x,h.z); h.dir=hi%2?-1:1; }
     dipPathR(0); const PP=updateDips.path;
@@ -7260,11 +7264,31 @@ function updateDips(dt){
   if(!updateDips.spaced){ updateDips.spaced=true; dipHerds.forEach(h=>{ const mem=dips.filter(o=>o.herd===h), pts=[]; mem.forEach(o=>{ let q=null; for(let k=0;k<200;k++){ const a=Math.random()*6.283, r=Math.sqrt(Math.random())*11, c={x:Math.cos(a)*r,z:Math.sin(a)*r}; if(pts.every(p=>Math.hypot(p.x-c.x,p.z-c.z)>=5.5)){ q=c; break; } } q=q||{x:rand(-11,11),z:rand(-11,11)}; pts.push(q); o.off.set(q.x,0,q.z); }); }); }   // herd spacing
   for(const o of dips){ if(o.herd&&o.alive&&o.state==='graze') o.home.set(o.herd.x+o.off.x,0,o.herd.z+o.off.z); }
   updateDips.callT=(updateDips.callT??rand(6,14))-dt; if(updateDips.callT<=0){ updateDips.callT=rand(22,45); const al=dips.filter(o=>o.alive&&o.state!=='charge'); if(al.length){ const o=al[Math.floor(Math.random()*al.length)], d=dist2(o.pos,P), [,p]=sPos(o.pos), v=Math.pow(c01(1-d/230),1.3); if(v>0.02) A.smp('ddist',0.95*v,p,{gain:1.3,far:1-v}); } }
+  dipHerds.forEach(h=>{ if(h.spookT>0&&!dips.some(o=>o.herd===h&&o.alive&&o.state==='eng')) h.spookT-=dt; });
   for(const d of dips){
     if(!d.alive){ d.deadT+=dt; if(!d.eaten){ d.mesh.rotation.z=lerp(d.mesh.rotation.z,Math.PI/2,1-Math.exp(-5*dt)); d.mesh.position.set(d.pos.x,d.pos.y+0.5,d.pos.z); }
       if(preyBack('d',()=>dips)&&dist2(d.home0,P)>60) resetDip(d); continue; }
     d.t+=dt; const dP=DEV.ghost?1e9:dist2(d.pos,P); d.repelCd=Math.max(0,(d.repelCd||0)-dt);
-    d.fightCd=Math.max(0,(d.fightCd||0)-dt); if(d.wounded&&dP<40&&d.state!=='flee'&&d.state!=='repel'&&d.state!=='charge'&&d.state!=='stun'){ d.state='flee'; d.t=0; }
+    d.fightCd=Math.max(0,(d.fightCd||0)-dt); if(d.wounded&&dP<40&&!['flee','repel','charge','stun','eng','stamp','wary'].includes(d.state)){ d.state='flee'; d.t=0; }
+    /* a wound keeps bleeding: it weakens over a minute or two and leaves a trail, and may drop where it stands */
+    if(d.bleed>0){ const b=Math.min(d.bleed,0.16*dt); d.bleed-=b; d.hp-=b; d.trail=(d.trail||0)+d.speed*dt; if(d.trail>2.2){ d.trail=0; pool(d.pos.x+rand(-0.4,0.4),d.pos.z+rand(-0.4,0.4),rand(0.25,0.55)); } if(d.hp<=0){ killAnimal(d,false,{x:Math.sin(d.heading),z:Math.cos(d.heading)}); continue; } }
+    /* the herd after a stampede: wary, ready to bolt again if you come near */
+    if(d.state==='stamp'){ const ft=new V3(d.pos.x+d.sdir.x*12,0,d.pos.z+d.sdir.z*12); clampValley(ft,6); if(inDipCanyon(ft.x,ft.z,10)&&d.herd){ ft.x=lerp(ft.x,d.herd.x,0.5); ft.z=lerp(ft.z,d.herd.z,0.5); } steer(d,ft,d.t<1?4+d.t*3:7,dt); const fx=d.pos.x-P.x, fz=d.pos.z-P.z, fl=Math.hypot(fx,fz)||1; d.sdir.x=lerp(d.sdir.x,fx/fl,0.02); d.sdir.z=lerp(d.sdir.z,fz/fl,0.02); if(dP>75||d.t>16){ d.state='wary'; d.t=0; } }
+    else if(d.state==='wary'){ d.vel.multiplyScalar(Math.exp(-2*dt)); faceP(d,dt,1.5); if(dP<45&&pl.elev<1.2){ dipStampede(d); d.state='stamp'; d.t=0; const fx=d.pos.x-P.x, fz=d.pos.z-P.z, fl=Math.hypot(fx,fz)||1; d.sdir={x:fx/fl,z:fz/fl}; } else if(!(d.herd&&d.herd.spookT>0)){ d.state='back'; d.t=0; } }
+    /* the one you hurt: it runs off to get room, turns, stands and warns you, then charges straight through where you stand and on past, and comes round again */
+    else if(d.state==='eng'){ const away=dP>65||(pl.elev>1.2&&d.ph!=='run'&&(d.upT=(d.upT||0)+dt)>5); if(pl.elev<=1.2) d.upT=0;
+      if(away||state!=='play'){ d.state='flee'; d.t=0; d.ph=null; }
+      else if(d.ph==='gap'){ const fx=d.pos.x-P.x, fz=d.pos.z-P.z, fl=Math.hypot(fx,fz)||1; const ft=new V3(d.pos.x+fx/fl*10,0,d.pos.z+fz/fl*10); clampValley(ft,6); if(inDipCanyon(ft.x,ft.z,10)&&d.herd){ ft.x=lerp(ft.x,d.herd.x,0.6); ft.z=lerp(ft.z,d.herd.z,0.6); } steer(d,ft,d.wounded?5.4:6.2,dt); if(dP>=d.gapD||d.t>6){ d.ph='turn'; d.t=0; } }
+      else if(d.ph==='turn'){ d.vel.multiplyScalar(Math.exp(-4*dt)); faceP(d,dt,2.6); const want=Math.atan2(P.x-d.pos.x,P.z-d.pos.z), off=Math.abs(Math.atan2(Math.sin(want-d.heading),Math.cos(want-d.heading))); if((off<0.2&&d.t>0.5)||d.t>2.2){ d.ph='warn'; d.t=0; d.wg=0; } }
+      else if(d.ph==='warn'){ d.vel.multiplyScalar(Math.exp(-6*dt)); faceP(d,dt,4); const hd=d.mesh.userData.head; if(hd){ hd.rotation.z=Math.sin(d.t*13)*0.32*Math.min(1,d.t*3); hd.rotation.x=0.35; }
+        if((d.wg===0&&d.t>0.1)||(d.wg===1&&d.t>0.75)){ d.wg++; const [v,p]=sPos(d.pos); A.thud(0.55*v+0.1,p); A.snort(0.5*v+0.05,p); if(d.wg===1) A.growl(0.75*v+0.12,p,1.1); if(dP<30) shake=Math.max(shake,0.12*(1-dP/30)); }   /* two stamps of a forefoot, a snort, a bellow */
+        if(d.t>1.35){ if(hd) hd.rotation.z=0; d.ph='run'; d.t=0; d.dodged=false; d.hitP=false; const want=Math.atan2(P.x-d.pos.x,P.z-d.pos.z); d.heading=want; d.cdir={x:Math.sin(want),z:Math.cos(want)}; d.cend={x:P.x+d.cdir.x*14,z:P.z+d.cdir.z*14}; const [v,p]=sPos(d.pos); A.smp('datt',0.9*v+0.2,p,{rate:d.wounded?0.92:1}); } }
+      else if(d.ph==='run'){ const toP=Math.atan2(P.x-d.pos.x,P.z-d.pos.z), ahead=(P.x-d.pos.x)*d.cdir.x+(P.z-d.pos.z)*d.cdir.z; if(ahead>9&&!d.hitP){ const h2=angLerp(d.heading,toP,1-Math.exp(-0.9*dt)); d.heading=h2; d.cdir={x:Math.sin(h2),z:Math.cos(h2)}; d.cend={x:P.x+d.cdir.x*14,z:P.z+d.cdir.z*14}; }   /* it steers at you from far off, then is committed: a straight line through */
+        const sp=Math.min(d.wounded?8.4:9.2,2.5+d.t*(d.wounded?9:11)); d.vel.set(d.cdir.x*sp,0,d.cdir.z*sp);
+        if(dP<2.6&&tG-(pl.dodgeAt||-9)<0.6&&!d.dodged){ d.dodged=true; pl.dodgeOk=tG; }
+        if(dP<2.4&&!d.hitP&&pl.invuln<=0&&pl.elev<1.1&&state==='play'){ d.hitP=true; hurtPlayer(d,2,'Trampled by a diprotodon.'); { const sx=-d.cdir.z, sz=d.cdir.x, sd=((P.x-d.pos.x)*sx+(P.z-d.pos.z)*sz)>=0?1:-1; pl.kb.set((sx*sd*0.8+d.cdir.x*0.6)*11,0,(sz*sd*0.8+d.cdir.z*0.6)*11); } }   /* run down: half your strength gone at a blow, and thrown aside as it goes on over the spot */
+        const past=(d.pos.x-d.cend.x)*d.cdir.x+(d.pos.z-d.cend.z)*d.cdir.z; if(past>0||d.t>7){ d.ph='gap'; d.t=0; d.gapD=rand(18,26); } } }
+
     if(d.state==='graze'){ if(d.t>d.wait){ d.wait=rand(4,9); d.t=0; d.tgt.set(rand(-2.2,2.2),0,rand(-2.2,2.2)); } { const tq=new V3(d.home.x+d.tgt.x,0,d.home.z+d.tgt.z); if(d.herd){ for(let k=0;k<6&&(overlaps(tq.x,tq.z,1.8)||inDipCanyon(tq.x,tq.z,10));k++){ tq.x=lerp(tq.x,d.herd.x,0.3); tq.z=lerp(tq.z,d.herd.z,0.3); } { const th=Math.atan2(tq.z,tq.x), rq=Math.hypot(tq.x,tq.z), rmin=PondR(th)*1.3+1.5; if(rq<rmin){ tq.x*=rmin/rq; tq.z*=rmin/rq; } } } clampValley(tq,6); steer(d,tq,Math.min(1.9,0.7+dist2(d.pos,tq)*0.25),dt); }
       if(d.wounded&&dP<40){ d.state='flee'; d.t=0; } else if(dP<13&&pl.elev<1.2){ d.state='alert'; d.t=0; const [v,p]=sPos(d.pos); A.snort(0.5*v+0.05,p); } }
     else if(d.state==='alert'){ d.vel.multiplyScalar(Math.exp(-4*dt)); faceP(d,dt,3);
@@ -7276,23 +7300,22 @@ function updateDips(dt){
       if(dP<2.4&&pl.invuln<=0&&pl.elev<1.1&&state==='play'){ hurtPlayer(d,d.wounded?2:1,'Trampled by a diprotodon.'); pl.kb.multiplyScalar(d.wounded?2.8:2.2); d.state='retreat'; d.t=0; }
       else if(d.t>2.8){ d.state='retreat'; d.t=0; } if(d.state!=='charge') d.dodged=false; }
     else if(d.state==='flee'){ const fx=d.pos.x-P.x, fz=d.pos.z-P.z, fd=Math.hypot(fx,fz)||1; const ft=new V3(d.pos.x+fx/fd*10,0,d.pos.z+fz/fd*10); clampValley(ft,6); if(inDipCanyon(ft.x,ft.z,10)&&d.herd){ ft.x=lerp(ft.x,d.herd.x,0.6); ft.z=lerp(ft.z,d.herd.z,0.6); } steer(d,ft,d.wounded?2.3*(0.35+0.65*Math.abs(Math.sin(d.legPhase*0.5))):3.4,dt); if(dP>70){ d.state='graze'; d.t=0; }
-      else if(d.wounded&&dP<16&&d.fightCd<=0&&pl.elev<1.1&&state==='play'){ d.state='warn'; d.t=0; d.fightCd=rand(3.5,5.5); } }
+      else if(d.wounded&&dP<30&&d.fightCd<=0&&pl.elev<1.1&&state==='play'){ d.state='eng'; d.ph='gap'; d.t=0; d.gapD=rand(20,28); d.fightCd=rand(3.5,5.5); } }   /* follow a wounded one and it turns on you again */
     else if(d.state==='stun'){ d.vel.multiplyScalar(Math.exp(-6*dt)); d.mesh.userData.head.rotation.z=Math.sin(d.t*22)*0.22*Math.max(0,1-d.t/2.6); if(d.t>2.6){ d.mesh.userData.head.rotation.z=0; d.state='retreat'; d.t=0; } }   /*dipstun: kicked after a dodge - reeling */   // a wounded one lurches along, favouring a leg
     else if(d.state==='warn'){ d.vel.multiplyScalar(Math.exp(-5*dt)); faceP(d,dt,4); const hd=d.mesh.userData.head; if(hd){ hd.rotation.z=Math.sin(d.t*13)*0.32*Math.min(1,d.t*3); hd.rotation.x=0.35; }
       d.wg=d.wg||0; if((d.wg===0&&d.t>0.05)||(d.wg===1&&d.t>0.95)){ d.wg++; const [v,p]=sPos(d.pos); A.growl(0.75*v+0.12,p,1.1); A.snort(0.5*v+0.05,p); }
       if(d.t>1.9){ d.wg=0; if(hd) hd.rotation.z=0; if(dP<24&&pl.elev<1.2&&state==='play'){ d.state='charge'; d.t=0; const [v,p]=sPos(d.pos); A.smp('datt',0.9*v+0.2,p,{rate:d.wounded?0.92:1}); dips.forEach(o=>{ if(o!==d&&o.alive&&o.state==='graze'&&dist2(o.pos,d.pos)<14){ o.state='alert'; o.t=0; } }); } else { d.state='back'; d.t=0; } } }
     else if(d.state==='retreat'){ const fx=d.pos.x-P.x, fz=d.pos.z-P.z, fd=Math.hypot(fx,fz)||1; const ft=new V3(d.pos.x+fx/fd*10,0,d.pos.z+fz/fd*10); clampValley(ft,6); if(inDipCanyon(ft.x,ft.z,10)&&d.herd){ ft.x=lerp(ft.x,d.herd.x,0.6); ft.z=lerp(ft.z,d.herd.z,0.6); } steer(d,ft,d.wounded?4.6:6,dt);
       if(dP>(d.wounded?18:20)||d.t>5){ const again=dP<32&&pl.elev<1.2&&state==='play'&&(d.wounded||((d.prov||0)<3&&dP<22)); if(again){ d.state='warn'; d.t=0; d.prov=(d.prov||0)+1; } else { d.state=d.wounded?'flee':'back'; d.t=0; d.prov=0; } } }
-    else if(d.state==='repel'){ d.vel.multiplyScalar(Math.exp(-2.5*dt)); faceP(d,dt,3); if(d.t>1.6){ d.state='back'; d.t=0; } }
-    else if(d.state==='guard'){ const w=d.gFor; if(!w||!w.alive||d.t>14||dist2(w.pos,P)>45){ d.state='back'; d.t=0; } else { if(!d.gPos){ const gx=w.pos.x-P.x, gz=w.pos.z-P.z, gl=Math.hypot(gx,gz)||1, ux=gx/gl, uz=gz/gl, gd=Math.min(gl*0.55,10), off=((d.gSlot||0)-((d.gN||1)-1)/2)*4.6; d.gPos=new V3(P.x+ux*gd-uz*off,0,P.z+uz*gd+ux*off); clampValley(d.gPos,6); }
-      if(dist2(d.pos,d.gPos)>1.2&&d.t<6) steer(d,d.gPos,3.4,dt); else d.vel.multiplyScalar(Math.exp(-5*dt)); faceP(d,dt,3); } }
-    else { steer(d,d.home,1.4,dt); if(d.t>5||dist2(d.pos,d.home)<3){ d.state='graze'; d.t=0; } else if(dP<5&&d.t>1.5&&pl.elev<1.1&&!(d.repelCd>0)&&!d.wounded){ d.state='warn'; d.t=0; } }
+    else if(d.state==='repel'){ d.vel.multiplyScalar(Math.exp(-2.5*dt)); faceP(d,dt,3); if(d.t>1.6){ if(d.ph){ d.state='eng'; d.ph='gap'; d.gapD=rand(20,28); } else d.state='back'; d.t=0; } }
+    else if(d.state!=='stamp'&&d.state!=='wary'&&d.state!=='eng'){ steer(d,d.home,1.4,dt); if(d.t>5||dist2(d.pos,d.home)<3){ d.state='graze'; d.t=0; } else if(dP<5&&d.t>1.5&&pl.elev<1.1&&!(d.repelCd>0)&&!d.wounded){ d.state='warn'; d.t=0; } }
     for(const o of dips){ if(o===d||!o.alive) continue; const sx=d.pos.x-o.pos.x, sz=d.pos.z-o.pos.z, sd=Math.hypot(sx,sz); if(sd<4.4&&sd>0.001){ const push=(4.4-sd)*0.5; d.pos.x+=sx/sd*push; d.pos.z+=sz/sd*push; o.pos.x-=sx/sd*push; o.pos.z-=sz/sd*push; } }   // room between the big bodies
-    const keepH=d.heading; integrate(d,dt); if(d.state==='charge'||d.state==='repel') d.heading=keepH;
+    const keepH=d.heading; integrate(d,dt); if(d.state==='charge'||d.state==='repel'||(d.state==='eng'&&d.ph==='run')) d.heading=keepH;
     const u=d.mesh.userData; d.mesh.position.copy(d.pos); d.mesh.rotation.y=d.heading;
     d.legPhase+=dt*(1.5+d.speed*1.6); const amp=Math.min(0.5,d.speed*0.12);
     u.legs[0].rotation.x=Math.sin(d.legPhase)*amp; u.legs[3].rotation.x=Math.sin(d.legPhase)*amp; u.legs[1].rotation.x=-Math.sin(d.legPhase)*amp; u.legs[2].rotation.x=-Math.sin(d.legPhase)*amp;
-    u.body.position.y=Math.abs(Math.sin(d.legPhase))*Math.min(0.08,d.speed*0.012); u.body.rotation.z=d.wounded&&d.speed>0.3?Math.sin(d.legPhase*0.5)*0.09:0; if(d.state!=='warn') u.head.rotation.x=d.state==='graze'&&d.speed<0.3?0.35+Math.sin(tG+d.home0.x)*0.1:(d.state==='charge'?0.25:0);
+    u.body.position.y=Math.abs(Math.sin(d.legPhase))*Math.min(0.08,d.speed*0.012); u.body.rotation.z=d.wounded&&d.speed>0.3?Math.sin(d.legPhase*0.5)*0.09:0; if(d.state!=='warn'&&!(d.state==='eng'&&d.ph==='warn')) u.head.rotation.x=d.state==='graze'&&d.speed<0.3?0.35+Math.sin(tG+d.home0.x)*0.1:(d.state==='charge'||(d.state==='eng'&&d.ph==='run')?0.25:0);
+    if(d.state==='eng'&&d.ph==='warn'){ const s=Math.max(0,Math.sin(d.t*Math.PI/0.65)); u.legs[0].rotation.x=-0.7*s; }   /* the forefoot lifted and stamped down */
   } }/*@Y*/
 //@end
 
@@ -7364,7 +7387,7 @@ const COOK=(()=>{ const COOK_T=10, EAT_T=2.2, CUT_T=2.6;
   /* every kill a predator could come for */
   const scav=()=>[...(window.__GB?window.__GB.list:[]),...wallabies,...dips,...BODY_VIS,...chunks].filter(a=>!a.alive&&!a.eaten&&!a.carried&&a.mesh&&a.mesh.visible);
   /* an abandoned kill near the pack: away from you for a while, and not under the light of a fire */
-  function lure(cx,cz){ let best=null,bd=60; for(const a of scav()){ if((a.awayT||0)<20) continue; if(pits.some(p=>p.lit!==false&&dist2(p,a.pos)<7)||inShelter(a.pos.x,a.pos.z)||(typeof pocketAt==='function'&&pocketAt(a.pos.x,a.pos.z))) continue;   /* a fire's light, a shelter or a cave keeps it safe */ const d=Math.hypot(a.pos.x-cx,a.pos.z-cz); if(d<bd){ bd=d; best=a; } } return best; }
+  function lure(cx,cz){ let best=null,bd=1e9; for(const a of scav()){ const dp=a.kind==='dip'; if(dp?(a.deadT||0)<40:(a.awayT||0)<20) continue;   /* a diprotodon's kill is smelled from far off, and they come for it within a minute or so whether you are there or not */ if(pits.some(p=>p.lit!==false&&dist2(p,a.pos)<7)||inShelter(a.pos.x,a.pos.z)||(typeof pocketAt==='function'&&pocketAt(a.pos.x,a.pos.z))) continue;   /* a fire's light, a shelter or a cave keeps it safe */ const d=Math.hypot(a.pos.x-cx,a.pos.z-cz); if(d<(dp?180:60)&&d<bd){ bd=d; best=a; } } return best; }
   /* after everything has moved, the carried kill is put in your arms: held close against the chest, a little to the left */
   function place(){ const c=pl.carry; if(!c) return; const a=c.a, f=fwdXZ(), rx=Math.cos(yaw), rz=-Math.sin(yaw), big=(!a.chunk&&(kindOf(a)==='red-necked wallaby'||kindOf(a)==='emu'))?0.25:0; const x=P.x+f.x*(0.6+big*0.6)-rx*0.36, z=P.z+f.z*(0.6+big*0.6)-rz*0.36, y=P.y+pl.eyeH-1.0-big*0.35;
     a.pos.set(x,heightAt(x,z),z); a.mesh.position.set(x,a.chunk?y+0.25:y,z); if(a.chunk) a.mesh.rotation.y=yaw+0.4; else { const C=window.__CRT||[Math.PI,-0.9]; a.mesh.rotation.set(0,yaw+C[0],0); a.mesh.rotateX(C[1]); } }   /* a kill is held right way up, head raised */
@@ -8619,7 +8642,7 @@ const MODELS=(()=>{
           like a buffalo; forelegs strike together, hind legs drive together, and the whole body rocks fore and aft over them.
           The stride is timed to the ground covered, so the planted feet do not slide. */
         /* this model is fitted facing backwards and turned round (yawOff), which reverses nodding and rolling on every bone: rq puts them the right way */
-        const XS=s.yawOff?-1:1, rq=(b,x,y,z)=>rot(r,b,XS*(x||0),y||0,XS*(z||0)); const st=m.state, tS=m.t||0, TAU=Math.PI*2, dx=P.x-m.mesh.position.x, dz=P.z-m.mesh.position.z, dist=Math.hypot(dx,dz), E6=Math.min(1,dt*6), E3=Math.min(1,dt*3);
+        const XS=s.yawOff?-1:1, rq=(b,x,y,z)=>rot(r,b,XS*(x||0),y||0,XS*(z||0)); const st=m.state==='eng'?({gap:'flee',turn:'alert',warn:'warn',run:'charge'})[m.ph]||'alert':m.state, tS=m.t||0, TAU=Math.PI*2, dx=P.x-m.mesh.position.x, dz=P.z-m.mesh.position.z, dist=Math.hypot(dx,dz), E6=Math.min(1,dt*6), E3=Math.min(1,dt*3);
         a.mv=lerp(a.mv||0,smooth(0.1,0.7,sp),Math.min(1,dt*5)); const k=a.mv; a.ch=lerp(a.ch||0,st==='charge'?1:0,Math.min(1,dt*(st==='charge'?7:3))); const ch=a.ch;
         a.tr=lerp(a.tr||0,smooth(2.4,4.2,sp)*(1-ch),E3); const tr=a.tr;   /* 0 amble, 1 trot */
         const stride=1.9+0.42*sp, A=clamp(0.15+0.05*sp,0.15,0.5); a.ph+=dt*(TAU*sp/stride*k+(1-k)*0.0); const ph=a.ph/TAU;
@@ -8635,7 +8658,7 @@ const MODELS=(()=>{
         let look=Math.atan2(dx,dz)-m.mesh.rotation.y; look=Math.atan2(Math.sin(look),Math.cos(look)); look=clamp(look,-0.7,0.7)*(1-smooth(16,30,dist));
         let nP=0.06, hP=0.02, lk=0, hRoll=0, hYaw=0, jaw=0.02, low=0, pitch=0;
         if(st==='graze'){ const up=smooth(0.55,0.8,Math.sin(tNow*0.23+a.i0)); nP=lerp(0.62,0.02,Math.max(up,k)); hP=lerp(0.4,0.0,Math.max(up,k)); jaw=0.02+0.1*(1-up)*(1-k)*Math.max(0,Math.sin(tNow*5.5+a.i0)); lk=look*up*0.6; }
-        else if(st==='alert'||st==='guard'){ nP=-0.22; hP=-0.1; lk=look; }
+        else if(st==='alert'){ nP=-0.22; hP=-0.1; lk=look; }
         else if(st==='warn'){ const w=Math.min(1,tS*2.5); nP=0.42*w; hP=0.3*w; hYaw=Math.sin(tS*6.5)*0.34*w; hRoll=Math.sin(tS*6.5+1)*0.12*w; jaw=0.3*w*(0.6+0.4*Math.sin(tS*9)); low=0.05*w; lk=look*0.5; }
         else if(st==='stun'){ const q=Math.max(0,1-tS/2.6); nP=0.3*q; hRoll=Math.sin(tS*7)*0.3*q; hYaw=Math.sin(tS*4.3)*0.25*q; pitch=0; low=0.04*q; }
         else if(st==='repel'){ const q=Math.max(0,1-tS/1.2); nP=-0.3*q; hP=-0.2*q; hYaw=Math.sin(tS*11)*0.2*q; jaw=0.3*q; }
