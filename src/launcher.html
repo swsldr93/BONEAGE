@@ -557,7 +557,7 @@ button:hover,button:focus-visible{background:var(--ink);color:var(--inv);outline
           ['A','B'].forEach(s=>{ const pe=PE[lb[s]]||{nm:'',flag:''}; h+='<div style="display:flex;flex-direction:column;align-items:center;gap:.6vh;min-width:9em"><img src="'+pe.flag+'" alt="" style="width:7.5em;aspect-ratio:1.75;object-fit:cover;box-shadow:0 0 0 1px rgba(233,225,204,.35)"><div style="letter-spacing:.12em">'+pe.nm+'</div>';
             lb.players.filter(p=>p.side===s).forEach(p=>{ h+='<div style="font-style:italic'+(p.id===NET.me?';text-decoration:underline':'')+'">'+esc(p.name)+(p.id===lb.host?' (host)':'')+'</div>'; });
             for(let i=0;i<split[s];i++) h+='<div style="opacity:.55;font-style:italic">bot</div>'; h+='</div>'; });
-          h+='</div>'; L.innerHTML=h;
+          h+='</div>'; if(NET.mode==='local') h+='<div style="opacity:.6;font-style:italic;font-size:.9em">in a browser this reaches only other windows of this same browser, for testing; across computers use the Mac or Windows app with Steam</div>'; L.innerHTML=h;
           L.appendChild(btn('change side',()=>NET.switchSide()));
           if(NET.isHost()){ const room=6-lb.players.length, row=document.createElement('div'); row.style.cssText='display:flex;gap:1em;align-items:center'; row.appendChild(btn('−',()=>NET.setBots((lb.bots|0)-1))); const sp=document.createElement('span'); sp.textContent='bots: '+(lb.bots|0)+' of '+room; sp.style.letterSpacing='.1em'; row.appendChild(sp); row.appendChild(btn('+',()=>NET.setBots((lb.bots|0)+1))); L.appendChild(row);
             L.appendChild(btn('start the war',()=>hostStart(),true)); }
