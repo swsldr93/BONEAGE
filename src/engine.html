@@ -396,7 +396,7 @@ function psHeightQ(q,h){ if(q.Q.pc) return pcHeightQ(q,h); const {Q,c,tt}=q, hw=
    so the canyon reads as cut down into the ground, not built up on it, and nothing of the ground can show through its walls */
 function psRule(Q,c,tt,h){ const al=Math.abs(c.l); if(al>psTb(Q,'E',tt)) return h; const hw=psTb(Q,'HW',tt), W0=psTb(Q,'W0',tt), top=psTb(Q,'TP',tt)+Q.yOff, fl=psFb(Q,tt)+Q.yOff;
   let r=al<=hw+2?fl-2:(al<=W0+PS_SH?top+psShY(W0,al):lerp(top+psShY(W0,W0+PS_SH),h,smooth(W0+PS_SH,W0+PS_SH+11,al))); if(psKc(Q,tt)>0){ const ko=psKo(Q,tt), sl=lerp(2.8,1.15,ko), E=psTb(Q,'E',tt), nz=0.3*vnoise(c.t*0.2,al*0.3), cutA=al<=hw+0.6?fl:fl+(al-hw-0.6)*sl+nz, cutMin=Math.min(h,cutA), D=12, a1=hw+0.6+D/sl, raised=al<=hw+0.6?fl:(al<a1?cutA:lerp(fl+D+nz,h,smooth(a1,E-2,al))); r=cutMin; } const w=(Q.kind==='pp'?smooth(-2,8,c.t):smooth(-2,4,c.t))*(1-smooth(Q.LT-8,Q.LT+2,c.t)); return lerp(h,r,w); }/*@Y*/
-function psRidge(Q,c,tt,h){ if(!Q.ridge) return h; const al=Math.abs(c.l), hw=psTb(Q,'HW',tt), fl=psFb(Q,tt)+Q.yOff, top=fl+psRoof(Q,tt)+5+3*vnoise(c.t*0.05+Q.ph1,al*0.05), kt=Q.end?1-smooth(Q.LT-0.3,Q.LT+1.2,c.t):smooth(-1.2,0.3,c.t), rg=lerp(top,h,smooth(hw+6,hw+26,al)); return Math.max(h,lerp(h,rg,kt)); }/*@Y*/   /* the place's own ground heaped up into a bluff over a tunnel, its face sheer round the mouth */
+function psRidge(Q,c,tt,h){ if(!Q.ridge) return h; const al=Math.abs(c.l), hw=psTb(Q,'HW',tt), fl=psFb(Q,tt)+Q.yOff, top=fl+psRoof(Q,tt)+1.2+0.8*vnoise(c.t*0.05+Q.ph1,al*0.05), kt=Q.end?1-smooth(Q.LT-0.3,Q.LT+1.2,c.t):smooth(-1.2,0.3,c.t), rg=lerp(top,h,smooth(hw+3,hw+11,al)); return Math.max(h,lerp(h,rg,kt)); }/*@Y*/   /* the place's own ground raised just enough to roof the tunnel, its face sheer round the mouth; no great bluff standing up along the canyon */
 function psHeight(x,z,h){ const L=psAtAll(x,z,10); if(!L.length) return h; for(const q of L) if(q.Q.ridge) h=psRidge(q.Q,q.c,q.tt,h); const w=window.__psIn; if(w){ const q=L.find(q=>q.Q===w); if(q){ const v=psHeightQ(q,h); if(v!==h) return v; } } for(const q of L){ const v=psHeightQ(q,h); if(v!==h) return v; } return h; }/*@Y*/
 /* the place's own ground, cut back where a passage runs through it (a cave only where the ground would come through its roof, or round its mouths) */
 function psTuckQ(q,h){ if(q.Q.pc) return pcTuckQ(q,h); const {Q,c,tt}=q; if(Q.kind!=='cv'){ if(c.t<0.5||c.t>Q.LT-0.5||!psOwn(Q,tt)) return h; const al=Math.abs(c.l); return al<=psTb(Q,'HW',tt)+0.6?h-1.5:(al<=psTb(Q,'W0',tt)+PS_SH-1?h-1.2:h); }   /* under a canyon's floor and its grassy shoulders */ if(c.t<-10||c.t>Q.LT+10) return h; if(c.t<0||c.t>Q.LT){ if((Q.end?c.t<0:c.t>Q.LT)||c.t<-6||c.t>Q.LT+6) return h; const fl0=psFb(Q,Q.end?Q.LT:0)+Q.yOff; return Math.abs(c.l)<psHW(Q,Q.end?Q.LT:0)+1.5?Math.min(h,fl0-0.05):h; } const fl=psFb(Q,tt)+Q.yOff; if(Math.abs(c.l)>psHW(Q,tt)+2.5||!psOwn(Q,tt)) return h; if(psOpen(Q,tt)) return Math.abs(c.l)<psHW(Q,tt)+0.2?Math.min(h,fl-0.06):h; const rf=psRoof(Q,tt); if(h>fl+rf*0.45) return Math.max(h,fl+rf+1.2); return Math.min(h,fl-2); }/*@Y*/   /* ground standing over the roof is left as it is (what crosses the mouth itself is cut away once the place is built); ground lower than that is put under the floor */
@@ -868,7 +868,7 @@ function distCreek(x,z){ return Math.max(0,Math.hypot(x,z)-PondR(Math.atan2(z,x)
 //@if gully
 const SRC_U=((PG.sa*RC)%LEN+LEN)%LEN, DRAIN_U=((1.31*RC)%LEN+LEN)%LEN;/*@Y*/
 function gxN(){ try{ const id=window.__BA_NODE&&window.__BA_NODE.id; return id==='GH'?2:(id&&id[0]==='G'?+id[1]:0); }catch(e){ return 0; } }/*@Y*/
-function HSF(){ return false; }/*@Y*/   /* every way out of a gully is a passage; the stairs up the falls and down the drain are gone */
+function HSF(){ return String((window.__BA_NODE||{}).id||'')==='G1'; }/*@Y*/   /* the upper gully keeps its falls: the creek's source, off the plateau into a pool, on down through the slot to the lower gully and over the lookout falls. (Every way out is a passage: no stairs up beside it.) */
 function HDF(){ return String((window.__BA_NODE||{}).id||'G2')==='G2'; }/*@Y*/   /* the lower gully keeps its drain: the cut-away wall over the valley, the falls and the lookout camp (no way down there now) */
 /* ---------- the ways out: one slot canyon per neighbour in the world. Up (cliffs, or the upper gully) leaves from the head of the creek,
    down (plains, or the lower gully) from the drain, the rest from the widest free stretches of wall between. A slot shared with another gully is
@@ -881,7 +881,7 @@ const PS_TA=26;/*@Y*/   /* a slot down to the plains runs this far, then the sha
 function SIDECAVE_A(){ return wrapU(DRAIN_U-20)/RC; }/*@Y*/
 let PGSLOTS=null;/*@Y*/ function pgSlots(){ if(PGSLOTS) return PGSLOTS; const me=String((window.__BA_NODE||{}).id||'G1b'), nb=gNbrs(), L=[];
   const ups=nb.filter(n=>n.kind==='up').sort((a,b)=>a.to[0]===b.to[0]?0:(a.to[0]==='G'?-1:1)), downs=nb.filter(n=>n.kind==='down').sort((a,b)=>a.to[0]===b.to[0]?0:(a.to[0]==='G'?-1:1)), place=[];
-  if(ups[0]) place.push([ups[0],SRC_U]); if(downs[0]&&!HDF()) place.push([downs[0],DRAIN_U]);
+  if(ups[0]) place.push([ups[0],HSF()?((SRC_U+30)%LEN+LEN)%LEN:SRC_U]);   /* with the falls at the creek's head, the way up leaves from the wall beside them, where the old stairs were */ if(downs[0]&&!HDF()) place.push([downs[0],DRAIN_U]);
   const rest=[...ups.slice(1),...downs.slice(HDF()?0:1),...nb.filter(n=>n.kind==='across')];
   if(rest.length){ const ad=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b))), P=PG, used=[...place.map(p=>p[1]/RC),...(HDF()?[DRAIN_U/RC,SIDECAVE_A()]:[])];
     const keep=[...(P.pock||[]).map(b=>[b.a,0.4]),...(P.clr||[]).map(b=>[b.t,0.3]),...(P.pools||[]).map(b=>[b.c,0.3]),...(P.thr||[]).map(b=>[b.c,0.3]),...(P.bul||[]).map(b=>[b.c,0.3])];
@@ -1261,7 +1261,7 @@ function gullySB(u0,offRel,o){ const ws=wallStart(u0); const sb=makeSB(Object.as
   sb.u0=u0; sb.offE=ws+offRel; sb.local=(x,z)=>{ const u=uOf(x,z); return {a:duOf(u,u0), b:vOf(x,z)-valleyC(u)-sb.offE}; }; return sb; }/*@Y*/
 const GSB_DOWN=gullySB(((DRAIN_U+15)%LEN+LEN)%LEN,12,{legs:4,L:12,drop:-3.6,base:-2.2});/*@Y*/
 const GSB_UP=gullySB(((SRC_U+14)%LEN+LEN)%LEN,-2,{legs:5,L:12,drop:6.4,base:1.4});/*@Y*/
-function GSB_ON(){ return [...(HSF()?[GSB_UP]:[])]; }/*@Y*/
+function GSB_ON(){ return []; }/*@Y*/
 function stairCorr(x,z){ for(const sb of GSB_ON()){ const q=sb.local(x,z); if(Math.abs(q.a)<sb.L/2+1&&q.b>-2.5&&q.b<sb.legs*sb.W) return true; } return false; }/*@Y*/
 const POCKETS=[...PG.pock.map(t=>({u:((t.a*RC)%LEN+LEN)%LEN,sd:t.sd})),...(HDF()||PG.pock.length>=3?[]:[(()=>{ const ad=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b))), F=[...PG.pock.map(p=>p.a),PG.sa,1.31,0.99], C=(PG.clr||[]).map(c=>c.t); let best=0,bs=-1; for(let k=0;k<720;k++){ const a=-Math.PI+k/720*6.2832; if(ad(a,PG.sa)<0.6||ad(a,1.31)<0.6) continue; const sc=Math.min(...F.map(q=>ad(a,q)),...C.map(q=>ad(a,q)+0.25)); if(sc>bs){ bs=sc; best=a; } } return {u:((best*RC)%LEN+LEN)%LEN,sd:1}; })()])].slice(0,HDF()?1:2);/*@Y*/   /* two fires a place: two wall caves; in the lower gully one wall cave and the lookout cave over the falls */
 // the third fire cave is cut into the side wall of the waterfall gap, its mouth facing across the gap floor
@@ -2294,9 +2294,9 @@ function supportAt(x,z,feet){ let best=-1e9; const k0=ck(z); for(let k=k0-1;k<=k
 //@if escarpment
 function pushOutRock(p,r){ const k0=ck(p.z); for(let k=k0-1;k<=k0+1;k++){ const a=grid.get(k); if(!a) continue; for(const c of a){ if(c.r<0.5||(window.__navSkip&&window.__navSkip(c))) continue; const dx=p.x-c.x, dz=p.z-c.z, rr=c.r+r, q=dx*dx+dz*dz; if(q<rr*rr&&q>1e-8){ const d=Math.sqrt(q); p.x=c.x+dx/d*rr; p.z=c.z+dz/d*rr; } } } }/*@Y*/   // rock and cave walls only; they slip between trunks
 //@end
-function pushOut(p,r,feet=-1e9){ const k0=ck(p.z); for(let k=k0-1;k<=k0+1;k++){ const a=grid.get(k); if(!a) continue; for(const c of a){ if(feet>=c.top-0.4) continue; const dx=p.x-c.x, dz=p.z-c.z, rr=c.r+r, q=dx*dx+dz*dz; if(q<rr*rr&&q>1e-8){ const d=Math.sqrt(q); p.x=c.x+dx/d*rr; p.z=c.z+dz/d*rr; } } } }/*@Y*/
+function pushOut(p,r,feet=-1e9){ const k0=ck(p.z); for(let k=k0-1;k<=k0+1;k++){ const a=grid.get(k); if(!a) continue; for(const c of a){ if(feet>=c.top-0.4||c.nb) continue; const dx=p.x-c.x, dz=p.z-c.z, rr=c.r+r, q=dx*dx+dz*dz; if(q<rr*rr&&q>1e-8){ const d=Math.sqrt(q); p.x=c.x+dx/d*rr; p.z=c.z+dz/d*rr; } } } }/*@Y*/
 //@if plains
-const reserved=[];/*@Y*/ function inReserved(x,z,k=1){ if(typeof psRes==='function'&&psRes(x,z)) return true;   /* a canyon between places is dressed from its own numbers only */
+const reserved=[];/*@Y*/ function inReservedNR(x,z,k=1){ if(typeof psRes==='function'&&psRes(x,z)) return true; for(const r of reserved){ if(r.route) continue; if((x-r.x)**2+(z-r.z)**2<(r.r*k)**2) return true; } return false; }/*@Y*/ function inReserved(x,z,k=1){ if(typeof psRes==='function'&&psRes(x,z)) return true;   /* a canyon between places is dressed from its own numbers only */
 //@end
 //@if gully
 const reserved=[];/*@Y*/ function inReservedNR(x,z,k=1){ for(const r of reserved){ if(r.route) continue; if((x-r.x)**2+(z-r.z)**2<(r.r*k)**2) return true; } return false; }/*@Y*/
@@ -2347,7 +2347,7 @@ dipHerds.forEach(c=>reserved.push({x:c.x,z:c.z,r:14}));/*@Y*/
 const pits=(()=>{ const A=LOBES.map(t=>{ const r=Rb(t)*0.74; return {x:Math.cos(t)*r,z:Math.sin(t)*r,u:wrapU(t*RC),s:1}; }); let bi=0,bj=1,bd=-1; for(let i=0;i<A.length;i++) for(let j=i+1;j<A.length;j++){ const d=Math.hypot(A[i].x-A[j].x,A[i].z-A[j].z); if(d>bd){ bd=d; bi=i; bj=j; } } return A.length>2?[A[bi],A[bj]]:A; })();/*@Y*/   /* two fires a place, in the two lobes farthest apart */
 pits.forEach(p=>reserved.push({x:p.x,z:p.z,r:4.5}));/*@Y*/
 const PLOOP=(()=>{ const N=20, R0=[]; for(let i=0;i<N;i++){ const a=-Math.PI+(i+0.5)/N*6.2832, pr=PondR(a)*1.45, rb=Rb(a); R0.push({a,r:pr+(rb-pr)*0.5}); } const P=[]; for(let i=0;i<N;i++){ const r=R0[i].r*0.6+R0[(i+N-1)%N].r*0.2+R0[(i+1)%N].r*0.2; P.push({x:Math.cos(R0[i].a)*r,z:Math.sin(R0[i].a)*r}); } return P; })();/*@Y*/
-for(let i=0;i<PLOOP.length;i++){/*@y*/ const a=PLOOP[i], b=PLOOP[(i+1)%PLOOP.length], L=Math.hypot(b.x-a.x,b.z-a.z); for(let t=0;t<=L;t+=2.5){/*@y*/ const f=t/L; reserved.push({x:a.x+(b.x-a.x)*f,z:a.z+(b.z-a.z)*f,r:3.4}); } }/*@Y*/
+for(let i=0;i<PLOOP.length;i++){/*@y*/ const a=PLOOP[i], b=PLOOP[(i+1)%PLOOP.length], L=Math.hypot(b.x-a.x,b.z-a.z); for(let t=0;t<=L;t+=2.5){/*@y*/ const f=t/L; reserved.push({x:a.x+(b.x-a.x)*f,z:a.z+(b.z-a.z)*f,r:3.4,route:1}); } }/*@Y*/   /* the predators' round: kept free of trees and rocks, but the grass grows over it */
 const CUBE_U=wrapU(NOTCHES[0]*RC);/*@Y*/ const CUBE={x:Math.cos(NOTCHES[0])*80*WS,z:Math.sin(NOTCHES[0])*80*WS};/*@Y*/ CUBE.y=heightAt(CUBE.x,CUBE.z);/*@Y*/ reserved.push({x:CUBE.x,z:CUBE.z,r:5});/*@Y*/
 //@end
 //@if gully
@@ -3303,9 +3303,9 @@ window.__EUC={all:ALL,trees:TREES};
   const crossN=(n,w,h,y0)=>mergeGeos([...Array(n)].map((_,i)=>{ const q=new THREE.PlaneGeometry(w,h); q.translate(0,h/2+y0,0); q.rotateY(i*Math.PI/n); return q; }),true);
   const crownG=crossN(4,1.9,1.9,-0.95), skirtG=crossN(4,1.5,1.2,-1.25), trunkG=new THREE.CylinderGeometry(0.15,0.21,1,7,2); trunkG.translate(0,0.5,0); { const p=trunkG.attributes.position; for(let i=0;i<p.count;i++){/*@y*/ const a=Math.atan2(p.getZ(i),p.getX(i)); const f=1+0.08*Math.sin(a*5+p.getY(i)*9); p.setX(i,p.getX(i)*f); p.setZ(i,p.getZ(i)*f); } trunkG.computeVertexNormals(); }
   const spikeG=new THREE.CylinderGeometry(0.03,0.045,1,5); spikeG.translate(0,0.5,0);
-  const N=260, tm=inst(trunkG,new THREE.MeshLambertMaterial({color:0x2a231d}),N), cm=inst(crownG,new THREE.MeshLambertMaterial({map:fan(false),alphaTest:0.45,side:THREE.DoubleSide}),N), sm=inst(skirtG,new THREE.MeshLambertMaterial({map:fan(true),alphaTest:0.45,side:THREE.DoubleSide}),N), pm=inst(spikeG,new THREE.MeshLambertMaterial({color:0x7a6a48}),N);
+  const N0=260, N=480, tm=inst(trunkG,new THREE.MeshLambertMaterial({color:0x2a231d}),N), cm=inst(crownG,new THREE.MeshLambertMaterial({map:fan(false),alphaTest:0.45,side:THREE.DoubleSide}),N), sm=inst(skirtG,new THREE.MeshLambertMaterial({map:fan(true),alphaTest:0.45,side:THREE.DoubleSide}),N), pm=inst(spikeG,new THREE.MeshLambertMaterial({color:0x7a6a48}),N);
   let n=0, ns=0; const col=new THREE.Color(), th0=NOTCHES[STEEP_CH], rb=Rb(th0); window.__GT=[];
-  for(let k=0;k<20000&&n<N;k++){/*@y*/ const r=R(36,rb+4), off=(Math.random()<0.5?-1:1)*R(3.6,19), c=th0+0.16*Math.sin(r*0.045+STEEP_CH*2)+0.06*Math.sin(r*0.13+STEEP_CH), a=c+off/r, x=Math.cos(a)*r, z=Math.sin(a)*r;
+  for(let k=0;k<20000&&n<N0;k++){/*@y*/ const r=R(36,rb+4), off=(Math.random()<0.5?-1:1)*R(3.6,19), c=th0+0.16*Math.sin(r*0.045+STEEP_CH*2)+0.06*Math.sin(r*0.13+STEEP_CH), a=c+off/r, x=Math.cos(a)*r, z=Math.sin(a)*r;
     const ci=chanInfo(x,z); if(ci.i!==STEEP_CH||ci.d<3.4) continue; const y=heightAt(x,z); if(!isFinite(y)) continue; if(Math.abs(heightAt(x+0.8,z)-heightAt(x-0.8,z))+Math.abs(heightAt(x,z+0.8)-heightAt(x,z-0.8))>1.5) continue;
     if(distCreek(x,z)<2.5||inReserved(x,z,1)||overlaps(x,z,0.9)||window.__GT.some(q=>Math.hypot(q.x-x,q.z-z)<2.6)) continue;
     const H=Math.random()<0.35?R(0.05,0.3):R(0.4,1.7), lean=R(-0.12,0.12), ry=R(0,6.28), cs=R(0.75,1.15);
@@ -3314,11 +3314,18 @@ window.__EUC={all:ALL,trees:TREES};
     if(Math.random()<0.3){ const L=R(1.2,2.6); setInst(pm,ns++,gtx,gty+0.2,gtz,0,1,L,1,R(-0.08,0.08),R(-0.08,0.08)); }
     if(H>0.4) addCol(x,z,0.2); window.__GT.push({x,z}); n++; }   /* only a standing trunk stops you, and only at its own thin width; a low clump of leaves is walked through */
   /* and down the plains' own end of each canyon (short of the handover), where it has opened out */
-  for(const Q of PSG){/*@y*/ if(Q.kind==='cv') continue; const lo=Q.end?Q.TS+16:3, hi=Q.end?Q.LT-3:Q.TS-16; for(let k=0;k<4000&&n<N;k++){/*@y*/ const t=R(lo,hi); if(Q.kind==='gp'&&t<52) continue; const hw=psHW(Q,t), l=R(-hw+1.2,hw-1.2); if(Math.abs(l-psBedC(Q,t))<2.6) continue; const w=psToW(Q,t,l), x=w.x, z=w.z, y=heightAt(x,z);
+  for(const Q of PSG){/*@y*/ if(Q.kind==='cv') continue; const lo=Q.end?Q.TS+16:3, hi=Q.end?Q.LT-3:Q.TS-16; for(let k=0;k<4000&&n<N0;k++){/*@y*/ const t=R(lo,hi); if(Q.kind==='gp'&&t<52) continue; const hw=psHW(Q,t), l=R(-hw+1.2,hw-1.2); if(Math.abs(l-psBedC(Q,t))<2.6) continue; const w=psToW(Q,t,l), x=w.x, z=w.z, y=heightAt(x,z);
       if(!isFinite(y)||overlaps(x,z,0.9)||window.__GT.some(q=>Math.hypot(q.x-x,q.z-z)<3.2)) continue;
       const H=Math.random()<0.35?R(0.05,0.3):R(0.4,1.7), lean=R(-0.12,0.12), ry=R(0,6.28), cs=R(0.75,1.15), gtx=x+H*Math.sin(lean)*Math.sin(ry), gtz=z+H*Math.sin(lean)*Math.cos(ry), gty=y-0.05+H*Math.cos(lean);
       setInst(tm,n,x,y-0.05,z,ry,1,H+0.06,1,lean,0); setInst(cm,n,gtx,gty,gtz,ry,cs,cs*R(0.9,1.15),cs,lean*0.6,0); setInst(sm,n,gtx,gty,gtz,ry+0.4,cs*0.95,H>0.4?cs:0.001,cs*0.95,lean*0.6,0); cm.setColorAt(n,col.setHSL(R(0.2,0.26),R(0.25,0.4),R(0.42,0.56)));
       if(Math.random()<0.3&&ns<N){ const L=R(1.2,2.6); setInst(pm,ns++,gtx,gty+0.2,gtz,0,1,L,1,R(-0.08,0.08),R(-0.08,0.08)); } window.__GT.push({x,z}); n++; } }
+  /* and on along the ways out: up the floor of each canyon to the gullies, and out along the creek bed past the rim, not only bunched at the mouths */
+  const plant=(x,z,gap)=>{ const y=heightAt(x,z); if(!isFinite(y)||overlaps(x,z,0.9)||window.__GT.some(q=>Math.hypot(q.x-x,q.z-z)<gap)) return false; if(Math.abs(heightAt(x+0.8,z)-heightAt(x-0.8,z))+Math.abs(heightAt(x,z+0.8)-heightAt(x,z-0.8))>1.6) return false;
+    const H=Math.random()<0.35?R(0.05,0.3):R(0.4,1.7), lean=R(-0.12,0.12), ry=R(0,6.28), cs=R(0.75,1.15), gtx=x+H*Math.sin(lean)*Math.sin(ry), gtz=z+H*Math.sin(lean)*Math.cos(ry), gty=y-0.05+H*Math.cos(lean);
+    setInst(tm,n,x,y-0.05,z,ry,1,H+0.06,1,lean,0); setInst(cm,n,gtx,gty,gtz,ry,cs,cs*R(0.9,1.15),cs,lean*0.6,0); setInst(sm,n,gtx,gty,gtz,ry+0.4,cs*0.95,H>0.4?cs:0.001,cs*0.95,lean*0.6,0); cm.setColorAt(n,col.setHSL(R(0.2,0.26),R(0.25,0.4),R(0.42,0.56)));
+    if(Math.random()<0.3&&ns<N){ const L=R(1.2,2.6); setInst(pm,ns++,gtx,gty+0.2,gtz,0,1,L,1,R(-0.08,0.08),R(-0.08,0.08)); } if(H>0.4) addCol(x,z,0.2); window.__GT.push({x,z}); n++; return true; };
+  for(const Q of PSG){/*@y*/ if(Q.kind!=='cv') continue; const lo=Q.end?Q.TS+12:3, hi=Q.end?Q.LT-3:Q.TS-12; if(!(hi>lo)) continue; for(let k=0;k<3000&&n<N;k++){/*@y*/ const t=R(lo,hi), hw=psHW(Q,t); if(!(hw>2.4)) continue;   /* this place's own stretch of it, short of the tunnel where the places change over */ const l=R(-hw+1.0,hw-1.0); if(typeof psBedC==='function'&&Math.abs(l-psBedC(Q,t))<2.2) continue; const w=psToW(Q,t,l); if(!w||!isFinite(w.x)) continue; plant(w.x,w.z,3.0); } }   /* the canyons' floors, short of the tunnel */
+  if(CRK){ const rM=rb+CRK_R; for(let k=0;k<3000&&n<N;k++){/*@y*/ const r=R(rb+2,rM-3), c=chanC(STEEP_CH,r), uu=smooth(rb-30,rM,r), wd=lerp(9,6.4,uu), off=(Math.random()<0.5?-1:1)*R(2.6,wd+1.5), a=c+off/r, x=Math.cos(a)*r, z=Math.sin(a)*r; if(distCreek(x,z)<2.4||inReserved(x,z,1)) continue; plant(x,z,2.8); } }   /* the creek's canyon on out past the rim */
   [tm,cm,sm].forEach(m=>{ m.count=n; m.instanceMatrix.needsUpdate=true; }); pm.count=ns; pm.instanceMatrix.needsUpdate=true; if(cm.instanceColor) cm.instanceColor.needsUpdate=true; }/*@Y*/
 //@end
 //@if escarpment
@@ -3758,7 +3765,7 @@ if(!window.__BA_MAPONLY){
   const CS=40, bands=new Map();
   for(let x=-226;x<=226;x+=1.15){/*@y*/ for(let z=-226;z<=226;z+=1.15){/*@y*/ const xx=x+R(-0.45,0.45), zz=z+R(-0.45,0.45); { const rr=Math.hypot(xx,zz), tt=Math.atan2(zz,xx); if(rr<PondR(tt)*1.12||chanDist(xx,zz)<1.7) continue; if(rr>Rb(tt)-2&&rng()<0.55) continue; if(jnKxz(xx,zz)>0.5) continue; }
       if(fbm(xx*0.035+3,zz*0.035)<-0.22) continue; if(rng()>pgZp(1,xx,zz)) continue;
-      if(inReserved(xx,zz,0.55)||overlaps(xx,zz,0.1)) continue;
+      if(inReservedNR(xx,zz,0.55)||overlaps(xx,zz,0.1)) continue;
       const key=Math.floor(xx/CS)+','+Math.floor(zz/CS); let l=bands.get(key); if(!l){ l=[]; bands.set(key,l); } l.push([xx,zz]);
       const k=ckey(xx,zz); coverMap.set(k,(coverMap.get(k)||0)+1); } }
   for(const [key,list] of bands){/*@y*/ const [bx,bz]=key.split(',').map(Number), px=(bx+0.5)*CS, cz=(bz+0.5)*CS, py=heightAt(px,cz);
@@ -4668,9 +4675,8 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
   const KINDS={ shack:{lv:['gully','plains','escarpment'],r:4.2,flat:0.9,lab:'old shack',cap:'an old shack'},
     tower:{lv:['gully','plains','escarpment'],r:4.4,flat:1.0,lab:'old lookout tower',cap:'an old lookout tower'},
     ruins:{lv:['plains','gully','escarpment'],wl:{gully:0.35,escarpment:0.35},r:6.2,flat:1.0,lab:'farmhouse ruins',cap:'the ruins of an old farmhouse'},   /* rarer away from the plains */
-    fort:{lv:['plains','gully','escarpment'],r:8.4,flat:1.2,lab:'old fort',cap:'an abandoned palisade fort'},
+    fort:{lv:['plains','gully','escarpment'],r:7.2,flat:1.2,lab:'old fort',cap:'an abandoned palisade fort'},
     tank:{lv:['plains','gully','escarpment'],wl:{gully:0.5,escarpment:0.5},r:5.0,flat:0.9,lab:'collapsed water tank',cap:'a collapsed water tank'},
-    falls:{lv:['gully'],w:0.8,r:7.0,flat:2.0,lab:'small waterfall',cap:'a small waterfall'},
     woolshed:{lv:['plains'],w:0.2,r:7.6,flat:1.2,lab:'woolshed',cap:'an old woolshed'},
     windmill:{lv:['plains'],w:0.2,r:5.2,flat:0.9,lab:'windmill',cap:'a windmill and its tank'},
     fence:{lv:['plains','escarpment'],r:3,flat:2.0,lab:'fence line',cap:'an old fence line'},
@@ -4752,6 +4758,25 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
   const bare=(R)=>{ const tD=ctex(64,64,(g,w,h)=>{ const gr=g.createRadialGradient(w/2,h/2,2,w/2,h/2,w/2); gr.addColorStop(0,'rgba(92,72,50,.95)'); gr.addColorStop(0.65,'rgba(98,78,54,.8)'); gr.addColorStop(1,'rgba(98,78,54,0)'); g.fillStyle=gr; g.fillRect(0,0,w,h); for(let i=0;i<220;i++){ g.fillStyle='rgba(40,30,20,'+(Math.random()*0.35)+')'; g.fillRect(Math.random()*w,Math.random()*h,1,1); } });
     const N=14, gg=new THREE.PlaneGeometry(2*R,2*R,N,N); gg.rotateX(-Math.PI/2); const pp=gg.attributes.position; for(let i=0;i<pp.count;i++){ const lx=pp.getX(i), lz=pp.getZ(i); pp.setY(i,heightAt(x+lx,z+lz)+0.035); } gg.computeVertexNormals();
     const ms=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({map:tD,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2})); ms.position.set(x,0,z); ms.renderOrder=1; scene.add(ms); };
+  /* a faction's flag on a pole (the zone's own: Eromanga on the plains, the Bassian Hierocrate in the gully, the Torresian Confederacy on the cliffs), faded and torn.
+     Mostly it hangs limp down the pole, stirring; when a gust comes it lifts and streams out, ripples running along it, then sags back. */
+  const flagOn=(fu,fv,yb,H,mPole)=>{ pole(0.07,0.05,[fu,yb-0.1,fv],[fu,yb+H,fv],mPole||mP); if(yb<0.5) col(fu,fv,0.2); const kn=new THREE.Mesh(new THREE.SphereGeometry(0.09,6,4),mPole||mP); kn.position.set(fu,yb+H+0.05,fv); G.add(kn);
+    const FW=1.6, FH=FW*0.56, cv=document.createElement('canvas'); cv.width=256; cv.height=144; const cx=cv.getContext('2d'); cx.fillStyle='#6a6050'; cx.fillRect(0,0,256,144); const tex=new THREE.CanvasTexture(cv);
+    const img=new Image(); img.onload=()=>{ cx.drawImage(img,0,0,256,144); cx.fillStyle='rgba(120,105,80,.28)'; cx.fillRect(0,0,256,144);   /* faded by sun and weather */
+      for(let i=0;i<40;i++){ cx.fillStyle='rgba(60,48,32,'+(0.05+Math.random()*0.12)+')'; cx.beginPath(); cx.ellipse(Math.random()*256,Math.random()*144,6+Math.random()*30,4+Math.random()*16,0,0,6.283); cx.fill(); }
+      const im=cx.getImageData(0,0,256,144), d=im.data; for(let y=0;y<144;y++){ const cut=256-(8+Math.random()*30+(Math.random()<0.25?Math.random()*60:0)); for(let x=Math.floor(cut);x<256;x++) d[(y*256+x)*4+3]=0; }   /* the fly end torn to ribbons */
+      for(let k=0;k<5;k++){ const hx=60+Math.random()*170, hy=15+Math.random()*114, hr=3+Math.random()*9; for(let y=Math.floor(hy-hr);y<hy+hr;y++) for(let x=Math.floor(hx-hr);x<hx+hr;x++){ if(x<0||y<0||x>255||y>143) continue; if((x-hx)*(x-hx)+(y-hy)*(y-hy)*1.6<hr*hr*(0.6+Math.random()*0.5)) d[(y*256+x)*4+3]=0; } }   /* holes */
+      cx.putImageData(im,0,0); tex.needsUpdate=true; }; img.src='@@S:fortFlag@@';
+    const fg=new THREE.PlaneGeometry(FW,FH,14,8); fg.translate(FW/2,-FH/2,0); const P0=fg.attributes.position.array.slice(); const fm=new THREE.Mesh(fg,new THREE.MeshLambertMaterial({map:tex,alphaTest:0.5,side:THREE.DoubleSide}));
+    fm.position.set(fu+0.06,yb+H-0.12,fv); G.add(fm); const N0=String((window.__BA_NODE||{}).id||''), pa=fg.attributes.position, ph=U(0,100); let lw=0;
+    (function flap(){ if(String((window.__BA_NODE||{}).id||'')!==N0) return; requestAnimationFrame(flap); if(!fm.parent) return; const t=performance.now()/1000+ph;
+      const n=0.5+0.5*(0.6*Math.sin(t*0.23)+0.4*Math.sin(t*0.61+1.3)), gust=Math.max(0,Math.min(1,(n-0.55)/0.35)), wt=gust*(0.8+0.2*Math.sin(t*2.3));   /* calm most of the time; now and then a gust */
+      lw+=(wt-lw)*(wt>lw?0.05:0.012); const w=lw;   /* it lifts quickly in a gust and sags back slowly after */
+      fm.rotation.y=-0.4+0.5*Math.sin(t*0.07);   /* the wind comes round a little over time */
+      for(let i=0;i<pa.count;i++){ const x=P0[i*3], y=P0[i*3+1], k=x/FW, ph2=-(1-w)*1.38*(0.3+0.7*k)-0.1*(1-k*0.5), cx2=Math.cos(ph2), sx2=Math.sin(ph2);
+        pa.setX(i,x*cx2); pa.setY(i,y+x*sx2);   /* the fly end falls toward the pole as the wind drops */
+        pa.setZ(i,((1-w)*(0.06*Math.sin(y*9+k*5)+0.04*Math.sin(t*0.9+k*3))+w*(0.13*Math.sin(x*3.1-t*6.5)+0.05*Math.sin(x*5.3-t*8.4+y*2)))*k); }   /* limp: soft folds and a slow stir; streaming: ripples run out along it */
+      pa.needsUpdate=true; fg.computeVertexNormals(); })(); };
   if(kind==='shack'){ const W=big?7.0:4.2, D=big?5.4:3.2, HF=big?2.8:2.35, HB=big?2.35:2.0, th=0.07, dg=big?1.2:1.0;   /* with a fire in it, a bigger one: room to sit round it */
     const wall=(w,h,px,pz,ry,hb)=>{ const g=new THREE.BoxGeometry(w,1,th); g.translate(0,0.5,0); const p=g.attributes.position; for(let i=0;i<p.count;i++){ const yy=p.getY(i), xx=p.getX(i); if(yy>0.5){ p.setY(i,hb==null?h:h+(hb-h)*((xx/w)+0.5)); } } g.computeVertexNormals(); const t=g.attributes.uv; for(let i=0;i<t.count;i++) t.setXY(i,t.getX(i)*w/1.1,t.getY(i)*2.4/2.4); const ms=new THREE.Mesh(g,mB); ms.position.set(px,0,pz); ms.rotation.y=ry; G.add(ms); return ms; };
     /* front with its doorway, back, and the two sides stepping down with the lean of the roof */
@@ -4766,7 +4791,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     /* inside and out: a rusted drum, an old crate */ { const dr=new THREE.Mesh(new THREE.CylinderGeometry(0.29,0.29,0.88,12),mI); dr.position.set(W/2+0.55,0.44,D/2-0.3); G.add(dr); col(W/2+0.55,D/2-0.3,0.4); box(0.6,0.45,0.5,mB,-W/2+0.6,0.23,-D/2+0.5,0.3); }
     /* the walls are solid; the doorway is open */
     for(let u=-W/2;u<=W/2+0.01;u+=0.45){ col(u,-D/2,0.28); if(u<-0.4-dg/2-0.1||u>-0.4+dg/2+0.1) col(u,D/2,0.28); } for(let v=-D/2;v<=D/2+0.01;v+=0.45){ col(-W/2,v,0.28); col(W/2,v,0.28); } }
-  else if(kind==='tower'){ const H=7.6, B=big?2.9:1.45, T=big?2.4:1.0; bare(big?4.6:3.4); SPOT=[T*0.55+0.22,H+0.06,T*0.55+0.22,0.6,0,'table'];   /* a small table up on the deck */   /* with a fire up there, a broad deck: room to move round it */
+  else if(kind==='tower'){ const H=7.6, B=big?2.9:1.45, T=big?2.4:1.0; bare(big?4.6:3.4); if(U(0,1)<0.4) flagOn(-T-0.1,-T-0.1,H-1.6,4.9);   /* now and then, the flag of whoever built it */ SPOT=[T*0.55+0.22,H+0.06,T*0.55+0.22,0.6,0,'table'];   /* a small table up on the deck */   /* with a fire up there, a broad deck: room to move round it */
     /* legs lean in from the ground to the deck; every brace is pinned to the legs' actual line, so the joints meet */
     const legs=[[-1,-1],[1,-1],[1,1],[-1,1]], lp=y=>B+(T-B)*(y+0.3)/(H+0.3), L=(y,a,b)=>[a*lp(y),y,b*lp(y)];
     legs.forEach(([a,b])=>{ pole(0.13,0.11,[a*B,-0.3,b*B],L(H-0.02,a,b)); col(a*B,b*B,0.3); });
@@ -4969,9 +4994,11 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
   else if(kind==='log'){ /* a fallen mountain ash, one of the giants: the same girth and bark as those still standing. The buttressed foot at one end with its broken roots,
        the rough dark stocking up the first stretch, smooth pale bark above, the top end snapped off and splintered. Hollow: big enough to walk through. It lies along the ground's slope. */
     const L=24, R0=1.3, R1=1.12, Rr=u=>R0+(R1-R0)*(0.5-u/L), TH=0.24;   /* u: -L/2 the broken top end, +L/2 the foot */
-    const hA=heightAt(W2(-L/2,0).x,W2(-L/2,0).z), hB=heightAt(W2(L/2,0).x,W2(L/2,0).z), tilt=Math.atan2(hB-hA,L), yc=(hA+hB)/2-y0;
-    const LG=new THREE.Group(); LG.position.y=yc; LG.rotation.z=tilt; G.add(LG); const cy=R0-0.36;
-    SPOT=[-1.5,null,0,Math.PI/2+0.2,0,'slab'];   /* inside, on a flat stone */
+    const cy=R0-0.36, hA=heightAt(W2(-L/2,0).x,W2(-L/2,0).z), hB=heightAt(W2(L/2,0).x,W2(L/2,0).z), tilt=Math.atan2(hB-hA,L), sT=Math.sin(tilt), cT=Math.cos(tilt); let yc=(hA+hB)/2-y0;
+    /* it rests on the ground, never through it: wherever the ground rises above its underside (along it and to either side) the whole trunk is lifted to sit on that */
+    { let lift=-1e9; for(let u=-L/2;u<=L/2+0.01;u+=0.75) for(const k of [-0.85,-0.5,0,0.5,0.85]){ const R=Rr(u), s=k*R, q=W2(u,s), g=heightAt(q.x,q.z)-y0, bot=yc+u*sT+cT*(cy-Math.sqrt(R*R-s*s)); lift=Math.max(lift,g-(bot+0.03)); } yc+=lift; }
+    const LG=new THREE.Group(); LG.position.y=yc; LG.rotation.z=tilt; G.add(LG);
+    { const u=-1.5, fl=yc+u*sT+cT*(cy-(Rr(u)-TH)); SPOT=[u,fl+0.11,0,Math.PI/2+0.2,0,'slab']; }   /* inside, on a flat stone laid on the rotted floor (not down in the ground under it) */
     for(let u=-L/2;u<=L/2+0.01;u+=3.2){ const q=W2(u,0); clearArea(q.x,q.z,2.4,null); clears.push([q.x,q.z,2.4]); }   /* nothing growing up through it along its length */
     /* the stocking: dark fibrous bark, its upper edge ragged where it gives way to the smooth bark */
     const tSt=ctex(128,512,(g,w,h)=>{ for(let x=0;x<w;x+=2){ const s=0.62+0.6*Math.random(); g.fillStyle='rgb('+Math.round(51*s)+','+Math.round(33*s)+','+Math.round(20*s)+')'; g.fillRect(x,0,2,h); }
@@ -5000,7 +5027,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
   else if(kind==='fort'){ /* a small palisade fort, long abandoned: a ring of split-log stakes with sharpened tops, the gate gaping, a walkway round the inside of the wall at
        shoulder height to look out over it, reached by a flight of steps. Out in front a pole flies the flag of whoever built it (Eromanga on the plains, the Bassian
        Hierocrate in the gully, the Torresian Confederacy on the cliffs), faded and torn, flapping in the wind. Inside, what was left behind; or a fire, kept by someone since. */
-    const RF=6.2, DK=1.9, DW=1.25, GA=0.19, rIn=RF-0.25-DW, rMid=RF-0.25-DW/2, at=(a,r)=>[Math.sin(a)*r,Math.cos(a)*r], gate=a=>{ const d=Math.atan2(Math.sin(a),Math.cos(a)); return Math.abs(d)<GA; };
+    const RF=5.27, DK=1.9, DW=1.25, GA=0.22, rIn=RF-0.25-DW, rMid=RF-0.25-DW/2, at=(a,r)=>[Math.sin(a)*r,Math.cos(a)*r], gate=a=>{ const d=Math.atan2(Math.sin(a),Math.cos(a)); return Math.abs(d)<GA; };
     SPOT=big?[-2.6,null,-1.9,0.6,1,'table']:[-2.3,null,-2.2,0.6,1,'table'];   /* papers on a table against the back wall */
     bare(RF+0.6);
     const tLog=ctex(64,256,(g,w,h)=>{ g.fillStyle='#6b5b4a'; g.fillRect(0,0,w,h); for(let i=0;i<70;i++){ g.fillStyle=Math.random()<0.5?'rgba(36,28,20,.5)':'rgba(150,134,112,.3)'; g.fillRect(Math.random()*w,0,1+Math.random()*3,h); } for(let i=0;i<12;i++){ g.fillStyle='rgba(28,22,16,.5)'; g.beginPath(); g.ellipse(Math.random()*w,Math.random()*h,2+Math.random()*4,4+Math.random()*10,0,0,6.283); g.fill(); } },{repeat:true});
@@ -5016,27 +5043,15 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
       const leaf=(w,h)=>{ const lg=new THREE.Group(); for(let i=0;i<5;i++){ const ms=new THREE.Mesh(new THREE.BoxGeometry(w/5-0.02,h,0.08),mB); ms.position.set(-w/2+w/10+i*w/5,h/2,0); lg.add(ms); } for(const y of [0.4,h-0.4]){ const ms=new THREE.Mesh(new THREE.BoxGeometry(w,0.12,0.1),mB); ms.position.set(0,y,0.08); lg.add(ms); } return lg; };
       const gw=Math.hypot(u1-u0,v1-v0)/2-0.15; const L1=leaf(gw,2.6); L1.position.set(u0+0.15,0,v0+0.05); L1.rotation.set(0,-1.15,0.06); G.add(L1); const L2=leaf(gw,2.6); L2.position.set(u1-0.2,0.06,v1+1.6); L2.rotation.set(-Math.PI/2+0.04,0.25,0); G.add(L2); }
     /* the walkway round the inside of the wall: planks on bearers, posts under its inner edge; it stops either side of the gate */
-    { const nS=Math.round(6.283*rMid/0.9), dA=6.283/nS; for(let i=0;i<nS;i++){ const a=(i+0.5)*dA; if(gate(a)||gate(a-dA*0.6)||gate(a+dA*0.6)) continue; const [u,v]=at(a,rMid), len=dA*rMid+0.06;
-        const pl=box(len,0.08,DW,mB,u,DK-0.04,v,a); if(U(0,1)<0.07){ pl.rotation.x=U(-0.25,0.25); pl.position.y-=0.18; }   /* the odd plank gone loose */
-        colTop(u,v,DW/2+0.04,DK+0.02,0.42);
-        if(i%2===0){ const [pu,pv]=at(a,rIn+0.12); pole(0.08,0.08,[pu,-0.1,pv],[pu,DK-0.08,pv],mLog); const [qu,qv]=at(a,RF-0.35); pole(0.06,0.06,[pu,DK-0.14,pv],[qu,DK-0.14,qv],mLog); } } }
+    { const deck=(a,nb)=>{ const [u,v]=at(a,rMid), q=W2(u,v); addCol(q.x,q.z,nb?0.02:0.62,y0+DK+0.02,0.78); const ar=grid.get(ck(q.z)); if(ar&&ar.length){ ar[ar.length-1].__poi=1; if(nb) ar[ar.length-1].nb=1; } };   /* the walkway's footing: close-set, so there is nowhere to drop through; over the gate it bears you but does not wall the way in below */
+      for(let a=0;a<6.283;a+=0.4/rMid) deck(a,gate(a)||gate(a-0.3/rMid)||gate(a+0.3/rMid));
+      const nS=Math.round(6.283*rMid/0.9), dA=6.283/nS; for(let i=0;i<nS;i++){ const a=(i+0.5)*dA; const [u,v]=at(a,rMid), len=dA*rMid+0.06;   /* planks all the way round, across the top of the gate too */
+        box(len,0.08,DW,mB,u,DK-0.04,v,a);
+        if(i%2===0&&!gate(a)){ const [pu,pv]=at(a,rIn+0.12); pole(0.08,0.08,[pu,-0.1,pv],[pu,DK-0.08,pv],mLog); const [qu,qv]=at(a,RF-0.35); pole(0.06,0.06,[pu,DK-0.14,pv],[qu,DK-0.14,qv],mLog); } } }
     /* the steps up to it, against the wall on the left of the gate as you come in */
     { const a0=1.15, NS=6, run=0.48, rise=DK/NS;   /* straight in from the walkway's inner edge toward the middle, rising to it */
       for(let i=0;i<NS;i++){ const top=(i+1)*rise, [u,v]=at(a0,rIn-0.24-(NS-1-i)*run); box(DW-0.2,top,run,mB,u,top/2,v,a0); for(const s of [-0.28,0.28]){ const c=Math.cos(a0), sn=Math.sin(a0); colTop(u+c*s,v-sn*s,0.3,top,0.42); } } }
-    /* the flag out in front, faded and torn, flying */
-    { const [fu,fv]=at(0.34,RF+2.8), H=6.4; pole(0.07,0.05,[fu,-0.1,fv],[fu,H,fv],mLog); col(fu,fv,0.2); const kn=new THREE.Mesh(new THREE.SphereGeometry(0.09,6,4),mLog); kn.position.set(fu,H+0.05,fv); G.add(kn);
-      const FW=1.75, FH=FW*0.56, cv=document.createElement('canvas'); cv.width=256; cv.height=144; const cx=cv.getContext('2d'); cx.fillStyle='#6a6050'; cx.fillRect(0,0,256,144); const tex=new THREE.CanvasTexture(cv);
-      const img=new Image(); img.onload=()=>{ cx.drawImage(img,0,0,256,144); cx.fillStyle='rgba(120,105,80,.28)'; cx.fillRect(0,0,256,144);   /* faded by sun and weather */
-        for(let i=0;i<40;i++){ cx.fillStyle='rgba(60,48,32,'+(0.05+Math.random()*0.12)+')'; cx.beginPath(); cx.ellipse(Math.random()*256,Math.random()*144,6+Math.random()*30,4+Math.random()*16,0,0,6.283); cx.fill(); }
-        const im=cx.getImageData(0,0,256,144), d=im.data; for(let y=0;y<144;y++){ const cut=256-(8+Math.random()*30+(Math.random()<0.25?Math.random()*60:0)); for(let x=Math.floor(cut);x<256;x++) d[(y*256+x)*4+3]=0; }   /* the fly end torn to ribbons */
-        for(let k=0;k<5;k++){ const hx=60+Math.random()*170, hy=15+Math.random()*114, hr=3+Math.random()*9; for(let y=Math.floor(hy-hr);y<hy+hr;y++) for(let x=Math.floor(hx-hr);x<hx+hr;x++){ if(x<0||y<0||x>255||y>143) continue; if((x-hx)*(x-hx)+(y-hy)*(y-hy)*1.6<hr*hr*(0.6+Math.random()*0.5)) d[(y*256+x)*4+3]=0; } }   /* holes */
-        cx.putImageData(im,0,0); tex.needsUpdate=true; }; img.src='@@S:fortFlag@@';
-      const fg=new THREE.PlaneGeometry(FW,FH,14,8); fg.translate(FW/2,0,0); const P0=fg.attributes.position.array.slice(); const fm=new THREE.Mesh(fg,new THREE.MeshLambertMaterial({map:tex,alphaTest:0.5,side:THREE.DoubleSide}));
-      fm.position.set(fu+0.06,H-FH/2-0.12,fv); G.add(fm); const N0=String((window.__BA_NODE||{}).id||''), pa=fg.attributes.position; let t0=performance.now()/1000;
-      (function flap(){ if(String((window.__BA_NODE||{}).id||'')!==N0) return; requestAnimationFrame(flap); if(!fm.parent) return; const t=performance.now()/1000, w=0.6+0.4*Math.sin(t*0.13)+0.2*Math.sin(t*0.71);
-        fm.rotation.y=-0.4+0.35*Math.sin(t*0.09)+0.08*Math.sin(t*0.6);   /* the wind swings round a little */
-        for(let i=0;i<pa.count;i++){ const x=P0[i*3], y=P0[i*3+1], k=x/FW; pa.setZ(i,(Math.sin(x*3.1-t*6.2*w)*0.16+Math.sin(x*5.3-t*8.1*w+y*2)*0.06)*k*w); pa.setY(i,y-k*k*0.18*(1-w*0.6)); }
-        pa.needsUpdate=true; fg.computeVertexNormals(); })(); }
+    flagOn(...at(0.34,RF+2.6),0,6.4,mLog);   /* the flag out in front, faded and torn */
     /* what was left inside: crates, a drum, barrel staves, boards and iron, a cart wheel against the wall, stones from a fallen hearth, rags */
     { const clr=big?2.4:0.6, ok=(u,v)=>Math.hypot(u,v)>clr&&Math.hypot(u,v)<rIn-0.4&&!(Math.abs(u)<1.3&&v>1.5);   /* the way in and (with a fire) round it kept clear */
       const pick=()=>{ for(let k=0;k<30;k++){ const a=U(0,6.283), r=U(0,rIn-0.5), u=Math.sin(a)*r, v=Math.cos(a)*r; if(ok(u,v)) return [u,v]; } return null; };
@@ -5068,32 +5083,6 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     { pole(0.04,0.04,[3.0,0,-1.9],[3.0,1.1,-1.9],mI); pole(0.04,0.04,[3.0,1.1,-1.9],[2.6,1.35,-1.9],mI);
       box(2.4,0.5,0.62,mB,-0.6,0.25,2.6,0.1); box(2.3,0.04,0.5,new THREE.MeshLambertMaterial({color:0x6f5a44}),-0.6,0.42,2.6,0.1); box(0.62,0.5,0.06,mB,0.62,0.22,2.75,0.1,0,0.5);   /* an end board sprung */
       for(const du of [-1.4,-0.6,0.2]) col(du,2.6,0.32); }
-  }
-  else if(kind==='falls'){ /* a small waterfall: a creek coming off a sandstone step and dropping five metres into a round pool ringed with water-worn boulders,
-       spilling on down the slope as a little run. A water dragon suns on the rocks. (The falls by the old stairs up to the cliffs, as the gully first had them.) */
-    const {mS,mSL}=SKit(), LIP=3.25, PV=0, PR=2.3, C=1.0, VL=-3.05; SPOT=[3.1,null,0.9,-0.5,0,'slab'];
-    /* the rock step behind: three courses of big blocks in an arc, a notch at the top where the water comes over */
-    for(let c=0;c<3;c++) for(let k=-3;k<=3;k++){ const a=k*0.27+(k?U(-0.04,0.04):0), R=4.6+c*0.4, w=U(1.5,2.1), h=(c===1&&k===0)?1.7:c<2?U(1.4,1.7):U(1.2,1.6), y=c*1.55, u=Math.sin(a)*R, v=-Math.cos(a)*R+C;
-      if(c===2&&k===0) continue; const ms=box(w,h,U(1.6,2.2),k===0&&c===1?mS:mSL,u,y+h/2,v,-a); ms.rotation.z=U(-0.05,0.05); if(c===0) col(u,v,0.95); }
-    { const mFl=window.__WATER?window.__WATER(new THREE.MeshPhongMaterial({color:0xc8d4d8,specular:0x8fa3a8,shininess:50,transparent:true,opacity:0.86,side:THREE.DoubleSide,depthWrite:false}),{speed:0.3,still:true,round:true,plunge:true}):new THREE.MeshLambertMaterial({color:0x5f7c86,transparent:true,opacity:0.86});
-      const flowTex=(sp,src)=>{ const t=(src||window.__texFlow||window.__texFall).clone(); t.needsUpdate=true; t.wrapS=t.wrapT=THREE.RepeatWrapping; (window.__waterAnim=window.__waterAnim||[]).push({tex:t,speed:sp}); return t; };
-      const rib=(pts,mat)=>{ const pos=[],uv=[],idx=[]; let dist=0; pts.forEach((q,i)=>{ if(i) dist+=Math.hypot(q[0]-pts[i-1][0],q[1]-pts[i-1][1],q[2]-pts[i-1][2]); pos.push(q[0]-q[3],q[1],q[2],q[0]+q[3],q[1],q[2]); uv.push(0,dist/5,1,dist/5); if(i){ const a=(i-1)*2; idx.push(a,a+1,a+2,a+1,a+3,a+2); } });
-        const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); g.setIndex(idx); g.computeVertexNormals(); const m=new THREE.Mesh(g,mat); m.renderOrder=1; m.frustumCulled=false; G.add(m); return m; };
-      /* the fall: off the lip, out a little and down into the pool */
-      const fT=window.__texFall?flowTex(2.6,window.__texFall):null, fM=new THREE.MeshBasicMaterial({map:fT,transparent:true,opacity:0.92,side:THREE.DoubleSide,depthWrite:false,color:0xe8f0f2});
-      const v0=VL, fp=[]; for(let i=0;i<=24;i++){ const f=i/24, drop=f*(LIP-0.2), out=Math.sqrt(drop)*0.55; fp.push([0,LIP-drop,v0+out,0.45+f*0.4]); } rib(fp,fM);
-      const tp=[]; for(let i=0;i<=6;i++) tp.push([0,LIP+0.03,v0-3+i*0.5,0.5]); const tm=new THREE.MeshPhongMaterial({map:window.__texFlow?flowTex(1.1):null,color:0xc8d4d8,specular:0x8fa3a8,shininess:50,transparent:true,opacity:0.86,side:THREE.DoubleSide,depthWrite:false}); rib(tp,tm);   /* the creek on top, running to the lip */
-      /* the pool: level, a little above the lowest ground in it so no bank shows through */
-      let hi=-1e9; for(let k=0;k<12;k++){ const a=k/12*6.283, q=W2(Math.sin(a)*PR*0.8,PV+Math.cos(a)*PR*0.8); hi=Math.max(hi,heightAt(q.x,q.z)); } const py=Math.min(hi-y0+0.06,0.6);
-      const pm=new THREE.MeshPhongMaterial({map:window.__texFlow?flowTex(0.3):null,color:0xbfcdd2,specular:0x8fa3a8,shininess:60,transparent:true,opacity:0.88,side:THREE.DoubleSide,depthWrite:false}); const pool=new THREE.Mesh(new THREE.CircleGeometry(PR,40),pm); pool.rotation.x=-Math.PI/2; pool.position.set(0,py,PV); pool.renderOrder=1; G.add(pool);
-      const run=[]; for(let i=0;i<=10;i++){ const v=PV+PR-0.3+i*0.6, u=Math.sin(i*0.7)*0.35, q=W2(u,v); run.push([u,Math.max(py-0.02,heightAt(q.x,q.z)-y0+0.08),v,0.5+i*0.02]); } rib(run,new THREE.MeshPhongMaterial({map:window.__texFlow?flowTex(0.9):null,color:0xc8d4d8,specular:0x8fa3a8,shininess:50,transparent:true,opacity:0.86,side:THREE.DoubleSide,depthWrite:false}));   /* spilling on down */
-      /* spray: a few soft pale puffs at the foot of the fall */
-      const sT=ctex(64,64,(g,w,h)=>{ const r=g.createRadialGradient(32,32,0,32,32,32); r.addColorStop(0,'rgba(240,246,248,.55)'); r.addColorStop(1,'rgba(240,246,248,0)'); g.fillStyle=r; g.fillRect(0,0,w,h); }); for(let k=0;k<4;k++){ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:sT,transparent:true,depthWrite:false,opacity:0.5})); sp.scale.setScalar(U(1.4,2.4)); sp.position.set(U(-0.5,0.5),py+U(0.4,1.3),v0+0.9+U(-0.3,0.5)); G.add(sp); } }
-    /* water-worn boulders round the pool, river stones, one flat rock in the sun for the dragon */
-    for(let k=0;k<11;k++){ const a=k/11*6.283+U(-0.15,0.15); if(Math.cos(a)<-0.55) continue; if(Math.abs(Math.sin(a))<0.25&&Math.cos(a)>0.6) continue;   /* not against the step, nor across the run-off */
-      const r=U(0.45,0.95), d=PR+r*0.6, u=Math.sin(a)*d, v=PV+Math.cos(a)*d, ms=new THREE.Mesh(new THREE.DodecahedronGeometry(r,1),mSL); ms.scale.set(1,U(0.55,0.8),U(0.8,1.15)); ms.position.set(u,r*0.32,v); ms.rotation.y=U(0,6.283); G.add(ms); col(u,v,r*0.9); }
-    for(let i=0;i<26;i++){ const a=U(0,6.283), d=U(PR+0.2,PR+2.6), s=U(0.06,0.2), ms=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),mSL); ms.scale.y=0.5; ms.position.set(Math.sin(a)*d,s*0.2,PV+Math.cos(a)*d); G.add(ms); }
-    { const bu=PR+0.9, bv=PV-0.4, ms=box(1.6,0.5,1.2,mSL,-bu,0.25,bv,0.4); colTop(-bu,bv,0.7,0.5,0.42); const q=W2(-bu,bv); (window.__POI_WD=window.__POI_WD||[]).push({x:q.x,z:q.z}); const prevRT=window.__rockTopAt; window.__rockTopAt=(x,z)=>{ const y=prevRT?prevRT(x,z):-1e9; return Math.hypot(x-q.x,z-q.z)<0.65?Math.max(y,y0+0.5):y; }; }   /* the dragon's rock */
   }
   else if(kind==='telegraph'){ /* an old telegraph line across the country: tall poles, a crossarm each with glass insulators, the wire slack between them; one pole down in the grass, the wire trailing off it */
     const N=13, sp=7.2, mW=new THREE.LineBasicMaterial({color:0x4e4a46}), wp=[], mG=new THREE.MeshLambertMaterial({color:0x9fc4b8,transparent:true,opacity:0.8}), down=Math.floor(U(3,N-3)); let prev=null; SPOT=[(down-N/2)*sp+1.3,null,1.5,0.4,0,'slab'];   /* by the fallen pole */
@@ -5162,7 +5151,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     const away=[...other.map(p=>[p.x,p.z,32]),...(typeof clearings!=='undefined'?clearings:[]).filter(fin).map(c=>[c.x,c.z,24]),...(typeof ROO_G!=='undefined'?ROO_G:[]).filter(fin).map(c=>[c.x,c.z,20])];
     K=Object.assign({},K,{r:kind==='tower'?6.6:kind==='shack'?5.8:kind==='barkhut'?5.0:kind==='camp'?4.6:K.r});   /* (the fort keeps its own size: the fire goes in the middle of it) */
     let at=find(K,away,q=>Math.min(...other.map(p=>Math.hypot(p.x-q.x,p.z-q.z))),24); if(!at) at=find(K,away.map(a=>[a[0],a[1],Math.min(a[2],26)]),q=>Math.min(...other.map(p=>Math.hypot(p.x-q.x,p.z-q.z))),12); if(!at) return;
-    const S=make(kind,at,K,{fire:true}), p=pits[mi], loc=({tower:[0,7.6,0],ruins:[-2.95,0,0.3],woolshed:[1.0,0,0.9],barkhut:[-3.5,0,0],log:[3.9,0,0],camp:[0,0,2.25],fort:[0,0,0]})[kind]||[0.3,0,0.15], wv=kind==='lookout'?LK.wv:S.G.localToWorld(new THREE.Vector3(loc[0],loc[1],loc[2]));
+    const S=make(kind,at,K,{fire:true}), p=pits[mi], loc=({tower:[0,7.6,0],ruins:[-2.95,0,0.3],woolshed:[1.0,0,0.9],barkhut:[-3.5,0,0],log:[2.5,0,3.7],camp:[0,0,2.25],fort:[0,0,0]})[kind]||[0.3,0,0.15], wv=kind==='lookout'?LK.wv:S.G.localToWorld(new THREE.Vector3(loc[0],loc[1],loc[2]));
     /* everything that makes up the fire goes with it: flames, logs, stones, light, coals, and their solid parts */
     const oh=p.y!=null?p.y:heightAt(p.x,p.z), dx=wv.x-p.x, dz=wv.z-p.z, dy=(kind==='tower'?wv.y+0.03:heightAt(wv.x,wv.z))-heightAt(p.x,p.z), v=new THREE.Vector3(), mv=[];
     scene.traverse(o=>{ if(o===scene||o.isInstancedMesh||S.G===o||o.parent!==scene) return; o.getWorldPosition(v); if(Math.hypot(v.x-p.x,v.z-p.z)>1.5||Math.abs(v.y-oh)>1.5) return; if(o.isMesh&&o.geometry){ if(!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const bs=o.geometry.boundingSphere; if(bs&&bs.radius*o.matrixWorld.getMaxScaleOnAxis()>1.0) return; if(o.material&&o.material.alphaTest>0) return; } mv.push(o); });   /* the ring of stones, the logs and the ash: small, solid, close in; not the plants or trees round about */
@@ -5177,7 +5166,7 @@ const POI=(()=>{ const placed=[]; window.__POIS=placed; try{
     for(let i=0;i<n;i++){ const used=placed.map(q=>q.kind), pool=Object.keys(KINDS).filter(k=>KINDS[k].lv.includes(LVk)&&!KINDS[k].fire&&!used.includes(k)); if(!pool.length&&!FL[i]) return;
       const kind=FL[i]&&!used.includes(FL[i])?FL[i]:wpick(pool), K=KINDS[kind]; const at=find(K,awayBase()); if(!at) continue; const S=make(kind,at,K);
       placed.push({key:'p'+i,kind,x:S.x,z:S.z,r:K.r,lab:K.lab,cap:K.cap,G:S.G,spot:S.spot||null}); } })();
-  if(placed.length){ const PC=[]; for(const arr of grid.values()) for(const c of arr) if(c.__poi&&!PC.includes(c)) PC.push(c); const bx=placed.map(q=>[q.x,q.z,(q.r||5)+14]);
+  if(placed.length){ const PC=[]; for(const arr of grid.values()) for(const c of arr) if(c.__poi&&!c.nb&&!PC.includes(c)) PC.push(c); const bx=placed.map(q=>[q.x,q.z,(q.r||5)+14]);
     const prevK=keepOutOfShelters; keepOutOfShelters=function(a){ const r=prevK.apply(this,arguments); try{ if(a&&a.pos&&bx.some(b=>Math.abs(a.pos.x-b[0])<b[2]&&Math.abs(a.pos.z-b[1])<b[2])){ const ar=a.lizard?1.1:(a.big?0.75:0.5); for(const c of PC){ const dx=a.pos.x-c.x, dz=a.pos.z-c.z, rr=c.r+ar, q=dx*dx+dz*dz; if(q<rr*rr&&q>1e-8){ const d=Math.sqrt(q); a.pos.x=c.x+dx/d*rr; a.pos.z=c.z+dz/d*rr; } } } }catch(e){} return r; }; }   /* animals keep out of the old buildings: walls, legs, stairs and ledges */
   /* some places grow their plants after this: once the place is ready, the ground is cleared again */
   if(clears.length){ const iv=setInterval(()=>{ try{ if(typeof state==='undefined'||state==='title'||state==='loading') return; }catch(e){ return; } clearInterval(iv); const kc=new Set(); for(const arr of grid.values()) for(const c of arr) if(c.__poi) kc.add(c); clears.forEach(([cx,cz,R])=>clearArea(cx,cz,R,{objs:keepAll,cols:kc})); },300); }
@@ -8710,7 +8699,6 @@ const WD_ANCHORS=(()=>{ const bank=(lo,hi)=>(x,z)=>{ const dc=distCreek(x,z); re
 //@if gully
   (window.__WS_PERCH||[]).filter(p=>{ if((window.__routeRemC||[]).some(c=>Math.hypot(p.x-c.x,p.z-c.z)<c.r+1)) return false; const L=window.__drainLip, T=[[8.05,87.85,2.2],[37.25,79.4,2.4],[1.9,87,2.6],[57.4,77,3]]; return !(L&&Math.hypot(p.x-L.x,p.z-L.z)<7)&&!T.some(([a,b,r])=>Math.hypot(p.x-a,p.z-b)<r); }).forEach(p=>WD_ANCHORS.push({x:p.x,z:p.z,n:1,r:[0,0.01],ok:()=>true,perch:1}));
   { const PER=WD_ANCHORS.filter(a=>a.perch).sort(()=>Math.random()-0.5); (PER.length>=4?PER.slice(0,14):WD_ANCHORS).forEach(spawn); }
-  (window.__POI_WD||[]).forEach(p=>spawn({x:p.x,z:p.z,n:1,r:[0,0.01],ok:()=>true,perch:1}));   /* one on the sunny rock by a small waterfall */
 //@end
 //@if escarpment
   (window.__WS_PERCH||[]).filter(p=>{ const L=window.__drainLip, T=[[8.05,87.85,2.2],[37.25,79.4,2.4],[1.9,87,2.6],[57.4,77,3]]; return !(L&&Math.hypot(p.x-L.x,p.z-L.z)<7)&&!T.some(([a,b,r])=>Math.hypot(p.x-a,p.z-b)<r); }).forEach(p=>WD_ANCHORS.push({x:p.x,z:p.z,n:1,r:[0,0.01],ok:()=>true,perch:1}));
