@@ -1,6 +1,6 @@
 (function(){ const N=window.__BA_NODE; if(!N||!window.BAS) return; const P=window.__PG, K=window.__BA_LVKEY||N.type, F=window.__PGF, C={gully:'G',escarpment:'C',plains:'P'}[K];
   /* the pause menu's layouts: this place's layout (new one, the original map, save it, play a saved one or a code), and the line of places you are on */
-  const css='font:14px/1.35 Alegreya,Georgia,serif;color:#dcd4c1';
+  const css='font:14px/1.35 Lora,Georgia,serif;color:#dcd4c1';
   const b=document.createElement('button'); b.textContent='layouts'; b.style.cssText='position:fixed;right:16px;top:14px;z-index:9999;'+css+';background:rgba(8,10,10,.62);border:1px solid rgba(220,212,193,.35);padding:7px 14px;cursor:pointer;display:none';
   const pn=document.createElement('div'); pn.style.cssText='position:fixed;right:16px;top:56px;z-index:9999;width:min(430px,92vw);max-height:80vh;overflow:auto;'+css+';background:rgba(8,10,10,.9);border:1px solid rgba(220,212,193,.3);padding:14px 16px;display:none';
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);

@@ -17,7 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DESK = ROOT + '/src/desktop'
 SHELL = '/mnt/user-data/outputs/bone-age-backup/BoneAge-Mac-AppleSilicon-v65.zip'
 FONT_LINKS = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
-              '<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">\n')
+              '<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">\n')
 FONT_LOCAL = '<link href="fonts/fonts.css" rel="stylesheet">\n'
 THREE_CDN = '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'
 THREE_LOCAL = '<script>(function(){ var w=window; while(w!==w.parent&&!w.__BA_THREESRC) w=w.parent; (0,window.eval)(w.__BA_THREESRC); })();</script>'
