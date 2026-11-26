@@ -8954,13 +8954,13 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   function poseGLB(n,dt){ const m=n.m, dp=dP(n); m.root.visible=dp<170; m.sp.visible=m.root.visible&&n.armed&&m.ready; if(!m.root.visible) return;
     if(!n.alive){ if(m.rag) ragTick(n,dt); return; }
     m.root.position.copy(n.pos); m.root.rotation.set(0,n.heading,0); if(!m.ready) return;
-    const sp=Math.hypot(n.vel.x,n.vel.z), a=n.act, st=n.band.state, sneak=n.armed&&!a&&(st==='search'||st==='alert')&&sp<2.4&&sp>0.2;
+    const sp=Math.hypot(n.vel.x,n.vel.z), a=n.act, st=n.band.state, kneel=!a&&n.hunt&&n.hunt.kneel, sneak=kneel||(n.armed&&!a&&(st==='search'||st==='alert'||(n.hunt&&n.hunt.sneak))&&sp<2.4&&sp>0.2);
     const want={idle:0,walk:0,run:0,sneak:0,thrust:0,throw:0}; let lead=null;
     if(a&&(a.k==='thrust'||a.k==='stab')){ want.thrust=1; lead='thrust'; m.A.thrust.time=0.75+Math.min(a.t,a.dur)*((1.37-0.75)/a.at); }
     else if(a&&a.k==='throw'){ want.throw=1; lead='throw'; m.A.throw.time=1.0+Math.min(a.t,a.dur)*((2.11-1.0)/a.at); }
     else if(sneak) want.sneak=1; else if(sp<0.25) want.idle=1; else if(sp<3.4) want.walk=1; else want.run=1;
     for(const k in m.A){ const tw=want[k]||0, r=lead&&k===lead?30:(lead?14:6); m.W[k]+=(tw-m.W[k])*Math.min(1,dt*r); m.A[k].setEffectiveWeight(m.W[k]); }
-    if(m.A.walk) m.A.walk.timeScale=clamp(sp/1.1,0.6,1.7); if(m.A.run) m.A.run.timeScale=clamp(sp/4.0,0.7,1.5); if(m.A.sneak) m.A.sneak.timeScale=clamp(sp/0.67,0.6,2.2);
+    if(m.A.walk) m.A.walk.timeScale=clamp(sp/1.1,0.6,1.7); if(m.A.run) m.A.run.timeScale=clamp(sp/4.0,0.7,1.5); if(m.A.sneak) m.A.sneak.timeScale=kneel?0.08:clamp(sp/0.67,0.6,2.2);
     m.mix.update(dt);
     const h=n.heading, RA=_p1.set(-Math.cos(h),0,Math.sin(h)).clone();   /* the figure's own left-to-right line: a turn about it swings a leg forward or tips the body back */
     if(a&&a.k==='kick'){ const w=Math.sin(Math.min(1,a.t/a.dur)*Math.PI); rotW(m.B.RightUpLeg,RA,1.3*w); rotW(m.B.RightLeg,RA,-0.4*w); rotW(m.B.Spine,RA,0.25*w); }
@@ -9022,15 +9022,18 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
     const cur=b.tgtRef?cand.find(c=>b.tgtRef==='P'?c.isP:c.n===b.tgtRef):null, dist=c=>Math.hypot(c.p.x-ld.pos.x,c.p.z-ld.pos.z);
     let best=null, bd=1e9; for(const c of cand){ const d=dist(c)-(c===cur?6:0); if(d<bd){ bd=d; best=c; } } b.tgtRef=best.isP?'P':best.n; return best; }
   const foe=(a,b)=>(a.team||'H')!==(b.team||'H');
+  function friendInLine(n){ const tx=TG.p.x-n.pos.x, tz=TG.p.z-n.pos.z, L2=Math.hypot(tx,tz)||1, ux=tx/L2, uz=tz/L2; const pts=[];
+    for(const o of L) if(o!==n&&o.alive&&!foe(o,n)) pts.push(o.pos); if((n.team||'H')===PT()&&state==='play') pts.push(P);
+    return pts.some(q=>{ const rx=q.x-n.pos.x, rz=q.z-n.pos.z, al=rx*ux+rz*uz, lat=Math.abs(rx*uz-rz*ux); return al>0.5&&al<L2-0.5&&lat<1.4; }); }   /* one of theirs in the way: hold the throw */
   /* ---------- spears: carried, in flight, lodged, or lying about ---------- */
   const SP=[]; function spearItem(){ const g=new THREE.Group(), s=buildSpear(2.2); s.g.rotation.x=Math.PI/2; g.add(s.g); g.visible=false; scene.add(g); const it={g,state:'carried',pos:new V3(),vel:new V3(),owner:null,host:null}; SP.push(it); return it; }
   function lay(it,x,z,yaw){ const q={x,z}; clampValley(q,2.5); it.state='ground'; it.host=null; it.pos.set(q.x,heightAt(q.x,q.z)+0.06,q.z); it.g.position.copy(it.pos); it.g.rotation.set(0,yaw==null?rand(0,6.28):yaw,0); it.g.rotateX(-0.02); it.g.visible=true; }
   const hitTip=it=>_v.copy(it.vel).normalize().multiplyScalar(1.2).add(it.pos);
   function spearTick(dt){ for(const it of SP){
       if(it.state==='fly'){ const h=dt/3; for(let s=0;s<3&&it.state==='fly';s++){ it.vel.y-=T.grav*h; it.pos.addScaledVector(it.vel,h); const tp=hitTip(it), dir={x:it.vel.x,z:it.vel.z}, dl=Math.hypot(dir.x,dir.z)||1; dir.x/=dl; dir.z/=dl;
-          { let hn=null; if(it.thrower) for(const o of L){ if(o.alive&&o!==it.thrower&&foe(o,it.thrower)&&Math.hypot(tp.x-o.pos.x,tp.z-o.pos.z)<0.45&&tp.y>o.pos.y+0.2&&tp.y<o.pos.y+1.85){ hn=o; break; } }
+          { let hn=null; if(it.thrower) for(const o of L){ if(o.alive&&o!==it.thrower&&Math.hypot(tp.x-o.pos.x,tp.z-o.pos.z)<0.45&&tp.y>o.pos.y+0.2&&tp.y<o.pos.y+1.85){ hn=o; break; } }
             if(hn){ hurtNpc(hn,3,dir,9,1.3,'throw',it.thrower); const [v,p]=sPos(hn.pos); A.stab(0.7*v+0.1,p); lay(it,hn.pos.x+dir.x*0.6,hn.pos.z+dir.z*0.6,Math.atan2(dir.x,dir.z)); break; } }
-          if(state==='play'&&(!it.thrower||(it.thrower.team||'H')!==PT())&&Math.hypot(tp.x-P.x,tp.z-P.z)<0.42&&tp.y>P.y+0.1&&tp.y<P.y+pl.eyeH+0.15){ if(pl.invuln<=0) hurtPlayer({pos:it.pos.clone().addScaledVector(it.vel,-0.05),kind:'npc'},T.toP.thr,'Speared by a hunting party.'); A.stab(0.7); lay(it,P.x+dir.x*0.6,P.z+dir.z*0.6,Math.atan2(dir.x,dir.z)); break; }
+          if(state==='play'&&Math.hypot(tp.x-P.x,tp.z-P.z)<0.42&&tp.y>P.y+0.1&&tp.y<P.y+pl.eyeH+0.15){ if(pl.invuln<=0) hurtPlayer({pos:it.pos.clone().addScaledVector(it.vel,-0.05),kind:'npc'},T.toP.thr,'Speared by a hunting party.'); A.stab(0.7); lay(it,P.x+dir.x*0.6,P.z+dir.z*0.6,Math.atan2(dir.x,dir.z)); break; }
           let hit=null; for(const a of aliveAnimals()){ const cy=a.pos.y+(a.hy||(a.kind==='thyl'?TUNE.aimPred:TUNE.aimPrey)); if(!a.lizard&&Math.hypot(tp.x-a.pos.x,tp.y-cy,tp.z-a.pos.z)<(a.hr||1.0)){ hit=a; break; } }
           if(hit){ hitAnimal(hit,3,dir,9,1.3); const [v,p]=sPos(hit.pos); A.stab(0.7*v+0.1,p); lay(it,hit.pos.x+0.5,hit.pos.z); break; }
           const gh=heightAt(it.pos.x,it.pos.z); if(it.pos.y<gh+7&&trunkAt(tp.x,tp.z,tp.y)){ lay(it,tp.x-dir.x*0.7,tp.z-dir.z*0.7,Math.atan2(dir.x,dir.z)+rand(-0.6,0.6)); const [v,p]=sPos(it.pos); A.thud(0.45*v+0.05,p); break; }
@@ -9050,13 +9053,13 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   function voice(n,k){ try{ if(!A.ctx) return; const [v,pan]=sPos(n.pos); if(v<0.005) return; if(k==='hurt'&&A._sb){ const i=Math.floor(Math.random()*8); if(A._sb['grunt'+i]){ A.smp('grunt',0.65*v+0.08,pan,{i,far:0.4*(1-v)}); return; } }   /* a hurt one cries out like you do */ const t=A.ctx.currentTime, hurt=k==='hurt', o=A.out(0.5*v+0.04,pan,0.15), b0=hurt?200:(140+n.i*18);
       const os=A.osc('sawtooth',b0,hurt?110:b0*1.4,t,hurt?0.28:0.42), f1=A.biq('bandpass',hurt?650:560,3.5), f2=A.biq('bandpass',hurt?1300:1050,6); os.connect(f1); os.connect(f2); f1.connect(o); f2.connect(o); A.env(o,t,0.03,hurt?0.25:0.4);
       if(k==='call'){ const t2=t+0.48, o2=A.out(0.45*v+0.04,pan,0.15), os2=A.osc('sawtooth',b0*1.3,b0*0.9,t2,0.35), f3=A.biq('bandpass',720,3.5); os2.connect(f3); f3.connect(o2); A.env(o2,t2,0.03,0.33); } }catch(e){} }
-  function hurtNpc(n,dmg,dir,kbF,stag,src,by){ if(!n.alive) return; const b=n.band; b.hitBy=by||'P'; b.hitAt=tG; TG=by?tgN(by):tgP(); n.hp-=dmg; n.kb.set(dir.x*kbF*0.5,0,dir.z*kbF*0.5); engage(b,src);
+  function hurtNpc(n,dmg,dir,kbF,stag,src,by){ if(!n.alive) return; const b=n.band; if(src!=='pred'&&src!=='starve'){ b.hitBy=by||'P'; b.hitAt=tG; TG=by?tgN(by):tgP(); } n.hp-=dmg; n.kb.set(dir.x*kbF*0.5,0,dir.z*kbF*0.5); if(src!=='pred'&&src!=='starve') engage(b,src);
     if(n.hp<=0){ die(n,dir); return; } if(dmg>0){ gore(n,false,dir); voice(n,'hurt'); n.flinch=1; } n.act=null; n.stag=Math.max(n.stag,stag>0?stag*0.8:0.3); }
   function die(n,dir){ n.alive=false; n.act=null; n.deadT=0; if(n.m&&n.m.glb) ragStart(n,dir); n.vel.set(0,0,0); n.fallDir=(dir.x*Math.sin(n.heading)+dir.z*Math.cos(n.heading))>0?1:-1; gore(n,true,dir); voice(n,'hurt'); if(pl.kills) pl.kills.hunter=(pl.kills.hunter||0)+1;
     if(n.armed&&n.spear){ n.armed=false; n.m.sp.visible=false; lay(n.spear,n.pos.x+Math.cos(n.heading)*0.8,n.pos.z-Math.sin(n.heading)*0.8,n.heading+1.2); }
     if(proj&&proj.state==='lodged'&&proj.host===n) proj.lt=99; addNoise(n.pos,18,4); }
   /* ---------- the player's blows reach them too ---------- */
-  function front(range,cosMin){ let best=null, bd=1e9; for(const n of L){ if(!n.alive||Math.abs(n.pos.y-P.y)>1.6||(n.team||'H')===PT()) continue; const d=dP(n); if(d>range+0.45) continue; if(frontDot(n.pos)<cosMin&&d>0.9) continue; if(d<bd){ bd=d; best=n; } } return best?{n:best,d:bd}:null; }
+  function front(range,cosMin){ let best=null, bd=1e9; for(const n of L){ if(!n.alive||Math.abs(n.pos.y-P.y)>1.6) continue; const d=dP(n); if(d>range+0.45) continue; if(frontDot(n.pos)<cosMin&&d>0.9) continue; if(d<bd){ bd=d; best=n; } } return best?{n:best,d:bd}:null; }
   const beats=(q,r,c)=>{ if(!q) return false; const t=meleeTarget(r,c); return !t||dist2(t.pos,P)>q.d; }, dirN=n=>{ const dx=n.pos.x-P.x, dz=n.pos.z-P.z, d=Math.hypot(dx,dz)||1; return {x:dx/d,z:dz/d}; };
   if(FZ){ const _kos=keepOutOfShelters, _pe=playerEdge; keepOutOfShelters=function(a){ _kos(a); if(a&&a.pos) fortPush(a.pos,a.kind==='npc'?0.35:0.5); }; playerEdge=function(p){ const r=_pe.apply(this,arguments); fortPush(p,0.35); return r; }; }
   const _thr=doThrustHit, _stb=doStabHit, _kck=doKickHit, _upj=updateProj, _rr=resetRun;
@@ -9064,7 +9067,7 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
   doStabHit=function(){ const q=front(1.9,0.55); if(!beats(q,1.9,0.55)) return _stb(); shake=Math.max(shake,0.12); hurtNpc(q.n,3.2,dirN(q.n),0,0.4,'stab'); const [v,p]=sPos(q.n.pos); A.stab(0.4,p); };
   doKickHit=function(){ const q=front(2.9,0.35); if(!beats(q,2.9,0.35)) return _kck(); hurtNpc(q.n,0,dirN(q.n),15,1.8,'kick'); if(q.n.alive&&q.n.act&&q.n.act.k!=='kick') q.n.act=null; A.thud(0.6); shake=Math.max(shake,0.22); };
   updateProj=function(dt){ if(proj&&proj.state==='fly'){ const p=proj.pos.clone(), v=proj.vel.clone(), h=dt/3; for(let s=0;s<3;s++){ v.y-=8*h; p.addScaledVector(v,h); if(p.y<heightAt(p.x,p.z)) break; let hit=null;
-        for(const n of L){ if(!n.alive||(n.team||'H')===PT()) continue; if(Math.hypot(p.x-n.pos.x,p.z-n.pos.z)<n.hr&&Math.abs(p.y-(n.pos.y+n.hy))<0.85){ hit=n; break; } }
+        for(const n of L){ if(!n.alive) continue; if(Math.hypot(p.x-n.pos.x,p.z-n.pos.z)<n.hr&&Math.abs(p.y-(n.pos.y+n.hy))<0.85){ hit=n; break; } }
         if(!hit) continue; const sp=Math.hypot(v.x,v.z)||1, dN=v.clone().normalize(); hurtNpc(hit,3,{x:v.x/sp,z:v.z/sp},9,1.3,'throw'); const [vv,pp]=sPos(hit.pos); A.stab(0.7*vv+0.2,pp); proj.pos.copy(p); proj.vel.copy(v);
         if(hit.alive){ proj.state='lodged'; proj.host=hit; proj.lt=0; const sk=1.0-hit.hr*0.7, mp=hit.mesh.position, hh=hit.heading, c=Math.cos(hh), s2=Math.sin(hh), bx=p.x-dN.x*sk-mp.x, bz=p.z-dN.z*sk-mp.z; proj.lx=bx*c-bz*s2; proj.lz=bx*s2+bz*c; proj.ly=p.y-dN.y*sk-mp.y; proj.dx=dN.x*c-dN.z*s2; proj.dz=dN.x*s2+dN.z*c; proj.dy=dN.y; }
         else { proj.state='ground'; proj.pos.set(hit.pos.x+0.5,heightAt(hit.pos.x+0.5,hit.pos.z)+0.06,hit.pos.z); worldSpear.position.copy(proj.pos); worldSpear.rotation.set(0,rand(0,6.28),0); worldSpear.children[0].rotation.set(Math.PI/2,0,0); worldSpear.rotateX(-0.02); }
@@ -9084,7 +9087,8 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
     const tf0=Math.hypot(TG.p.x-o.x,TG.p.z-o.z)/T.spS, lead=rand(0.3,1.0), tx=TG.p.x+TG.v.x*tf0*lead, tz=TG.p.z+TG.v.z*tf0*lead, ty=TG.p.y+TG.e*0.62, dx=Math.hypot(tx-o.x,tz-o.z), dy=ty-o.y, S=T.spS, g=T.grav;
     const disc=S**4-g*(g*dx*dx+2*dy*S*S), th=disc>0?Math.atan((S*S-Math.sqrt(disc))/(g*dx))+rand(-1,1)*0.012:Math.PI/4, yw=Math.atan2(tx-o.x,tz-o.z)+(Math.random()+Math.random()-1)*(0.015+0.0011*dx+(TG.sp?0.03:0));
     it.state='fly'; it.thrower=n; it.pos.copy(o); it.vel.set(Math.sin(yw)*Math.cos(th)*S,Math.sin(th)*S,Math.cos(yw)*Math.cos(th)*S); it.g.visible=true; n.armed=false; n.throws--; n.band.throwCd=rand(1.4,2.4); A.whoosh(0.5*sPos(n.pos)[0]+0.05); }
-  function strike(n){ const k=n.act.k, d=dT(n), f=((TG.p.x-n.pos.x)*Math.sin(n.heading)+(TG.p.z-n.pos.z)*Math.cos(n.heading))/(d||1), [v,p]=sPos(n.pos);
+  function strike(n){ if(n.act.prey){ const a=n.act.prey; TG={isP:false,n:null,prey:a,p:a.pos,v:a.vel||{x:0,z:0},e:(a.hy||0.6)/0.62,cr:false,sp:false,ok:a.alive}; if(n.act.k==='throw'){ throwAt(n); return; } const dd=Math.hypot(a.pos.x-n.pos.x,a.pos.z-n.pos.z); if(a.alive&&dd<3.2){ const dx=(a.pos.x-n.pos.x)/(dd||1), dz=(a.pos.z-n.pos.z)/(dd||1); hitAnimal(a,n.act.k==='stab'?3.2:1,{x:dx,z:dz},6.5,0.9); const [v,p]=sPos(a.pos); A.stab(0.5*v+0.1,p); } return; }   /* at an animal they are hunting */
+    const k=n.act.k, d=dT(n), f=((TG.p.x-n.pos.x)*Math.sin(n.heading)+(TG.p.z-n.pos.z)*Math.cos(n.heading))/(d||1), [v,p]=sPos(n.pos);
     if(k==='throw'){ throwAt(n); return; } if(!TG.ok) return;
     if(!TG.isP){ const o=TG.n, dx=(o.pos.x-n.pos.x)/(d||1), dz=(o.pos.z-n.pos.z)/(d||1); if(k==='thrust'&&d<3.1&&f>0.6){ hurtNpc(o,1,{x:dx,z:dz},6.5,0.9,'thrust',n); A.stab(0.6*v+0.2,p); } else if(k==='stab'&&d<2.1&&f>0.5){ hurtNpc(o,3.2,{x:dx,z:dz},0,0.4,'stab',n); A.stab(0.5*v+0.2,p); } else if(k==='kick'&&d<1.9&&f>0.4){ hurtNpc(o,0,{x:dx,z:dz},15,1.8,'kick',n); A.thud(0.7*v+0.1,p); } return; }
     if(k==='thrust'&&d<3.1&&f>0.6){ if(pl.invuln<=0){ hurtPlayer(n,T.toP.thrust,'Speared by a hunting party.'); A.stab(0.6*v+0.2,p); } return; }
@@ -9101,26 +9105,46 @@ const NPCB=(()=>{ if(window.__BA_MAPONLY||typeof patrol==='undefined') return nu
     if(b.state==='patrol'){ const RT=route(b), ld=al[0], q=RT[b.wp%RT.length]; b.wpT=(b.wpT||0)+dt; if(b.restT>0){ b.restT-=dt; } else if(Math.hypot(q.x-ld.pos.x,q.z-ld.pos.z)<3||b.wpT>20){ b.wpT=0; b.wp=(b.wp+b.dir+RT.length)%RT.length; if(Math.random()<0.18) b.restT=rand(3,8); if(Math.random()<0.04) b.dir=-b.dir; } }
     const cx=al.reduce((s,n)=>s+n.pos.x,0)/al.length, cz=al.reduce((s,n)=>s+n.pos.z,0)/al.length, base=Math.atan2(cx-TG.p.x,cz-TG.p.z);
     al.forEach((n,k)=>npcTick(n,b,al,k,base,dt)); }
-  function npcTick(n,b,al,k,base,dt){ n.cd=Math.max(0,n.cd-dt); n.dodgeCd=Math.max(0,n.dodgeCd-dt); n.seeT-=dt; if(n.seeT<=0){ n.seeT=0.25+Math.random()*0.1; n.see=seeP(n); }
+  function npcTick(n,b,al,k,base,dt){ if(b.war){ n.hunger=(n.hunger??rand(0.05,0.35))+dt/420; if(n.hunger>=1){ hurtNpc(n,99,{x:Math.sin(n.heading),z:Math.cos(n.heading)},0,0,'starve'); return; } if(!n.hunt&&n.hunger>0.45&&b.state!=='engage'){ const a=nearestPrey(n); if(a) n.hunt={ph:'stalk',a,t:0}; } }   /* they get hungry as you do, and starve as you do */
+    n.cd=Math.max(0,n.cd-dt); n.dodgeCd=Math.max(0,n.dodgeCd-dt); n.seeT-=dt; if(n.seeT<=0){ n.seeT=0.25+Math.random()*0.1; n.see=seeP(n); }
     const d=dT(n), toP=Math.atan2(TG.p.x-n.pos.x,TG.p.z-n.pos.z); let face=null, spd=0, tx=n.pos.x, tz=n.pos.z;
     if(n.stag>0){ n.stag-=dt; n.vel.multiplyScalar(Math.exp(-6*dt)); }
-    else if(n.act){ const a=n.act, was=a.t; a.t+=dt; if(was<a.at&&a.t>=a.at) strike(n); if(a.t>=a.dur){ n.act=null; n.cd=a.k==='throw'?0.6:rand(0.8,1.6); } face=toP; n.vel.multiplyScalar(Math.exp(-5*dt)); }
+    else if(n.act){ const a=n.act, was=a.t; a.t+=dt; if(was<a.at&&a.t>=a.at) strike(n); if(a.t>=a.dur){ n.act=null; n.cd=a.k==='throw'?0.6:rand(0.8,1.6); } face=a.prey?Math.atan2(a.prey.pos.x-n.pos.x,a.prey.pos.z-n.pos.z):toP; n.vel.multiplyScalar(Math.exp(-5*dt)); }
     else if(b.state==='engage'){ face=toP;
       if(proj&&proj.state==='fly'&&n.dodgeCd<=0){ const rx=n.pos.x-proj.pos.x, rz=n.pos.z-proj.pos.z, rd=Math.hypot(rx,rz), vh=Math.hypot(proj.vel.x,proj.vel.z)||1; if(rd<14&&(rx*proj.vel.x+rz*proj.vel.z)/(rd*vh)>0.93){ n.dodgeCd=2.5; if(Math.random()<0.45){ const sd=Math.random()<0.5?1:-1; n.kb.set(-proj.vel.z/vh*sd*7,0,proj.vel.x/vh*sd*7); } } }   /* a sidestep, like yours */
       let want, slot=base+(k-(al.length-1)/2)*0.9;
       if(!n.armed){ const it=freeSpear(n,25); if(d<2.3&&n.cd<=0){ startAct(n,'stab',0.42,0.2); return fin(n,face,dt); } if(it&&d>3){ const ip=it==='P'?proj.pos:it.pos; tx=ip.x; tz=ip.z; spd=runSpd(n,dt,T.run); face=null; if(Math.hypot(ip.x-n.pos.x,ip.z-n.pos.z)<1.1) take(n,it); return fin(n,face,dt,tx,tz,spd); } want=1.5; }
       else { if(d<1.35&&n.cd<=0&&Math.random()<0.5){ startAct(n,'kick',0.5,0.18); return fin(n,face,dt); }
         if(d<2.9&&n.cd<=0){ startAct(n,'thrust',0.62,0.34); return fin(n,face,dt); }
-        if(n.throws>0&&n.see&&d>T.thrMin&&d<T.thrMax&&b.throwCd<=0&&!al.some(o=>o.act&&o.act.k==='throw')&&Math.random()<dt*1.5){ startAct(n,'throw',1.05,0.78); return fin(n,face,dt); }
+        if(n.throws>0&&n.see&&d>T.thrMin&&d<T.thrMax&&b.throwCd<=0&&!friendInLine(n)&&!al.some(o=>o.act&&o.act.k==='throw')&&Math.random()<dt*1.5){ startAct(n,'throw',1.05,0.78); return fin(n,face,dt); }
         want=n.throws>0?13:2.3; }
       tx=TG.p.x+Math.sin(slot)*want; tz=TG.p.z+Math.cos(slot)*want; if(!n.see&&b.last&&d>8){ tx=b.last.x; tz=b.last.z; }
       const gap=Math.hypot(tx-n.pos.x,tz-n.pos.z); spd=gap>6?runSpd(n,dt,T.run):(gap>1.5?runSpd(n,dt,T.jog):1.2);
       if(TG.isP&&aiming&&aimT>0.25&&d<26&&frontDot(n.pos)>0.97){ const sd=(n.i%2?1:-1); tx+=Math.cos(toP)*sd*3; tz-=Math.sin(toP)*sd*3; spd=Math.max(spd,T.jog); } }   /* weave when you aim at them */
+    else if(b.war&&n.hunt&&huntTick(n,b,dt)) return;
     else if(b.state==='search'){ const q=b.last||n.pos; tx=q.x+Math.sin(n.i*2.1+b.searchT*0.3)*5; tz=q.z+Math.cos(n.i*2.1+b.searchT*0.3)*5; spd=T.jog*0.8; if(!n.armed){ const it=freeSpear(n,30); if(it&&it!=='P'){ tx=it.pos.x; tz=it.pos.z; if(Math.hypot(tx-n.pos.x,tz-n.pos.z)<1.1) take(n,it); } } }
     else if(b.state==='alert'){ face=toP; spd=0; if(n===al[0]){ tx=n.pos.x+Math.sin(toP)*2; tz=n.pos.z+Math.cos(toP)*2; spd=0.8; } }
     else { const ld=al[0]; if(n===ld){ const RT=route(b), q=RT[b.wp%RT.length]; if(b.restT<=0){ tx=q.x; tz=q.z; spd=T.walk; } } else { const h=ld.heading, sd=(k%2?1:-1); tx=ld.pos.x-Math.sin(h)*1.9*k+Math.cos(h)*sd*1.1; tz=ld.pos.z-Math.cos(h)*1.9*k-Math.sin(h)*sd*1.1; const gp=Math.hypot(tx-n.pos.x,tz-n.pos.z); spd=gp<0.6?0:(gp>4?T.jog:T.walk*1.15); }
       if(!n.armed){ const it=freeSpear(n,30); if(it&&it!=='P'){ tx=it.pos.x; tz=it.pos.z; spd=T.jog; if(Math.hypot(tx-n.pos.x,tz-n.pos.z)<1.1) take(n,it); } } }
     fin(n,face,dt,tx,tz,spd); }
+  /* ---------- hunting: hungry and not fighting, one goes after the nearest wallaby, kangaroo or ground bird, sneaks in with the spear out, throws or thrusts,
+     kneels at the kill to cut meat, carries it to a lit fire its side holds and cooks and eats it there. What is left of the kill stays where it fell ---------- */
+  function nearestPrey(n){ let best=null, bd=130; for(const a of [...(typeof wallabies!=='undefined'?wallabies:[]),...((window.__GB&&window.__GB.list)||[])]){ if(!a.alive||a.hidden||a.carried) continue; const d=Math.hypot(a.pos.x-n.pos.x,a.pos.z-n.pos.z); if(d<bd){ bd=d; best=a; } } return best; }
+  function fireFor(n){ const W_=window.__WAR; let c=pits.filter(p=>p&&isFinite(p.x)&&p.lit!==false); if(W_) c=W_.F.filter(f=>f.owner===n.team).map(f=>pits[f.pi]).filter(p=>p&&p.lit!==false); let best=null, bd=1e9; for(const p of c){ const d=Math.hypot(p.x-n.pos.x,p.z-n.pos.z); if(d<bd){ bd=d; best=p; } } return best; }
+  function huntTick(n,b,dt){ const H=n.hunt, a=H.a;
+    if(!n.armed&&H.ph==='stalk'){ const it=freeSpear(n,40); if(it&&it!=='P'){ if(Math.hypot(it.pos.x-n.pos.x,it.pos.z-n.pos.z)<1.1) take(n,it); fin(n,null,dt,it.pos.x,it.pos.z,runSpd(n,dt,T.jog)); return true; } }
+    if(H.ph==='stalk'){ if(!a||a.eaten||a.carried){ n.hunt=null; return false; } if(!a.alive){ H.ph='cut'; H.t=0; }
+      else { const d=Math.hypot(a.pos.x-n.pos.x,a.pos.z-n.pos.z), face=Math.atan2(a.pos.x-n.pos.x,a.pos.z-n.pos.z); H.t+=dt; if(H.t>90){ n.hunt=null; return false; }   /* given up: another later */
+        if(n.armed&&n.cd<=0&&!n.act){ TG={isP:false,n:null,prey:a,p:a.pos,v:a.vel||{x:0,z:0},e:(a.hy||0.6)/0.62,cr:false,sp:false,ok:true};
+          if(d<2.6){ startAct(n,'thrust',0.62,0.34); n.act.prey=a; fin(n,face,dt); return true; }
+          if(d<15&&n.throws>0&&Math.random()<dt*1.2){ startAct(n,'throw',1.05,0.78); n.act.prey=a; fin(n,face,dt); return true; } }
+        H.sneak=d<=22; fin(n,d<22?face:null,dt,a.pos.x,a.pos.z,d>22?runSpd(n,dt,T.jog):(d>3?1.1:0.7)); return true; } }
+    if(H.ph==='cut'){ if(!a||a.eaten||a.carried){ n.hunt=null; return false; } const d=Math.hypot(a.pos.x-n.pos.x,a.pos.z-n.pos.z); H.sneak=false;
+      if(d>1.5){ H.kneel=false; fin(n,null,dt,a.pos.x,a.pos.z,runSpd(n,dt,T.jog)); return true; }
+      H.kneel=true; H.t+=dt; fin(n,Math.atan2(a.pos.x-n.pos.x,a.pos.z-n.pos.z),dt); if(H.t>6){ H.ph='cook'; H.t=0; H.kneel=false; a.botCut=(a.botCut||0)+1; } return true; }
+    if(H.ph==='cook'){ const f=fireFor(n); if(!f){ n.hunger=Math.max(0,n.hunger-0.4); n.hunt=null; return false; } const d=Math.hypot(f.x-n.pos.x,f.z-n.pos.z);
+      if(d>2.6){ fin(n,null,dt,f.x,f.z,runSpd(n,dt,T.jog)); return true; } H.t+=dt; fin(n,Math.atan2(f.x-n.pos.x,f.z-n.pos.z),dt); if(H.t>10){ n.hunger=0; n.hunt=null; } return true; }
+    return false; }
   function fin(n,face,dt,tx,tz,spd){ if(spd>0) goTo(n,tx,tz,spd,dt); else n.vel.multiplyScalar(Math.exp(-6*dt));
     for(const o of L){ if(o===n||!o.alive) continue; const dx=n.pos.x-o.pos.x, dz=n.pos.z-o.pos.z, dd=Math.hypot(dx,dz); if(dd<0.85&&dd>1e-3){ n.pos.x+=dx/dd*(0.85-dd)*0.5; n.pos.z+=dz/dd*(0.85-dd)*0.5; } }
     { const dx=n.pos.x-P.x, dz=n.pos.z-P.z, dd=Math.hypot(dx,dz); if(dd<0.75&&dd>1e-3&&state==='play'){ n.pos.x=P.x+dx/dd*0.75; n.pos.z=P.z+dz/dd*0.75; } }
@@ -9262,6 +9286,7 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
   const _ce=baCheckExits; baCheckExits=function(){ };   /* no leaving: the war moves on when this place is won */
   /* ---- each frame ---- */
   function tick(dt){ if(!started){ if(state==='play') start(); else return; } flagTick(dt); hudTick(); { const ww=document.getElementById('warWait'); if(ww&&state==='play') ww.style.display='none'; }
+    bots.forEach(n=>{ if(n&&n.inv>0) n.inv=Math.max(0,n.inv-dt); });
     if(over) return;
     /* the fallen: back after fifteen seconds at a fire of theirs here, if they have one */
     bots.forEach((n,i)=>{ if(!n||n.alive) return; n.downT=(n.downT||0)+dt; if(n.downT>=15&&firesOf(n.side).length){ const s=n.side, k=n.slot; setTimeout(()=>{ try{ NPCB.drop(n); }catch(e){} },20000); spawnBot(s,k); } });
@@ -9276,6 +9301,19 @@ const WAR=(()=>{ let W=null; try{ W=JSON.parse(BAS.get('ba_war')||'null'); }catc
         const a=total('A'), b=total('B'); if(a>=12||b>=12){ over=true; const won=a>=12; showCard((won?'the war is yours: ':'the war is lost: ')+PEO[FAC[won?'A':'B']].nm+' hold all twelve fires',8); setTimeout(()=>{ try{ BAS.del('ba_war'); }catch(e){} baReload(true); },9000); return; }
         showCard(PEO[FAC[win]].nm+' hold '+NAMES[ID]+'\non to the next place',5); } }
     if(endT>0){ endT-=dt; if(endT<=0){ const i=(LINE.indexOf(ID)+1)%LINE.length, nx=LINE[i]; W.i=(W.i||0)+1; save(); try{ BAS.del('ba_arrive'); BAS.del('ba_carry'); BAS.set('ba_skip_intro','1'); BAS.set('ba_next','node:'+nx); }catch(e){} baReload(); } } }
+  /* ---- the predators: each pack picks one of the fighters at random (you, or any bot of either side) and hunts that one alone until it is dead.
+     The pack's own code is run as if its quarry were you: for that moment you stand where the bot stands, and a bite on you is a bite on the bot ---- */
+  const VK=['vel','kb','elev','inShelter','spearLit','fireNear','dodgeOk','dodgeAt','speedNow','invuln','hp','crouch','sprinting','armed','inCover','burrow','eyeH','air','charging','stowed','carry'];
+  function asVictim(n,fn){ const sp=P.clone(), sv={}; VK.forEach(k=>sv[k]=pl[k]); const ss=state, hp_=hurtPlayer, di_=die, sh=shake, hf=hurtFlash;
+    P.set(n.pos.x,n.pos.y,n.pos.z); Object.assign(pl,{vel:n.vel,kb:n.kb,elev:0,inShelter:false,spearLit:0,fireNear:false,dodgeOk:-9,dodgeAt:-9,speedNow:Math.hypot(n.vel.x,n.vel.z),invuln:n.inv||0,hp:n.hp,crouch:false,sprinting:false,armed:n.armed?'spear':'none',inCover:false,burrow:false,eyeH:1.62,air:false,charging:false,stowed:false,carry:null});
+    state='play';
+    hurtPlayer=function(m,dmg){ if((n.inv||0)>0||!n.alive) return; n.inv=1.1; const dx=m&&m.pos?n.pos.x-m.pos.x:0, dz=m&&m.pos?n.pos.z-m.pos.z:1, l=Math.hypot(dx,dz)||1; NPCB.hurt(n,dmg||1,{x:dx/l,z:dz/l},5,0.8,'pred'); try{ const [v,p]=sPos(n.pos); A.stab(0.6*v+0.1,p); }catch(e){} };
+    die=function(){ if(n.alive) NPCB.hurt(n,99,{x:0,z:1},0,0,'pred'); };
+    try{ fn(); } finally { P.copy(sp); VK.forEach(k=>pl[k]=sv[k]); state=ss; hurtPlayer=hp_; die=di_; shake=sh; hurtFlash=hf; } }
+  if(typeof updatePack==='function'){ const _up=updatePack; updatePack=function(dt){ if(typeof pack==='undefined'||!pack) return _up(dt);
+      let v=pack.victim; if(v&&v!=='P'&&!v.alive) v=null; if(v==='P'&&state!=='play') v=null;
+      if(!v){ const c=[...(state==='play'?['P']:[]),...bots.filter(n=>n&&n.alive)]; v=c.length?c[Math.floor(Math.random()*c.length)]:'P'; if(pack.victim&&pack.state==='hunt'){ pack.state='patrol'; pack.lunger=null; } }   /* its quarry is gone: another, picked at random */
+      pack.victim=v; if(v==='P') return _up(dt); return asVictim(v,()=>_up(dt)); }; }
   return {tick,F,bots,W}; })();/*@Y*/ window.__WAR=WAR;/*@Y*/
 const BA_CARRY=(()=>{ try{ const c=BAS.get('ba_carry'); BAS.del('ba_carry'); return c?JSON.parse(c):null; }catch(e){ return null; } })();/*@Y*/ let baCarryPending=null;/*@Y*/
 //@if escarpment
